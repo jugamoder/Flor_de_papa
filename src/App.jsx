@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import Registro from './pages/Registro';
 import RegistrosCompras from './pages/RegistrosCompras';
 import RegistrosVentas from './pages/RegistrosVentas';
+import EstadoCuenta from './pages/EstadoCuenta';
 import { seedSentinelSocio } from './db/database';
 
 function ProtectedRoute({ children }) {
@@ -56,6 +57,7 @@ function App() {
         <Route path="/venta" element={<ProtectedRoute><Venta /></ProtectedRoute>} />
         <Route path="/registros_compras" element={<ProtectedRoute><RegistrosCompras /></ProtectedRoute>} />
         <Route path="/registros_ventas" element={<ProtectedRoute><RegistrosVentas /></ProtectedRoute>} />
+        <Route path="/estado-cuenta/:idSocio" element={<ProtectedRoute><EstadoCuenta /></ProtectedRoute>} />
       </Routes>
     </Router>
   );

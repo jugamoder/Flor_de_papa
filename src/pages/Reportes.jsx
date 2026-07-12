@@ -4,7 +4,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db, SENTINEL_ID } from '../db/database';
 import {
   Search, X, PackagePlus, PackageMinus, Layers, Calendar,
-  ChevronDown, DollarSign, CreditCard, Banknote, Edit2, ArrowLeftRight, Landmark
+  ChevronDown, DollarSign, CreditCard, Banknote, Edit2, ArrowLeftRight, Landmark, FileText
 } from 'lucide-react';
 
 const FONT = '"Inter","SF Pro Display",system-ui,sans-serif';
@@ -343,6 +343,9 @@ function DetalleTicketModal({ mov, sacos, varMap, onClose }) {
   );
 }
 
+
+
+
 /* ── MAIN ── */
 export default function Reportes() {
   const navigate = useNavigate();
@@ -617,16 +620,27 @@ export default function Reportes() {
 
       {/* DEUDA CONSOLIDADA */}
       {deudaSocio && (
-        <div className="flex-shrink-0 mx-4 mb-2 p-3 rounded-xl" style={{ background: deudaSocio.total > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${deudaSocio.total > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` }}>
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Saldo Total · {socioSel.nombre}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{deudaSocio.ops} operaciones</p>
+        <div className="flex-shrink-0 mx-4 mb-2">
+          <div className="p-3 rounded-xl" style={{ background: deudaSocio.total > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${deudaSocio.total > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` }}>
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Saldo Total · {socioSel.nombre}</p>
+                <p className="text-xs text-slate-500 mt-0.5">{deudaSocio.ops} operaciones</p>
+              </div>
+              <p className={`text-xl font-black font-mono ${deudaSocio.total > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+                S/ {deudaSocio.total.toFixed(2)}
+              </p>
             </div>
-            <p className={`text-xl font-black font-mono ${deudaSocio.total > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
-              S/ {deudaSocio.total.toFixed(2)}
-            </p>
           </div>
+          {/* Botón Estado de Cuenta */}
+          <button
+            onClick={() => navigate('/estado-cuenta/' + socioSel.id_socio + '?tipoFlujo=' + tipoF)}
+            className="w-full mt-2 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2"
+            style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#a5b4fc' }}
+          >
+            <FileText size={14} />
+            📄 Ver Estado de Cuenta
+          </button>
         </div>
       )}
 
@@ -760,6 +774,7 @@ export default function Reportes() {
           onClose={() => setModalDetalle(null)}
         />
       )}
+
     </div>
   );
 }

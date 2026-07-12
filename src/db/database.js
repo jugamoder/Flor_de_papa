@@ -129,6 +129,11 @@ db.version(10).stores({
   ajustes_negocio: 'id_ajuste',
 });
 
+/* ─── Versión 11: agrega caja_manual ─── */
+db.version(11).stores({
+  caja_manual: '++id, tipo, concepto, monto, metodo, fecha, timestamp',
+});
+
 /* ─── SENTINEL RECORD ────────────────────────────────────────────────────────────
    ID fijo e inmutable para todas las operaciones ocasionales.
    Usar SENTINEL_ID como clave foránea; el nombre se guarda en
