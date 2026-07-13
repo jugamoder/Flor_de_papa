@@ -1,12 +1,126 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-corporate-blue: #2563eb;
   --color-emerald-green: #059669;
 }
 
+/* ── Semantic Color Tokens (Light Mode = default) ── */
+:root {
+  --surface-base: #f1f5f9;
+  --surface-card: #ffffff;
+  --surface-elevated: #f8fafc;
+  --surface-overlay: #ffffff;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --border-subtle: rgba(0,0,0,0.08);
+  --border-card: #e2e8f0;
+  --nav-bg: rgba(255,255,255,0.96);
+  --nav-border: rgba(0,0,0,0.06);
+  --chart-axis: #475569;
+  --chart-grid: rgba(0,0,0,0.06);
+  --gradient-header-start: rgba(241,245,249,0.95);
+  --gradient-header-end: rgba(241,245,249,0);
+  --gradient-action-start: rgba(241,245,249,0.98);
+  --gradient-action-end: rgba(241,245,249,0);
+  --filter-tab-active-bg: #0f172a;
+  --filter-tab-active-text: #ffffff;
+  --filter-tab-bg: rgba(0,0,0,0.04);
+  --filter-tab-text: #64748b;
+  --input-bg: rgba(0,0,0,0.03);
+  --input-border: rgba(0,0,0,0.1);
+  --shadow-card: rgba(0,0,0,0.06);
+  --white-alpha-3: rgba(0,0,0,0.02);
+  --white-alpha-5: rgba(0,0,0,0.04);
+  --white-alpha-6: rgba(0,0,0,0.05);
+  --dropdown-separator: rgba(0,0,0,0.06);
+  --badge-bg-blue: rgba(37,99,235,0.1);
+  --badge-bg-emerald: rgba(5,150,105,0.1);
+  --badge-bg-amber: rgba(245,158,11,0.1);
+  --icon-bg-indigo: rgba(99,102,241,0.1);
+  --icon-bg-emerald: rgba(16,185,129,0.1);
+  --icon-bg-yellow: rgba(234,179,8,0.1);
+  --mov-compra-bg: rgba(37,99,235,0.06);
+  --mov-compra-border: rgba(37,99,235,0.15);
+  --mov-venta-bg: rgba(5,150,105,0.06);
+  --mov-venta-border: rgba(5,150,105,0.15);
+  --mov-transbordo-bg: rgba(245,158,11,0.06);
+  --mov-transbordo-border: rgba(245,158,11,0.15);
+  --mov-inactive-bg: rgba(0,0,0,0.02);
+  --mov-inactive-border: rgba(0,0,0,0.06);
+  --overlay-backdrop: rgba(0,0,0,0.5);
+  --modal-bg: #ffffff;
+  --select-option-bg: #ffffff;
+  --tooltip-bg: rgba(255,255,255,0.95);
+  --btn-numpad-bg: linear-gradient(145deg, #F8FAFC, #F1F5F9);
+  --btn-numpad-text: #0F172A;
+  --btn-numpad-shadow: #CBD5E1;
+  --panel-display-bg: linear-gradient(135deg, #F8FAFC, #F1F5F9);
+  --panel-display-border: #E2E8F0;
+}
+
+/* ── Dark Mode Overrides ── */
+.dark {
+  --surface-base: #080E1A;
+  --surface-card: #1A2438;
+  --surface-elevated: #11192E;
+  --surface-overlay: #111A2E;
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --border-subtle: rgba(255,255,255,0.06);
+  --border-card: rgba(255,255,255,0.08);
+  --nav-bg: rgba(8,14,26,0.96);
+  --nav-border: rgba(255,255,255,0.06);
+  --chart-axis: #94a3b8;
+  --chart-grid: rgba(255,255,255,0.06);
+  --gradient-header-start: rgba(30,41,59,0.9);
+  --gradient-header-end: rgba(8,14,26,0);
+  --gradient-action-start: rgba(8,14,26,0.98);
+  --gradient-action-end: rgba(8,14,26,0);
+  --filter-tab-active-bg: #ffffff;
+  --filter-tab-active-text: #0F172A;
+  --filter-tab-bg: rgba(255,255,255,0.05);
+  --filter-tab-text: #64748b;
+  --input-bg: rgba(255,255,255,0.05);
+  --input-border: rgba(255,255,255,0.08);
+  --shadow-card: rgba(0,0,0,0.3);
+  --white-alpha-3: rgba(255,255,255,0.03);
+  --white-alpha-5: rgba(255,255,255,0.05);
+  --white-alpha-6: rgba(255,255,255,0.06);
+  --dropdown-separator: rgba(255,255,255,0.05);
+  --badge-bg-blue: rgba(37,99,235,0.2);
+  --badge-bg-emerald: rgba(5,150,105,0.2);
+  --badge-bg-amber: rgba(245,158,11,0.2);
+  --icon-bg-indigo: rgba(99,102,241,0.15);
+  --icon-bg-emerald: rgba(16,185,129,0.15);
+  --icon-bg-yellow: rgba(234,179,8,0.15);
+  --mov-compra-bg: rgba(37,99,235,0.07);
+  --mov-compra-border: rgba(37,99,235,0.2);
+  --mov-venta-bg: rgba(5,150,105,0.07);
+  --mov-venta-border: rgba(5,150,105,0.2);
+  --mov-transbordo-bg: rgba(245,158,11,0.07);
+  --mov-transbordo-border: rgba(245,158,11,0.2);
+  --mov-inactive-bg: rgba(255,255,255,0.03);
+  --mov-inactive-border: rgba(255,255,255,0.06);
+  --overlay-backdrop: rgba(0,0,0,0.7);
+  --modal-bg: #1A2438;
+  --select-option-bg: #11192E;
+  --tooltip-bg: rgba(17,25,46,0.95);
+  --btn-numpad-bg: linear-gradient(145deg, #1E293B, #162032);
+  --btn-numpad-text: #ffffff;
+  --btn-numpad-shadow: #0a1120;
+  --panel-display-bg: linear-gradient(135deg, #0d1b2a, #111827);
+  --panel-display-border: rgba(255, 255, 255, 0.08);
+}
+
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
+    background-color: var(--surface-base);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 }

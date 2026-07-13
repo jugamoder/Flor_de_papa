@@ -34,7 +34,7 @@ function ColorPicker({ value, onChange }) {
 
       {/* Campo HEX */}
       <div className="flex-1 relative">
-        <span className="absolute left-4 inset-y-0 flex items-center text-slate-400 text-sm font-mono">#</span>
+        <span className="absolute left-4 inset-y-0 flex items-center text-sm font-mono" style={{ color: 'var(--text-secondary)' }}>#</span>
         <input
           type="text"
           maxLength={6}
@@ -44,7 +44,8 @@ function ColorPicker({ value, onChange }) {
             if (hex.length === 6) onChange('#' + hex);
           }}
           placeholder="RRGGBB"
-          className="w-full bg-white/5 border border-white/10 focus:border-blue-500/60 text-white rounded-2xl pl-9 pr-4 py-3 text-sm font-mono outline-none transition-colors tracking-widest"
+          className="w-full border rounded-2xl pl-9 pr-4 py-3 text-sm font-mono outline-none transition-colors tracking-widest"
+          style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
         />
       </div>
     </div>
@@ -80,20 +81,20 @@ function AddVariedadSheet({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center pb-16">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
       <div
-        className="relative w-full max-w-lg rounded-t-3xl flex flex-col"
-        style={{ background: '#1A2438', maxHeight: 'calc(90vh - 64px)' }}
+        className="relative w-full max-w-lg rounded-t-3xl flex flex-col shadow-2xl"
+        style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)', maxHeight: 'calc(90vh - 64px)' }}
       >
         {/* Handle */}
         <div className="flex-shrink-0 flex justify-center pt-3 pb-1">
-          <div className="w-10 h-1 rounded-full bg-slate-600" />
+          <div className="w-10 h-1 rounded-full" style={{ background: 'var(--text-tertiary)' }} />
         </div>
 
         {/* Header */}
-        <div className="flex-shrink-0 flex items-center justify-between px-5 py-3 border-b border-white/5">
-          <h2 className="text-white font-bold text-base">Nueva Variedad</h2>
-          <button onClick={onClose} className="p-2 rounded-full bg-white/5 text-slate-400 hover:text-white transition">
+        <div className="flex-shrink-0 flex items-center justify-between px-5 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <h2 className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>Nueva Variedad</h2>
+          <button onClick={onClose} className="p-2 rounded-full transition" style={{ background: 'var(--white-alpha-5)', color: 'var(--text-secondary)' }}>
             <X size={16} />
           </button>
         </div>
@@ -104,7 +105,7 @@ function AddVariedadSheet({ onClose }) {
           {/* Preview badge en vivo */}
           <div
             className="flex items-center space-x-4 p-4 rounded-2xl"
-            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}
           >
             <div
               className="min-w-[3rem] px-2 h-12 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-lg flex-shrink-0"
@@ -113,19 +114,20 @@ function AddVariedadSheet({ onClose }) {
               {form.codigo_corto || '?'}
             </div>
             <div>
-              <p className="text-white font-semibold text-sm">{form.nombre || 'Nombre y tamaño de la variedad'}</p>
+              <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{form.nombre || 'Nombre y tamaño de la variedad'}</p>
             </div>
           </div>
 
           {/* Nombre */}
           <div>
-            <label className="block text-slate-400 text-[11px] font-bold uppercase tracking-widest mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-secondary)' }}>
               Nombre y tamaño de la Variedad
             </label>
             <input
               type="text"
               placeholder="Ej: Canchán primera, Amarilla segunda..."
-              className="w-full bg-white/5 border border-white/10 focus:border-blue-500/60 text-white placeholder-slate-600 rounded-2xl px-4 py-3 text-sm outline-none transition-colors"
+              className="w-full border focus:border-blue-500/60 rounded-2xl px-4 py-3 text-sm outline-none transition-colors"
+              style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
               value={form.nombre}
               onChange={e => setForm(f => ({ ...f, nombre: e.target.value }))}
             />
@@ -133,15 +135,16 @@ function AddVariedadSheet({ onClose }) {
 
           {/* Código corto */}
           <div>
-            <label className="block text-slate-400 text-[11px] font-bold uppercase tracking-widest mb-1.5">
+            <label className="block text-[11px] font-bold uppercase tracking-widest mb-1.5" style={{ color: 'var(--text-secondary)' }}>
               Código Corto{' '}
-              <span className="text-slate-600 normal-case font-normal tracking-normal">(1–8 letras/números)</span>
+              <span className="normal-case font-normal tracking-normal" style={{ color: 'var(--text-tertiary)' }}>(1–8 letras/números)</span>
             </label>
             <input
               type="text"
               maxLength={8}
               placeholder="Ej: C1, HY, A1"
-              className="w-full bg-white/5 border border-white/10 focus:border-blue-500/60 text-white placeholder-slate-600 rounded-2xl px-4 py-3 text-sm font-mono uppercase tracking-widest outline-none transition-colors"
+              className="w-full border focus:border-blue-500/60 rounded-2xl px-4 py-3 text-sm font-mono uppercase tracking-widest outline-none transition-colors"
+              style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
               value={form.codigo_corto}
               onChange={e =>
                 setForm(f => ({ ...f, codigo_corto: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '') }))
@@ -151,7 +154,7 @@ function AddVariedadSheet({ onClose }) {
 
           {/* Color Picker */}
           <div>
-            <label className="block text-slate-400 text-[11px] font-bold uppercase tracking-widest mb-3">
+            <label className="block text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: 'var(--text-secondary)' }}>
               Color Distintivo
             </label>
             <ColorPicker
@@ -163,7 +166,7 @@ function AddVariedadSheet({ onClose }) {
         </div>
 
         {/* Sticky Save Button — siempre visible */}
-        <div className="flex-shrink-0 px-5 pt-3 pb-6 border-t border-white/5">
+        <div className="flex-shrink-0 px-5 pt-3 pb-6" style={{ borderTop: '1px solid var(--border-subtle)' }}>
           <button
             onClick={handleSave}
             disabled={!canSave || saving}
@@ -195,30 +198,30 @@ export default function Variedades() {
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: '#080E1A', fontFamily: FONT }}>
+    <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: 'var(--surface-base)', color: 'var(--text-primary)', fontFamily: FONT }}>
 
       {showForm && <AddVariedadSheet onClose={() => setShowForm(false)} />}
 
       {/* Confirm delete */}
       {confirmDelete !== null && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setConfirmDelete(null)} />
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={() => setConfirmDelete(null)} />
           <div
-            className="relative w-full max-w-sm rounded-3xl p-6 text-center"
-            style={{ background: '#1A2438', border: '1px solid rgba(255,255,255,0.08)' }}
+            className="relative w-full max-w-sm rounded-3xl p-6 text-center shadow-2xl"
+            style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)' }}
           >
             <div className="w-12 h-12 rounded-full bg-red-500/15 flex items-center justify-center mx-auto mb-4">
-              <Trash2 size={22} className="text-red-400" />
+              <Trash2 size={22} className="text-red-500 dark:text-red-400" />
             </div>
-            <h3 className="text-white font-bold text-base mb-2">¿Eliminar variedad?</h3>
-            <p className="text-slate-500 text-sm mb-6">
+            <h3 className="font-bold text-base mb-2" style={{ color: 'var(--text-primary)' }}>¿Eliminar variedad?</h3>
+            <p className="text-sm mb-6" style={{ color: 'var(--text-secondary)' }}>
               Puede afectar registros históricos vinculados a esta variedad.
             </p>
             <div className="flex space-x-3">
               <button
                 onClick={() => setConfirmDelete(null)}
-                className="flex-1 py-3 rounded-2xl text-slate-300 font-bold text-sm"
-                style={{ background: 'rgba(255,255,255,0.05)' }}
+                className="flex-1 py-3 rounded-2xl font-bold text-sm"
+                style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
               >
                 Cancelar
               </button>
@@ -236,19 +239,20 @@ export default function Variedades() {
       {/* ── HEADER ── */}
       <div
         className="flex-shrink-0 px-5 pt-5 pb-4"
-        style={{ background: 'linear-gradient(180deg, rgba(30,41,59,0.9) 0%, rgba(8,14,26,0) 100%)' }}
+        style={{ background: 'linear-gradient(180deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%)' }}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <button
               onClick={() => navigate(-1)}
-              className="w-9 h-9 rounded-full bg-white/8 border border-white/10 flex items-center justify-center hover:bg-white/15 transition"
+              className="w-9 h-9 rounded-full flex items-center justify-center transition"
+              style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)' }}
             >
-              <ChevronLeft size={20} className="text-white" />
+              <ChevronLeft size={20} style={{ color: 'var(--text-primary)' }} />
             </button>
             <div>
-              <h1 className="text-white font-bold text-lg leading-none">Variedades</h1>
-              <p className="text-slate-500 text-[11px] mt-0.5">
+              <h1 className="font-bold text-lg leading-none" style={{ color: 'var(--text-primary)' }}>Variedades</h1>
+              <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
                 {variedades.length} registrada{variedades.length !== 1 ? 's' : ''}
               </p>
             </div>
@@ -273,12 +277,12 @@ export default function Variedades() {
           <div className="flex flex-col items-center justify-center h-52 space-y-3">
             <div
               className="w-14 h-14 rounded-full flex items-center justify-center"
-              style={{ background: 'rgba(255,255,255,0.04)' }}
+              style={{ background: 'var(--white-alpha-5)' }}
             >
-              <Leaf size={24} className="text-slate-700" />
+              <Leaf size={24} style={{ color: 'var(--text-tertiary)' }} />
             </div>
-            <p className="text-slate-600 text-sm font-medium">No hay variedades registradas</p>
-            <button onClick={() => setShowForm(true)} className="text-blue-400 text-sm font-bold">
+            <p className="text-sm font-medium" style={{ color: 'var(--text-tertiary)' }}>No hay variedades registradas</p>
+            <button onClick={() => setShowForm(true)} className="text-blue-500 dark:text-blue-400 text-sm font-bold">
               + Agregar la primera
             </button>
           </div>
@@ -289,8 +293,8 @@ export default function Variedades() {
                 key={variedad.id_variedad}
                 className="flex items-center space-x-4 px-4 py-3.5 rounded-2xl"
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.05)',
+                  background: 'var(--white-alpha-3)',
+                  border: '1px solid var(--border-subtle)',
                 }}
               >
                 {/* Color badge */}
@@ -306,10 +310,10 @@ export default function Variedades() {
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
-                  <p className="text-white font-semibold text-sm">{variedad.nombre}</p>
+                  <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>{variedad.nombre}</p>
                   <div className="flex items-center space-x-1.5 mt-1">
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: variedad.color }} />
-                    <span className="text-slate-700 text-[10px] font-mono">
+                    <span className="text-[10px] font-mono" style={{ color: 'var(--text-tertiary)' }}>
                       {(variedad.color || '').toUpperCase()}
                     </span>
                   </div>

@@ -446,19 +446,21 @@ export default function EstadoCuenta() {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh]" style={{ background: '#060B16', fontFamily: FONT }}>
+    <div className="flex flex-col h-[100dvh]" style={{ background: 'var(--surface-base)', color: 'var(--text-primary)', fontFamily: FONT }}>
       
       {/* ═══ FIXED HEADER ═══ */}
-      <div className="flex-shrink-0 flex items-center justify-between px-4 pt-5 pb-3 bg-[#080E1A]/80 backdrop-blur-md border-b border-white/5 z-50">
+      <div className="flex-shrink-0 flex items-center justify-between px-4 pt-5 pb-3 z-50" style={{ background: 'var(--header-bg)', borderBottom: '1px solid var(--border-subtle)' }}>
         <button
           onClick={() => navigate('/reportes')}
-          className="p-2 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all bg-white/5 border border-white/10"
+          className="p-2 rounded-xl active:scale-95 transition-all"
+          style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
         >
           <ArrowLeft size={16} />
         </button>
-        <span className="text-white text-sm font-black tracking-tight">Estado de Cuenta</span>
+        <span className="text-sm font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>Estado de Cuenta</span>
         <button
-          className="p-2 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all bg-white/5 border border-white/10"
+          className="p-2 rounded-xl active:scale-95 transition-all"
+          style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
         >
           <MoreVertical size={16} />
         </button>
@@ -472,9 +474,8 @@ export default function EstadoCuenta() {
           <div
             className="p-4 rounded-2xl relative overflow-hidden"
             style={{
-              background: 'rgba(15, 23, 42, 0.65)',
-              border: `1px solid rgba(255, 255, 255, 0.06)`,
-              boxShadow: `inset 0 1px 0 rgba(255, 255, 255, 0.05)`,
+              background: 'var(--white-alpha-3)',
+              border: `1px solid var(--border-subtle)`,
             }}
           >
             <div className="flex items-center gap-3">
@@ -485,21 +486,21 @@ export default function EstadoCuenta() {
                 {initials}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-white font-bold text-sm truncate">{socio.nombre}</p>
-                <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mt-0.5">
+                <p className="font-bold text-sm truncate" style={{ color: 'var(--text-primary)' }}>{socio.nombre}</p>
+                <p className="text-[10px] uppercase font-bold tracking-wider mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                   {esVenta ? 'Cliente' : esCompra ? 'Proveedor' : 'Socio Comercial'}
                 </p>
               </div>
             </div>
 
-            <div className="mt-4 flex items-baseline justify-between border-t border-white/5 pt-3">
-              <span className="text-slate-500 text-[10px] uppercase tracking-wider font-bold">{labelDeuda}</span>
+            <div className="mt-4 flex items-baseline justify-between pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+              <span className="text-[10px] uppercase tracking-wider font-bold" style={{ color: 'var(--text-secondary)' }}>{labelDeuda}</span>
               <span className="font-mono font-black text-2xl" style={{ color: accentColor }}>
                 S/ {deudaNeta.toFixed(2)}
               </span>
             </div>
             
-            <div className="mt-2 text-[10px] text-slate-500 flex justify-between">
+            <div className="mt-2 text-[10px] flex justify-between" style={{ color: 'var(--text-tertiary)' }}>
               <span>{operaciones.length} operaciones registradas</span>
               <span>{abonos.length} abonos</span>
             </div>
@@ -510,13 +511,13 @@ export default function EstadoCuenta() {
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <div className="w-1 h-3 rounded-full" style={{ background: accentColor }} />
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Historial de Operaciones</p>
-            <span className="text-slate-600 text-[10px] font-mono ml-auto">{operaciones.length}</span>
+            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Historial de Operaciones</p>
+            <span className="text-[10px] font-mono ml-auto" style={{ color: 'var(--text-tertiary)' }}>{operaciones.length}</span>
           </div>
 
           {operaciones.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 rounded-xl bg-white/5 border border-white/5">
-              <p className="text-slate-500 text-xs">Sin operaciones</p>
+            <div className="flex flex-col items-center justify-center py-8 rounded-xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
+              <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Sin operaciones</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -552,13 +553,13 @@ export default function EstadoCuenta() {
                 return (
                   <div
                     key={mov.id_movimiento}
-                    className="rounded-xl overflow-hidden bg-white/5 border border-white/5"
-                    style={{ borderLeft: `3px solid ${barColor}` }}
+                    className="rounded-xl overflow-hidden"
+                    style={{ border: '1px solid var(--border-subtle)', borderLeft: `3px solid ${barColor}`, background: 'var(--white-alpha-3)' }}
                   >
                     <div className="p-3">
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-white text-xs font-semibold">{fechaOp}</span>
+                          <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{fechaOp}</span>
                           <span
                             className="text-[8px] font-bold px-1 py-0.5 rounded uppercase"
                             style={{ background: tipoBg, color: tipoColor }}
@@ -566,14 +567,14 @@ export default function EstadoCuenta() {
                             {tipoLabel}
                           </span>
                         </div>
-                        <span className="font-mono text-sm font-bold text-white">
+                        <span className="font-mono text-sm font-bold animate-pulse" style={{ color: 'var(--text-primary)' }}>
                           S/ {totalDinero.toFixed(2)}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-2">
                         <div className="flex-1">
-                          <div className="h-1 w-full rounded-full bg-white/10 overflow-hidden">
+                          <div className="h-1 w-full rounded-full overflow-hidden" style={{ background: 'var(--white-alpha-10)' }}>
                             <div
                               className="h-full rounded-full transition-all duration-500"
                               style={{ width: `${Math.max(porcentaje, 1)}%`, backgroundColor: barColor }}
@@ -596,13 +597,13 @@ export default function EstadoCuenta() {
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <div className="w-1 h-3 rounded-full bg-emerald-500" />
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{tituloAbonos}</p>
-            <span className="text-slate-600 text-[10px] font-mono ml-auto">{abonos.length}</span>
+            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>{tituloAbonos}</p>
+            <span className="text-[10px] font-mono ml-auto" style={{ color: 'var(--text-tertiary)' }}>{abonos.length}</span>
           </div>
 
           {abonos.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 rounded-xl bg-white/5 border border-white/5">
-              <p className="text-slate-500 text-xs">Sin abonos registrados</p>
+            <div className="flex flex-col items-center justify-center py-8 rounded-xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
+              <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Sin abonos registrados</p>
             </div>
           ) : (
             <div className="space-y-1.5">
@@ -614,7 +615,8 @@ export default function EstadoCuenta() {
                 return (
                   <div
                     key={p.id_pago}
-                    className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/5 border border-white/5"
+                    className="flex items-center gap-3 px-3 py-2 rounded-xl"
+                    style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}
                   >
                     <div
                       className="w-7 h-7 rounded-lg flex items-center justify-center text-xs flex-shrink-0"
@@ -623,10 +625,10 @@ export default function EstadoCuenta() {
                       {metodo.emoji}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-white text-xs font-semibold">{fechaAbono}</p>
+                      <p className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{fechaAbono}</p>
                       <p className="text-[8px] font-bold uppercase tracking-wider" style={{ color: metodo.color }}>{metodo.label}</p>
                     </div>
-                    <span className="text-emerald-400 font-mono text-xs font-bold">
+                    <span className="text-emerald-555 dark:text-emerald-400 font-mono text-xs font-bold">
                       S/ {(p.monto || 0).toFixed(2)}
                     </span>
                   </div>
@@ -642,7 +644,7 @@ export default function EstadoCuenta() {
       <div
         className="fixed bottom-0 left-0 w-full flex gap-2 p-4 z-50"
         style={{
-          background: 'linear-gradient(180deg, rgba(6,11,22,0) 0%, rgba(6,11,22,0.95) 20%, rgba(6,11,22,0.99) 100%)',
+          background: 'linear-gradient(180deg, var(--gradient-footer-start) 0%, var(--gradient-footer-end) 100%)',
           backdropFilter: 'blur(16px)',
           paddingTop: '1.5rem',
         }}
@@ -660,22 +662,22 @@ export default function EstadoCuenta() {
           {labelRapido}
         </button>
         <button
-          className="flex-[5] py-3 rounded-xl text-[11px] font-bold transition-all active:scale-[0.97] flex items-center justify-center gap-1.5"
+          className="flex-[5] py-3 rounded-xl text-[11px] font-bold transition-all active:scale-[0.97] flex items-center justify-center gap-1.5 border"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            color: '#94a3b8',
+            background: 'var(--white-alpha-5)',
+            borderColor: 'var(--border-subtle)',
+            color: 'var(--text-secondary)',
           }}
           onClick={() => setShowLiquidarModal(true)}
         >
           ⚖️ Liquidar
         </button>
         <button
-          className="flex-[2] py-3 rounded-xl text-[11px] font-bold transition-all active:scale-[0.97] flex items-center justify-center"
+          className="flex-[2] py-3 rounded-xl text-[11px] font-bold transition-all active:scale-[0.97] flex items-center justify-center border"
           style={{
-            background: 'rgba(255,255,255,0.04)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            color: '#94a3b8',
+            background: 'var(--white-alpha-5)',
+            borderColor: 'var(--border-subtle)',
+            color: 'var(--text-secondary)',
           }}
           onClick={generarPdfEstadoCuenta}
         >
@@ -727,24 +729,24 @@ function AbonoRapidoModal({ socio, isCompra, onClose, onSave }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center p-0 sm:p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
       
       {/* Modal Container */}
-      <div className="relative w-full max-w-lg rounded-t-3xl sm:rounded-2xl flex flex-col pb-8 z-10" style={{ background: '#131A26', border: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="relative w-full max-w-lg rounded-t-3xl sm:rounded-2xl flex flex-col pb-8 z-10 shadow-2xl" style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)' }}>
         {/* Mobile handle */}
-        <div className="flex justify-center pt-2.5 sm:hidden"><div className="w-8 h-1 rounded-full bg-slate-700" /></div>
+        <div className="flex justify-center pt-2.5 sm:hidden"><div className="w-8 h-1 rounded-full" style={{ background: 'var(--text-tertiary)' }} /></div>
         
         {/* Header */}
         <div className="px-5 pt-4 pb-2 flex justify-between items-start">
           <div>
-            <h3 className="text-white text-lg font-black tracking-tight uppercase sm:text-base">
+            <h3 className="text-lg font-black tracking-tight uppercase sm:text-base" style={{ color: 'var(--text-primary)' }}>
               {isCompra ? 'Registrar pago' : 'Registrar cobro'}
             </h3>
-            <p className="text-slate-500 text-xs mt-0.5 font-bold tracking-wide">
+            <p className="text-xs mt-0.5 font-bold tracking-wide" style={{ color: 'var(--text-secondary)' }}>
               {socio.nombre} · <span className="opacity-70">sin operación asociada</span>
             </p>
           </div>
-          <button onClick={onClose} className="p-1 rounded-xl bg-white/5 border border-white/10 text-slate-400 hover:text-white transition-all">
+          <button onClick={onClose} className="p-1 rounded-xl transition-all" style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
             <X size={16} />
           </button>
         </div>
@@ -763,14 +765,14 @@ function AbonoRapidoModal({ socio, isCompra, onClose, onSave }) {
               const active = metodo === tab.k;
               return (
                 <button
-                  key={tab.k}
-                  onClick={() => setMetodo(tab.k)}
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all border outline-none"
-                  style={{
-                    background: active ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.03)',
-                    border: active ? '1px solid rgba(99,102,241,0.45)' : '1px solid rgba(255,255,255,0.06)',
-                    color: active ? '#a5b4fc' : '#94a3b8'
-                  }}
+                   key={tab.k}
+                   onClick={() => setMetodo(tab.k)}
+                   className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all border outline-none font-sans"
+                   style={{
+                     background: active ? 'rgba(99,102,241,0.15)' : 'var(--white-alpha-3)',
+                     border: active ? '1px solid rgba(99,102,241,0.45)' : '1px solid var(--border-subtle)',
+                     color: active ? '#a5b4fc' : 'var(--text-secondary)'
+                   }}
                 >
                   <Icon size={13} /> {tab.label}
                 </button>
@@ -782,13 +784,14 @@ function AbonoRapidoModal({ socio, isCompra, onClose, onSave }) {
           <div className="flex gap-3">
             {/* Amount */}
             <div className="flex-[2] relative">
-              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-bold pointer-events-none font-mono">S/</div>
+              <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold pointer-events-none font-mono" style={{ color: 'var(--text-secondary)' }}>S/</div>
               <input
                 type="number"
                 placeholder="0.00"
                 value={monto}
                 onChange={e => setMonto(e.target.value)}
-                className="w-full pl-9 pr-3 py-3 rounded-xl bg-white/5 border border-white/10 text-white font-mono font-bold text-sm outline-none focus:border-indigo-500/50"
+                className="w-full pl-9 pr-3 py-3 rounded-xl font-mono font-bold text-sm outline-none border focus:border-indigo-500/50"
+                style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
               />
             </div>
             
@@ -798,8 +801,8 @@ function AbonoRapidoModal({ socio, isCompra, onClose, onSave }) {
                 type="date"
                 value={fecha}
                 onChange={e => setFecha(e.target.value)}
-                className="w-full pl-3 pr-3 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs font-bold outline-none focus:border-indigo-500/50"
-                style={{ colorScheme: 'dark' }}
+                className="w-full pl-3 pr-3 py-3 rounded-xl text-xs font-bold outline-none border focus:border-indigo-500/50"
+                style={{ colorScheme: 'dark', background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
               />
             </div>
           </div>
@@ -811,7 +814,8 @@ function AbonoRapidoModal({ socio, isCompra, onClose, onSave }) {
               placeholder="Destino (opcional) — ej. BCP, Caja Municipal Cusco"
               value={destino}
               onChange={e => setDestino(e.target.value)}
-              className="w-full px-3.5 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs outline-none focus:border-indigo-500/50 placeholder-slate-600 font-medium"
+              className="w-full px-3.5 py-3 rounded-xl text-xs outline-none border focus:border-indigo-500/50 font-medium"
+              style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
             />
           </div>
 
@@ -822,7 +826,8 @@ function AbonoRapidoModal({ socio, isCompra, onClose, onSave }) {
               placeholder="Nota (opcional)"
               value={nota}
               onChange={e => setNota(e.target.value)}
-              className="w-full px-3.5 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-xs outline-none focus:border-indigo-500/50 placeholder-slate-600 font-medium"
+              className="w-full px-3.5 py-3 rounded-xl text-xs outline-none border focus:border-indigo-500/50 font-medium"
+              style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
             />
           </div>
 
@@ -929,33 +934,34 @@ function LiquidarConsolidadoModal({ socio, movsSocio, isCompra, onClose, onSave 
   };
 
   return (
-    <div className="fixed inset-0 z-[65] flex flex-col bg-[#060B16]" style={{ fontFamily: FONT }}>
+    <div className="fixed inset-0 z-[65] flex flex-col" style={{ background: 'var(--surface-base)', color: 'var(--text-primary)', fontFamily: FONT }}>
       
       {/* HEADER */}
-      <div className="flex-shrink-0 flex items-center justify-between px-4 pt-5 pb-3 bg-[#080E1A]/90 backdrop-blur-md border-b border-white/5 z-50">
+      <div className="flex-shrink-0 flex items-center justify-between px-4 pt-5 pb-3 z-50 shadow-md" style={{ background: 'var(--header-bg)', borderBottom: '1px solid var(--border-subtle)' }}>
         <button
           onClick={onClose}
-          className="p-2 rounded-xl text-slate-400 hover:text-white active:scale-95 transition-all bg-white/5 border border-white/10"
+          className="p-2 rounded-xl active:scale-95 transition-all"
+          style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
         >
           <ArrowLeft size={16} />
         </button>
-        <span className="text-white text-sm font-black tracking-tight flex items-center gap-1.5">
+        <span className="text-sm font-black tracking-tight flex items-center gap-1.5" style={{ color: 'var(--text-primary)' }}>
           🏛️ Liquidar Consolidado
         </span>
-        <div className="px-3 py-1 rounded-xl text-xs font-bold bg-indigo-500/10 border border-indigo-500/20 text-indigo-300">
+        <div className="px-3 py-1 rounded-xl text-xs font-bold" style={{ background: 'var(--icon-bg-indigo)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
           {socio.nombre}
         </div>
       </div>
 
       {/* BODY LIST */}
       <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32 space-y-4">
-        <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest">
+        <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
           {isCompra ? 'COMPRAS PENDIENTES' : 'VENTAS PENDIENTES'}
         </p>
 
         {pendingMovs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 rounded-2xl bg-white/5 border border-white/5">
-            <p className="text-slate-500 text-xs">Sin operaciones pendientes de liquidación</p>
+          <div className="flex flex-col items-center justify-center py-12 rounded-2xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
+            <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Sin operaciones pendientes de liquidación</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -969,26 +975,28 @@ function LiquidarConsolidadoModal({ socio, movsSocio, isCompra, onClose, onSave 
                 <div
                   key={mov.id_movimiento}
                   onClick={() => toggleSelect(mov.id_movimiento)}
-                  className={`rounded-2xl p-4 transition-all duration-200 border cursor-pointer ${
-                    selected ? 'bg-white/5 border-white/20' : 'bg-white/[0.02] border-white/5'
-                  }`}
+                  className={`rounded-2xl p-4 transition-all duration-200 border cursor-pointer`}
+                  style={{
+                    background: selected ? 'var(--white-alpha-8)' : 'var(--white-alpha-3)',
+                    borderColor: selected ? 'var(--text-secondary)' : 'var(--border-subtle)'
+                  }}
                 >
                   <div className="flex items-center gap-3">
                     {/* Index circle */}
-                    <span className="text-xl text-slate-500 font-medium select-none">
+                    <span className="text-xl font-medium select-none" style={{ color: 'var(--text-tertiary)' }}>
                       {indexUnicode(idx)}
                     </span>
                     
                     {/* Date and details */}
                     <div className="flex-1 min-w-0">
-                      <p className="text-white font-bold text-sm">{fechaOp}</p>
-                      <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mt-0.5">
+                      <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{fechaOp}</p>
+                      <p className="text-[10px] uppercase font-bold tracking-wider mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
                         {mov._sacos} sacos · {mov.es_transbordo === 1 ? 'Transbordo' : mov.tipo}
                       </p>
                     </div>
 
                     {/* Pending balance */}
-                    <span className="text-amber-400 font-mono font-bold text-base whitespace-nowrap">
+                    <span className="text-amber-500 dark:text-amber-400 font-mono font-bold text-base whitespace-nowrap">
                       S/ {mov._saldo.toFixed(2)}
                     </span>
 
@@ -997,8 +1005,9 @@ function LiquidarConsolidadoModal({ socio, movsSocio, isCompra, onClose, onSave 
                       className={`w-6 h-6 rounded-lg flex items-center justify-center border transition-all duration-200 ${
                         selected
                           ? 'bg-indigo-600 border-indigo-500 text-white shadow-lg shadow-indigo-600/30'
-                          : 'border-white/20 text-transparent'
+                          : 'text-transparent'
                       }`}
+                      style={{ borderColor: selected ? 'transparent' : 'var(--border-subtle)' }}
                     >
                       ✓
                     </div>
@@ -1014,15 +1023,15 @@ function LiquidarConsolidadoModal({ socio, movsSocio, isCompra, onClose, onSave 
       <div
         className="fixed bottom-0 left-0 w-full flex flex-col p-4 gap-3 z-50"
         style={{
-          background: 'linear-gradient(180deg, rgba(6,11,22,0) 0%, rgba(6,11,22,0.95) 20%, rgba(6,11,22,0.99) 100%)',
+          background: 'linear-gradient(180deg, var(--gradient-footer-start) 0%, var(--gradient-footer-end) 100%)',
           backdropFilter: 'blur(16px)',
-          borderTop: '1px solid rgba(255,255,255,0.05)',
+          borderTop: '1px solid var(--border-subtle)',
         }}
       >
         {/* Info label */}
         <div className="flex justify-between items-baseline px-1">
-          <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">Total Seleccionado:</span>
-          <span className="font-mono text-xl font-black text-white">
+          <span className="text-[10px] uppercase tracking-widest font-bold" style={{ color: 'var(--text-secondary)' }}>Total Seleccionado:</span>
+          <span className="font-mono text-xl font-black" style={{ color: 'var(--text-primary)' }}>
             S/ {totalMarcado.toFixed(2)}
           </span>
         </div>
@@ -1033,11 +1042,11 @@ function LiquidarConsolidadoModal({ socio, movsSocio, isCompra, onClose, onSave 
           <button
             onClick={handlePDF}
             disabled={selectedIds.length === 0}
-            className="flex-1 py-3 rounded-xl text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-40 flex items-center justify-center gap-1.5"
+            className="flex-1 py-3 rounded-xl text-xs font-bold transition-all active:scale-[0.97] disabled:opacity-40 flex items-center justify-center gap-1.5 border"
             style={{
-              background: 'rgba(255,255,255,0.04)',
-              border: '1px solid rgba(255,255,255,0.08)',
-              color: '#cbd5e1'
+              background: 'var(--white-alpha-5)',
+              borderColor: 'var(--border-subtle)',
+              color: 'var(--text-secondary)'
             }}
           >
             🖨️ Generar PDF

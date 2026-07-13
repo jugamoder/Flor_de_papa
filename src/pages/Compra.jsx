@@ -22,28 +22,31 @@ function GastosModal({ uuid, onClose }) {
   const add = async () => { if (!desc.trim() || !monto) return; await db.extras.add({ id_movimiento: uuid, descripcion: desc.trim(), monto: parseFloat(monto) }); setDesc(''); setMonto(''); };
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-t-3xl flex flex-col pb-36" style={{ background: '#1A2438', maxHeight: '65vh' }}>
-        <div className="flex justify-center pt-2"><div className="w-8 h-1 rounded-full bg-slate-600" /></div>
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-          <span className="text-white font-bold text-sm">Gastos / Extras</span>
-          <button onClick={onClose}><X size={15} className="text-slate-400" /></button>
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
+      <div className="relative w-full max-w-lg rounded-t-3xl flex flex-col pb-36 shadow-2xl" style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)', borderBottom: 'none', maxHeight: '65vh' }}>
+        <div className="flex justify-center pt-2"><div className="w-8 h-1 rounded-full" style={{ background: 'var(--text-tertiary)' }} /></div>
+        <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Gastos / Extras</span>
+          <button onClick={onClose}><X size={15} style={{ color: 'var(--text-secondary)' }} /></button>
         </div>
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-2 min-h-0">
           {extras.map(ex => (
-            <div key={ex.id_extra} className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-              <span className="text-white text-sm">{ex.descripcion}</span>
-              <div className="flex items-center gap-3"><span className="text-amber-400 font-mono font-bold text-sm">S/ {Number(ex.monto).toFixed(2)}</span><button onClick={() => db.extras.delete(ex.id_extra)}><Trash2 size={13} className="text-red-400" /></button></div>
+            <div key={ex.id_extra} className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
+              <span className="text-sm" style={{ color: 'var(--text-primary)' }}>{ex.descripcion}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-amber-550 dark:text-amber-400 font-mono font-bold text-sm">S/ {Number(ex.monto).toFixed(2)}</span>
+                <button onClick={() => db.extras.delete(ex.id_extra)}><Trash2 size={13} className="text-red-500" /></button>
+              </div>
             </div>
           ))}
-          {!extras.length && <p className="text-slate-600 text-sm text-center py-4">Sin gastos aún</p>}
+          {!extras.length && <p className="text-sm text-center py-4" style={{ color: 'var(--text-tertiary)' }}>Sin gastos aún</p>}
         </div>
-        <div className="px-4 pb-5 pt-2 border-t border-white/5">
+        <div className="px-4 pb-5 pt-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
           <div className="flex gap-2 mb-3">
-            <input type="text" placeholder="Estiba, Viáticos..." value={desc} onChange={e => setDesc(e.target.value)} className="flex-1 bg-white/5 border border-white/10 text-white placeholder-slate-600 rounded-xl px-3 py-2 text-xs outline-none" />
-            <input type="number" placeholder="S/" value={monto} onChange={e => setMonto(e.target.value)} className="w-20 bg-white/5 border border-white/10 text-white placeholder-slate-600 rounded-xl px-3 py-2 text-xs outline-none" />
+            <input type="text" placeholder="Estiba, Viáticos..." value={desc} onChange={e => setDesc(e.target.value)} className="flex-1 border rounded-xl px-3 py-2 text-xs outline-none" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }} />
+            <input type="number" placeholder="S/" value={monto} onChange={e => setMonto(e.target.value)} className="w-20 border rounded-xl px-3 py-2 text-xs outline-none" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }} />
           </div>
-          <button onClick={add} className="w-full py-2.5 rounded-xl bg-amber-600/80 text-white font-bold text-xs active:scale-95 transition-all">+ Agregar</button>
+          <button onClick={add} className="w-full py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs active:scale-95 transition-all">+ Agregar</button>
         </div>
       </div>
     </div>
@@ -55,13 +58,13 @@ function EditSacoModal({ saco, onClose }) {
   const save = async () => { const w = parseFloat(p); if (!w || w <= 0) return; await db.sacos.update(saco.id_saco, { peso: w }); if (saco.uuid_movimiento) touchMovimiento(saco.uuid_movimiento); onClose(); };
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center px-6">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-xs rounded-2xl p-5" style={{ background: '#1A2438', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <p className="text-white font-bold text-sm mb-3">Editar peso (kg)</p>
-        <input autoFocus type="number" value={p} onChange={e => setP(e.target.value)} className="w-full bg-white/5 border border-white/10 focus:border-blue-500/50 text-white rounded-xl px-3 py-2.5 text-sm outline-none mb-3 font-mono" />
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
+      <div className="relative w-full max-w-xs rounded-2xl p-5 shadow-2xl" style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)' }}>
+        <p className="font-bold text-sm mb-3" style={{ color: 'var(--text-primary)' }}>Editar peso (kg)</p>
+        <input autoFocus type="number" value={p} onChange={e => setP(e.target.value)} className="w-full border focus:border-blue-500/50 rounded-xl px-3 py-2.5 text-sm outline-none mb-3 font-mono" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }} />
         <div className="flex gap-2">
-          <button onClick={onClose} className="flex-1 py-2 rounded-xl text-slate-400 text-sm font-bold" style={{ background: 'rgba(255,255,255,0.05)' }}>Cancelar</button>
-          <button onClick={save} className="flex-1 py-2 rounded-xl bg-blue-600 text-white text-sm font-bold active:scale-95">Guardar</button>
+          <button onClick={onClose} className="flex-1 py-2 rounded-xl text-sm font-bold border font-sans" style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}>Cancelar</button>
+          <button onClick={save} className="flex-1 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold active:scale-95 transition-all font-sans">Guardar</button>
         </div>
       </div>
     </div>
@@ -94,11 +97,11 @@ function AjustePesoModal({ vid, pesoBruto, tipoAjusteInicial, kilosAjusteInicial
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center px-6">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-xs rounded-2xl p-5" style={{ background: '#1A2438', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <p className="text-white font-bold text-sm mb-3">Ajustar Peso</p>
-        <div className="text-slate-300 text-xs mb-3">
-          Peso Balanza: <span className="font-mono font-bold">{pesoBruto.toFixed(1)} kg</span>
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
+      <div className="relative w-full max-w-xs rounded-2xl p-5 shadow-2xl" style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)' }}>
+        <p className="font-bold text-sm mb-3" style={{ color: 'var(--text-primary)' }}>Ajustar Peso</p>
+        <div className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>
+          Peso Balanza: <span className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>{pesoBruto.toFixed(1)} kg</span>
         </div>
         <div className="flex gap-2 mb-3">
           <input
@@ -111,35 +114,42 @@ function AjustePesoModal({ vid, pesoBruto, tipoAjusteInicial, kilosAjusteInicial
               setKilos(val);
               if (tipo === 'NINGUNO') setTipo('RESTAR');
             }}
-            className="flex-1 bg-white/5 border border-white/10 focus:border-blue-500/50 text-white rounded-xl px-3 py-2 text-sm outline-none font-mono"
+            className="flex-1 border focus:border-blue-500/50 rounded-xl px-3 py-2 text-sm outline-none font-mono"
+            style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
           />
           <div className="flex flex-col gap-1 w-28">
             <button
               onClick={() => setTipo('RESTAR')}
-              className={`py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all ${
-                tipo === 'RESTAR' ? 'bg-red-600/30 border border-red-500/50 text-red-300' : 'bg-white/5 border border-white/10 text-slate-400'
-              }`}
+              className={`py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all border outline-none font-sans`}
+              style={{
+                background: tipo === 'RESTAR' ? 'rgba(239,68,68,0.15)' : 'var(--white-alpha-3)',
+                borderColor: tipo === 'RESTAR' ? 'rgba(239,68,68,0.45)' : 'var(--border-subtle)',
+                color: tipo === 'RESTAR' ? '#EF4444' : 'var(--text-secondary)'
+              }}
             >
               [-] Restar
             </button>
             <button
               onClick={() => setTipo('SUMAR')}
-              className={`py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all ${
-                tipo === 'SUMAR' ? 'bg-emerald-600/30 border border-emerald-500/50 text-emerald-300' : 'bg-white/5 border border-white/10 text-slate-400'
-              }`}
+              className={`py-1.5 px-2 rounded-lg text-[10px] font-bold transition-all border outline-none font-sans`}
+              style={{
+                background: tipo === 'SUMAR' ? 'rgba(16,185,129,0.15)' : 'var(--white-alpha-3)',
+                borderColor: tipo === 'SUMAR' ? 'rgba(16,185,129,0.45)' : 'var(--border-subtle)',
+                color: tipo === 'SUMAR' ? '#10B981' : 'var(--text-secondary)'
+              }}
             >
               [+] Sumar
             </button>
           </div>
         </div>
-        <div className="text-slate-400 text-xs mb-4">
-          Peso Neto Final: <span className="text-white font-mono font-bold">{pesoNeto.toFixed(1)} kg</span>
+        <div className="text-xs mb-4" style={{ color: 'var(--text-secondary)' }}>
+          Peso Neto Final: <span className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>{pesoNeto.toFixed(1)} kg</span>
         </div>
         <div className="flex gap-2">
-          <button onClick={onClose} className="flex-1 py-2 rounded-xl text-slate-400 text-sm font-bold bg-white/5">
+          <button onClick={onClose} className="flex-1 py-2 rounded-xl text-sm font-bold border font-sans" style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}>
             Cancelar
           </button>
-          <button onClick={handleApply} className={`flex-1 py-2 rounded-xl text-white text-sm font-bold active:scale-95 ${th.btnBg}`}>
+          <button onClick={handleApply} className={`flex-1 py-2 rounded-xl text-white text-sm font-bold active:scale-95 transition-all font-sans ${th.btnBg}`}>
             Aplicar
           </button>
         </div>
@@ -204,71 +214,71 @@ function VariedadModal({ variedades, excluir = [], onSelect, onClose, uuidActivo
 
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg flex flex-col h-full" style={{ background: '#1A2438' }}>
-        <div className="flex items-center justify-between px-4 pt-5 pb-3 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <span className="text-white font-bold text-sm">{creando ? 'Nueva Variedad' : 'Seleccionar Variedad'}</span>
-          <button onClick={onClose}><X size={15} className="text-slate-400" /></button>
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
+      <div className="relative w-full max-w-lg flex flex-col h-full shadow-2xl" style={{ background: 'var(--modal-bg)' }}>
+        <div className="flex items-center justify-between px-4 pt-5 pb-3 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{creando ? 'Nueva Variedad' : 'Seleccionar Variedad'}</span>
+          <button onClick={onClose}><X size={15} style={{ color: 'var(--text-secondary)' }} /></button>
         </div>
 
         {creando ? (
           <div className="px-4 pb-6 space-y-3 overflow-y-auto">
             <div>
-              <label className="text-slate-400 text-xs font-bold mb-1 block">Nombre y tamaño de la Variedad</label>
-              <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500/50" autoFocus />
+              <label className="text-xs font-bold mb-1 block" style={{ color: 'var(--text-secondary)' }}>Nombre y tamaño de la Variedad</label>
+              <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className="w-full border rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500/50" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }} autoFocus />
             </div>
             <div>
-              <label className="text-slate-400 text-xs font-bold mb-1 block">Código Corto (Max 8 carácteres)</label>
-              <input type="text" maxLength={8} value={form.codigo_corto} onChange={e => setForm({ ...form, codigo_corto: e.target.value })} className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500/50 uppercase" />
+              <label className="text-xs font-bold mb-1 block" style={{ color: 'var(--text-secondary)' }}>Código Corto (Max 8 carácteres)</label>
+              <input type="text" maxLength={8} value={form.codigo_corto} onChange={e => setForm({ ...form, codigo_corto: e.target.value })} className="w-full border rounded-xl px-3 py-2 text-sm outline-none focus:border-blue-500/50 uppercase" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }} />
             </div>
             <div>
-              <label className="text-slate-400 text-xs font-bold mb-2 block">Color Distintivo</label>
+              <label className="text-xs font-bold mb-2 block" style={{ color: 'var(--text-secondary)' }}>Color Distintivo</label>
               <div className="flex flex-wrap gap-2">
                 {COLORES.map(c => (
-                  <button key={c} onClick={() => setForm({ ...form, color: c })} className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90" style={{ backgroundColor: c, border: form.color === c ? '2px solid white' : '2px solid transparent' }}>
-                    {form.color === c && <Check size={14} className="text-white" />}
+                  <button key={c} onClick={() => setForm({ ...form, color: c })} className="w-8 h-8 rounded-full flex items-center justify-center transition-transform active:scale-90" style={{ backgroundColor: c, border: form.color === c ? '2px solid var(--text-primary)' : '2px solid transparent' }}>
+                    {form.color === c && <Check size={14} style={{ color: fg(c) }} />}
                   </button>
                 ))}
               </div>
             </div>
             <div className="pt-2 flex gap-2">
-              <button onClick={() => setCreando(false)} className="flex-1 py-2.5 rounded-xl text-slate-400 text-sm font-bold bg-white/5">Cancelar</button>
-              <button onClick={handleSave} disabled={!form.nombre.trim() || !form.codigo_corto.trim()} className="flex-1 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-black disabled:opacity-50">Guardar y Usar</button>
+              <button onClick={() => setCreando(false)} className="flex-1 py-2.5 rounded-xl text-sm font-bold border font-sans" style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}>Cancelar</button>
+              <button onClick={handleSave} disabled={!form.nombre.trim() || !form.codigo_corto.trim()} className="flex-1 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-black disabled:opacity-50 font-sans">Guardar y Usar</button>
             </div>
           </div>
         ) : (
           <>
             {/* Buscador fijo */}
             <div className="px-4 pt-3 mb-2 flex-shrink-0">
-              <div className="flex items-center bg-black/30 rounded-xl px-3 py-2.5 border border-white/10 focus-within:border-blue-500/50">
-                <Search size={14} className="text-slate-500 mr-2 flex-shrink-0" />
-                <input ref={ref} type="text" placeholder="Buscar..." className="flex-1 bg-transparent text-white placeholder-slate-500 outline-none text-sm" value={q} onChange={e => setQ(e.target.value)} />
+              <div className="flex items-center rounded-xl px-3 py-2.5 border" style={{ background: 'var(--white-alpha-3)', borderColor: 'var(--border-subtle)' }}>
+                <Search size={14} className="mr-2 flex-shrink-0" style={{ color: 'var(--text-tertiary)' }} />
+                <input ref={ref} type="text" placeholder="Buscar..." className="flex-1 bg-transparent outline-none text-sm font-sans" style={{ color: 'var(--text-primary)' }} value={q} onChange={e => setQ(e.target.value)} />
               </div>
             </div>
             {/* Lista scrollable */}
             <div className="overflow-y-auto flex-1 px-4 space-y-1.5 min-h-0 pb-4">
               {lista.map(v => (
                 <button key={v.id_variedad} onClick={() => { onSelect(v); onClose(); }}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.98]"
-                  style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.98] border font-sans"
+                  style={{ background: 'var(--white-alpha-3)', borderColor: 'var(--border-subtle)' }}>
                   <div className="min-w-[2.5rem] px-1.5 h-10 flex-shrink-0 rounded-xl flex items-center justify-center font-black text-xs"
                     style={{ backgroundColor: v.color, color: fg(v.color), boxShadow: `0 3px 10px ${v.color}60` }}>
                     {v.codigo_corto}
                   </div>
                   <div className="flex-1 text-left min-w-0">
-                    <p className="text-white text-sm font-semibold truncate">{v.nombre}</p>
+                    <p className="text-sm font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{v.nombre}</p>
                   </div>
                 </button>
               ))}
             </div>
             {/* Botón Crear — siempre pegado al fondo */}
-            <div className="flex-shrink-0 px-4 pt-2 pb-8 border-t border-white/5">
-              <button onClick={startCreate} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all active:scale-[0.98]" style={{ background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.2)' }}>
+            <div className="flex-shrink-0 px-4 pt-2 pb-8" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+              <button onClick={startCreate} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all active:scale-[0.98] border font-sans" style={{ background: 'var(--badge-bg-blue)', borderColor: 'var(--border-subtle)' }}>
                 <div className="w-8 h-8 rounded-full flex items-center justify-center bg-blue-500/20 text-blue-400">
                   <Plus size={14} />
                 </div>
                 <div className="text-left">
-                  <p className="text-blue-400 font-bold text-sm truncate">
+                  <p className="text-blue-500 dark:text-blue-400 font-bold text-sm truncate">
                     {variedades.length === 0 ? 'Crear tu primera variedad' : (q.trim() ? `Crear "${q.trim()}"` : 'Crear nueva variedad')}
                   </p>
                   <p className="text-blue-500/70 text-xs">Nueva variedad en catálogo</p>
@@ -304,52 +314,55 @@ function NuevoSocioTransbordoModal({ onClose, onCreado }) {
 
   return (
     <div className="fixed inset-0 z-[65] flex items-start justify-center">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg flex flex-col h-full" style={{ background: '#1A2438' }}>
-        <div className="flex items-center justify-between px-4 pt-5 pb-3 flex-shrink-0" style={{ borderBottom: '1px solid rgba(245,158,11,0.15)' }}>
-          <span className="text-white font-bold text-sm">Nuevo Socio Frecuente</span>
-          <button onClick={onClose}><X size={15} className="text-slate-400" /></button>
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
+      <div className="relative w-full max-w-lg flex flex-col h-full shadow-2xl" style={{ background: 'var(--modal-bg)' }}>
+        <div className="flex items-center justify-between px-4 pt-5 pb-3 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Nuevo Socio Frecuente</span>
+          <button onClick={onClose}><X size={15} style={{ color: 'var(--text-secondary)' }} /></button>
         </div>
         <div className="px-4 pt-5 space-y-4 overflow-y-auto flex-1">
           <div>
-            <label className="text-slate-400 text-xs font-bold mb-1.5 block">Nombre Completo o Razón Social</label>
+            <label className="text-xs font-bold mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>Nombre Completo o Razón Social</label>
             <input
               type="text"
               value={form.nombre}
               onChange={e => setForm({ ...form, nombre: e.target.value })}
-              className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-3 text-sm outline-none focus:border-amber-500/50"
+              className="w-full border rounded-xl px-3 py-3 text-sm outline-none focus:border-amber-500/50"
+              style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
               placeholder=""
             />
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="text-slate-400 text-xs font-bold mb-1.5 block">DNI / RUC (Opcional)</label>
+              <label className="text-xs font-bold mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>DNI / RUC (Opcional)</label>
               <input
                 type="text"
                 value={form.documento}
                 onChange={e => setForm({ ...form, documento: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-3 text-sm outline-none focus:border-amber-500/50"
+                className="w-full border rounded-xl px-3 py-3 text-sm outline-none focus:border-amber-500/50"
+                style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
                 placeholder=""
               />
             </div>
             <div className="flex-1">
-              <label className="text-slate-400 text-xs font-bold mb-1.5 block">Teléfono (Opcional)</label>
+              <label className="text-xs font-bold mb-1.5 block" style={{ color: 'var(--text-secondary)' }}>Teléfono (Opcional)</label>
               <input
                 type="text"
                 value={form.telefono}
                 onChange={e => setForm({ ...form, telefono: e.target.value })}
-                className="w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-3 text-sm outline-none focus:border-amber-500/50"
+                className="w-full border rounded-xl px-3 py-3 text-sm outline-none focus:border-amber-500/50"
+                style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
                 placeholder=""
               />
             </div>
           </div>
         </div>
-        <div className="flex-shrink-0 px-4 pt-3 pb-10 flex gap-3 border-t border-white/5">
-          <button onClick={onClose} className="flex-1 py-3 rounded-xl text-slate-400 text-sm font-bold bg-white/5 active:scale-95 transition-transform">Cancelar</button>
+        <div className="flex-shrink-0 px-4 pt-3 pb-10 flex gap-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+          <button onClick={onClose} className="flex-1 py-3 rounded-xl text-sm font-bold border font-sans active:scale-95 transition-transform" style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}>Cancelar</button>
           <button
             onClick={handleSave}
             disabled={!form.nombre.trim() || saving}
-            className="flex-1 py-3 rounded-xl bg-amber-600 text-white text-sm font-black disabled:opacity-50 active:scale-95 transition-transform"
+            className="flex-1 py-3 rounded-xl bg-amber-600 text-white text-sm font-black disabled:opacity-50 active:scale-95 transition-transform font-sans"
           >Guardar Socio</button>
         </div>
       </div>
@@ -376,47 +389,47 @@ function ClienteDestinoModal({ clientes, valorActual, onSelect, onClose, onNuevo
 
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg flex flex-col h-full" style={{ background: '#1A2438' }}>
-        <div className="flex items-center justify-between px-4 pt-5 pb-3 flex-shrink-0" style={{ borderBottom: '1px solid rgba(245,158,11,0.15)' }}>
-          <span className="text-amber-300 font-bold text-sm">Destino Transbordo</span>
-          <button onClick={onClose}><X size={15} className="text-slate-400" /></button>
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
+      <div className="relative w-full max-w-lg flex flex-col h-full shadow-2xl" style={{ background: 'var(--modal-bg)' }}>
+        <div className="flex items-center justify-between px-4 pt-5 pb-3 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Destino Transbordo</span>
+          <button onClick={onClose}><X size={15} style={{ color: 'var(--text-secondary)' }} /></button>
         </div>
         <div className="px-4 pt-3 pb-2 flex-shrink-0">
-          <div className="flex items-center bg-black/30 rounded-xl px-3 py-2.5 border border-amber-500/30 focus-within:border-amber-500/60">
-            <Search size={14} className="text-amber-500 mr-2 flex-shrink-0" />
-            <input type="text" placeholder="Buscar cliente destino..." className="flex-1 bg-transparent text-white placeholder-slate-500 outline-none text-sm" value={q} onChange={e => setQ(e.target.value)} />
+          <div className="flex items-center rounded-xl px-3 py-2.5 border" style={{ background: 'var(--white-alpha-3)', borderColor: 'var(--border-subtle)' }}>
+            <Search size={14} className="mr-2 flex-shrink-0" style={{ color: 'var(--text-tertiary)' }} />
+            <input type="text" placeholder="Buscar cliente destino..." className="flex-1 bg-transparent outline-none text-sm font-sans" style={{ color: 'var(--text-primary)' }} value={q} onChange={e => setQ(e.target.value)} />
           </div>
         </div>
         <div className="overflow-y-auto flex-1 px-4 pb-4 space-y-1.5 min-h-0">
           {/* Transbordo Rápido */}
           <button onClick={() => { onTransbordoRapido(q.trim()); onClose(); }}
-            className="w-full flex items-center justify-between px-3 py-3 rounded-xl transition-all active:scale-[0.98] mb-2"
-            style={{ background: 'rgba(250,204,21,0.15)', border: '1px solid rgba(250,204,21,0.3)' }}>
+            className="w-full flex items-center justify-between px-3 py-3 rounded-xl transition-all active:scale-[0.98] mb-2 border font-sans"
+            style={{ background: 'var(--badge-bg-amber)', borderColor: 'var(--border-subtle)' }}>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full flex items-center justify-center bg-yellow-400/20 text-yellow-500 font-black">⚡</div>
               <div className="text-left">
-                <p className="text-yellow-400 font-bold text-sm">{labelRapida}</p>
+                <p className="text-yellow-500 dark:text-yellow-400 font-bold text-sm">{labelRapida}</p>
                 <p className="text-yellow-500/80 text-xs">Sin registro permanente en socios</p>
               </div>
             </div>
           </button>
 
           {lista.map(c => (
-            <button key={c.id_socio} onClick={() => { onSelect(c); onClose(); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.98]"
-              style={{ background: valorActual === c.id_socio ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.04)', border: valorActual === c.id_socio ? '1px solid rgba(245,158,11,0.4)' : '1px solid rgba(255,255,255,0.06)' }}>
-              <div className="w-7 h-7 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0"><span className="text-amber-300 font-black text-xs">{c.nombre[0]}</span></div>
-              <span className="flex-1 text-left text-white text-sm font-medium">{c.nombre}</span>
+            <button key={c.id_socio} onClick={() => { onSelect(c); onClose(); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.98] border font-sans"
+              style={{ background: valorActual === c.id_socio ? 'var(--badge-bg-amber)' : 'var(--white-alpha-3)', borderColor: valorActual === c.id_socio ? 'rgba(245,158,11,0.4)' : 'var(--border-subtle)' }}>
+              <div className="w-7 h-7 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0"><span className="text-amber-500 dark:text-amber-300 font-black text-xs">{c.nombre[0]}</span></div>
+              <span className="flex-1 text-left text-sm font-medium" style={{ color: 'var(--text-primary)' }}>{c.nombre}</span>
               {valorActual === c.id_socio && <Check size={14} className="text-amber-400" />}
             </button>
           ))}
         </div>
         {onNuevoSocio && (
-          <div className="flex-shrink-0 px-4 pt-2 pb-8 border-t border-white/5">
-            <button onClick={onNuevoSocio} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all active:scale-[0.98]" style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)' }}>
+          <div className="flex-shrink-0 px-4 pt-2 pb-8" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+            <button onClick={onNuevoSocio} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all active:scale-[0.98] border font-sans" style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)' }}>
               <div className="w-8 h-8 rounded-full flex items-center justify-center bg-amber-500/20 text-amber-400"><Plus size={14} /></div>
               <div className="text-left">
-                <p className="text-amber-400 font-bold text-sm">+ Crear nuevo Socio Frecuente</p>
+                <p className="text-amber-500 dark:text-amber-400 font-bold text-sm">+ Crear nuevo Socio Frecuente</p>
                 <p className="text-amber-500/70 text-xs">Se agregará a tu directorio</p>
               </div>
             </button>
@@ -466,7 +479,6 @@ function BuscadorSocioModal({ socios, term = '', onClose, onSelect, onNuevaFrecu
     onNuevaFrecuente(form);
   };
 
-  // Texto del botón rápido: nombre final que se guardará en socio_nombre_temporal
   const esCompra = tipoRapida === 'compra';
   const labelRapida = q.trim()
     ? (esCompra ? `Compra Rápida (${q.trim()})` : `Venta Rápida (${q.trim()})`)
@@ -474,94 +486,89 @@ function BuscadorSocioModal({ socios, term = '', onClose, onSelect, onNuevaFrecu
 
   return (
     <div className="fixed inset-0 z-[60] flex items-start justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg flex flex-col h-full" style={{ background: '#1A2438' }}>
-        <div className="flex items-center justify-between px-4 pt-5 pb-3 flex-shrink-0" style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-          <span className="text-white font-bold text-sm">{creando ? 'Nuevo Socio Frecuente' : 'Buscar o Crear'}</span>
-          <button onClick={onClose}><X size={15} className="text-slate-400" /></button>
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
+      <div className="relative w-full max-w-lg flex flex-col h-full shadow-2xl" style={{ background: 'var(--modal-bg)' }}>
+        <div className="flex items-center justify-between px-4 pt-5 pb-3 flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>{creando ? 'Nuevo Socio Frecuente' : 'Buscar o Crear'}</span>
+          <button onClick={onClose}><X size={15} style={{ color: 'var(--text-secondary)' }} /></button>
         </div>
 
         {creando ? (
           <div className="px-4 pb-8 pt-4 space-y-3 overflow-y-auto">
             <div>
-              <label className="text-slate-400 text-xs font-bold mb-1 block">Nombre Completo o Razón Social</label>
-              <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className={`w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:${th.border}`} autoFocus />
+              <label className="text-xs font-bold mb-1 block" style={{ color: 'var(--text-secondary)' }}>Nombre Completo o Razón Social</label>
+              <input type="text" value={form.nombre} onChange={e => setForm({ ...form, nombre: e.target.value })} className={`w-full border rounded-xl px-3 py-2 text-sm outline-none focus:${th.border}`} style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }} autoFocus />
             </div>
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="text-slate-400 text-xs font-bold mb-1 block">DNI / RUC (Opcional)</label>
-                <input type="text" value={form.documento} onChange={e => setForm({ ...form, documento: e.target.value })} className={`w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:${th.border}`} />
+                <label className="text-xs font-bold mb-1 block" style={{ color: 'var(--text-secondary)' }}>DNI / RUC (Opcional)</label>
+                <input type="text" value={form.documento} onChange={e => setForm({ ...form, documento: e.target.value })} className={`w-full border rounded-xl px-3 py-2 text-sm outline-none focus:${th.border}`} style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }} />
               </div>
               <div className="flex-1">
-                <label className="text-slate-400 text-xs font-bold mb-1 block">Teléfono (Opcional)</label>
-                <input type="text" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} className={`w-full bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:${th.border}`} />
+                <label className="text-xs font-bold mb-1 block" style={{ color: 'var(--text-secondary)' }}>Teléfono (Opcional)</label>
+                <input type="text" value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} className={`w-full border rounded-xl px-3 py-2 text-sm outline-none focus:${th.border}`} style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }} />
               </div>
             </div>
             <div className="pt-2 flex gap-2">
-              <button onClick={() => setCreando(false)} className="flex-1 py-3 rounded-xl text-slate-400 text-sm font-bold bg-white/5 active:scale-95 transition-transform">Cancelar</button>
-              <button onClick={handleSaveFrecuente} disabled={!form.nombre.trim()} className={`flex-1 py-3 rounded-xl ${th.bg} text-white text-sm font-black disabled:opacity-50 active:scale-95 transition-transform`}>Guardar Socio</button>
+              <button onClick={() => setCreando(false)} className="flex-1 py-3 rounded-xl text-sm font-bold border font-sans active:scale-95 transition-transform" style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}>Cancelar</button>
+              <button onClick={handleSaveFrecuente} disabled={!form.nombre.trim()} className={`flex-1 py-3 rounded-xl ${th.bg} text-white text-sm font-black disabled:opacity-50 active:scale-95 transition-transform font-sans`}>Guardar Socio</button>
             </div>
           </div>
         ) : (
           <>
-            {/* Buscador fijo — SIN autoFocus para no abrir teclado automáticamente */}
             <div className="px-4 pt-3 mb-2 flex-shrink-0">
-              <div className={`flex items-center bg-black/30 rounded-xl px-3 py-2.5 border border-white/10 ${th.focus}`}>
-                <Search size={14} className="text-slate-500 mr-2 flex-shrink-0" />
-                <input ref={ref} type="text" placeholder="Escribe nombre, DNI o celular..." className="flex-1 bg-transparent text-white placeholder-slate-500 outline-none text-sm font-medium" value={q} onChange={e => setQ(e.target.value)} />
+              <div className={`flex items-center rounded-xl px-3 py-2.5 border ${th.focus}`} style={{ background: 'var(--white-alpha-3)', borderColor: 'var(--border-subtle)' }}>
+                <Search size={14} className="mr-2 flex-shrink-0" style={{ color: 'var(--text-tertiary)' }} />
+                <input ref={ref} type="text" placeholder="Escribe nombre, DNI o celular..." className="flex-1 bg-transparent outline-none text-sm font-medium font-sans" style={{ color: 'var(--text-primary)' }} value={q} onChange={e => setQ(e.target.value)} />
               </div>
             </div>
-            {/* Lista scrollable */}
             <div className="overflow-y-auto flex-1 px-4 space-y-1.5 min-h-0 pb-4">
-
-              {/* 1. OPERACION RAPIDA — siempre primero */}
-              <button onClick={() => onNuevaOcasional(q.trim())} className="w-full flex items-center justify-between px-3 py-3 rounded-xl transition-all active:scale-[0.98] mb-2" style={{ background: 'rgba(250,204,21,0.15)', border: '1px solid rgba(250,204,21,0.3)' }}>
+              <button onClick={() => onNuevaOcasional(q.trim())} className="w-full flex items-center justify-between px-3 py-3 rounded-xl transition-all active:scale-[0.98] mb-2 border font-sans" style={{ background: 'var(--badge-bg-amber)', borderColor: 'var(--border-subtle)' }}>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-yellow-400/20 text-yellow-500 font-black">⚡</div>
                   <div className="text-left">
-                    <p className="text-yellow-400 font-bold text-sm">{labelRapida}</p>
+                    <p className="text-yellow-500 dark:text-yellow-400 font-bold text-sm">{labelRapida}</p>
                     <p className="text-yellow-500/80 text-xs">Sin registro permanente en socios</p>
                   </div>
                 </div>
               </button>
 
-              {/* 2. SI LISTA VACIA Y NO SE ESTA BUSCANDO */}
               {!q.trim() && socios.length === 0 && (
                 <div className="py-6 flex justify-center">
-                  <button onClick={() => handleStartCreate('')} className="w-full max-w-[260px] py-4 rounded-xl flex flex-col items-center justify-center transition-all active:scale-[0.98]" style={{ background: 'rgba(255,255,255,0.04)', border: '1px dashed rgba(255,255,255,0.2)' }}>
-                    <Plus size={24} className="text-slate-400 mb-2" />
-                    <p className="text-white font-bold text-sm">Crear primer Socio Frecuente</p>
-                    <p className="text-slate-500 text-xs mt-1">Con DNI y registro permanente</p>
+                  <button onClick={() => handleStartCreate('')} className="w-full max-w-[260px] py-4 rounded-xl flex flex-col items-center justify-center transition-all active:scale-[0.98] border font-sans" style={{ background: 'var(--white-alpha-3)', borderStyle: 'dashed', borderColor: 'var(--border-subtle)' }}>
+                    <Plus size={24} className="mb-2" style={{ color: 'var(--text-tertiary)' }} />
+                    <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>Crear primer Socio Frecuente</p>
+                    <p className="text-xs mt-1" style={{ color: 'var(--text-tertiary)' }}>Con DNI y registro permanente</p>
                   </button>
                 </div>
               )}
 
-              {/* 3. RESULTADOS DE BUSQUEDA */}
               {lista.map(c => {
                 const isOcasional = c.es_ocasional === 1;
                 return (
-                  <button key={c.id_socio} onClick={() => { onSelect(c); onClose(); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.98]" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-xs" style={{ background: isOcasional ? 'rgba(250,204,21,0.1)' : 'rgba(100,116,139,0.3)', color: isOcasional ? '#FACC15' : '#cbd5e1' }}>
+                  <button key={c.id_socio} onClick={() => { onSelect(c); onClose(); }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all active:scale-[0.98] border font-sans" style={{ background: 'var(--white-alpha-3)', borderColor: 'var(--border-subtle)' }}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center font-black text-xs" style={{ background: isOcasional ? 'rgba(250,204,21,0.1)' : 'var(--white-alpha-5)', color: isOcasional ? '#FACC15' : 'var(--text-secondary)' }}>
                       {isOcasional ? '⚡' : c.nombre[0].toUpperCase()}
                     </div>
                     <div className="flex-1 text-left min-w-0 flex flex-col justify-center">
-                      <p className="text-white text-sm font-semibold truncate leading-tight">{c.nombre}</p>
-                      {c.documento && <p className="text-slate-400 text-[11px] font-mono mt-0.5">{c.documento} {c.telefono && `• ${c.telefono}`}</p>}
-                      {!c.documento && c.telefono && <p className="text-slate-400 text-[11px] font-mono mt-0.5">{c.telefono}</p>}
+                      <p className="text-sm font-semibold truncate leading-tight" style={{ color: 'var(--text-primary)' }}>{c.nombre}</p>
+                      {c.documento && <p className="text-[11px] font-mono mt-0.5" style={{ color: 'var(--text-secondary)' }}>{c.documento} {c.telefono && `• ${c.telefono}`}</p>}
+                      {!c.documento && c.telefono && <p className="text-[11px] font-mono mt-0.5" style={{ color: 'var(--text-secondary)' }}>{c.telefono}</p>}
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            {/* Botón Crear Frecuente — siempre pegado al fondo */}
             {(socios.length > 0 || q.trim()) && (
-              <div className="flex-shrink-0 px-4 pt-2 pb-8 border-t border-white/5">
-                <button onClick={() => handleStartCreate(q.trim())} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all active:scale-[0.98]" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div className="flex-shrink-0 px-4 pt-2 pb-8 border-t" style={{ borderTopColor: 'var(--border-subtle)' }}>
+                <button onClick={() => handleStartCreate(q.trim())} className="w-full flex items-center gap-3 px-3 py-3 rounded-xl transition-all active:scale-[0.98] border font-sans" style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)' }}>
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center ${th.lightBg} ${th.text}`}><Plus size={14} /></div>
                   <div className="text-left">
-                    <p className="text-white font-bold text-sm truncate">{q.trim() ? `Crear a "${q.trim()}" como Frecuente` : 'Crear nuevo Socio Frecuente'}</p>
-                    <p className="text-slate-400 text-[11px]">Se agregará a tu directorio</p>
+                    <p className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
+                      {q.trim() ? `Crear "${q.trim()}"` : 'Crear nuevo Socio Frecuente'}
+                    </p>
+                    <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>Con DNI y registro permanente</p>
                   </div>
                 </button>
               </div>
@@ -574,7 +581,7 @@ function BuscadorSocioModal({ socios, term = '', onClose, onSelect, onNuevaFrecu
 }
 
 function Btn({ label, icon, onClick, style = {} }) {
-  return <button onClick={onClick} className="rounded-xl flex items-center justify-center text-white text-2xl font-bold active:scale-95 transition-all" style={{ background: 'linear-gradient(145deg,#1E293B,#162032)', boxShadow: '0 3px 0 #0a1120', ...style }}>{icon || label}</button>;
+  return <button onClick={onClick} className="rounded-xl flex items-center justify-center text-2xl font-bold active:scale-95 transition-all font-sans" style={{ background: 'var(--btn-numpad-bg)', color: 'var(--btn-numpad-text)', boxShadow: '0 3px 0 var(--btn-numpad-shadow)', ...style }}>{icon || label}</button>;
 }
 
 function PreLiquidadorModal({
@@ -652,12 +659,12 @@ function PreLiquidadorModal({
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center p-0 md:p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onCancel} />
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onCancel} />
       
-      <div className="relative w-full max-w-xl md:max-w-2xl bg-[#1A2438] rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh] border border-white/5">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/5">
-          <h3 className="text-white text-base font-black uppercase tracking-wider">Liquidación y Cierre</h3>
-          <button onClick={onCancel} className="text-slate-400 hover:text-white transition-colors">
+      <div className="relative w-full max-w-xl md:max-w-2xl rounded-t-3xl md:rounded-3xl shadow-2xl flex flex-col overflow-hidden max-h-[90vh] border" style={{ background: 'var(--modal-bg)', borderColor: 'var(--border-card)' }}>
+        <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
+          <h3 className="font-bold text-base uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>Liquidación y Cierre</h3>
+          <button onClick={onCancel} className="transition-colors border-none bg-transparent cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
             <X size={20} />
           </button>
         </div>
@@ -667,7 +674,7 @@ function PreLiquidadorModal({
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-white/5 text-slate-500 text-[10px] font-black uppercase tracking-wider">
+                  <tr className="border-b text-[10px] font-black uppercase tracking-wider" style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}>
                     <th className="py-2">Variedad</th>
                     <th className="py-2 text-center">Sacos</th>
                     <th className="py-2 text-right">Peso Neto</th>
@@ -675,7 +682,7 @@ function PreLiquidadorModal({
                     <th className="py-2 text-right">Subtotal</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/5 text-slate-300 text-xs">
+                <tbody className="divide-y text-xs" style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}>
                   {varIds.map(vid => {
                     const v = varMap[vid];
                     const sx = sacos.filter(s => s.id_variedad === vid);
@@ -689,13 +696,13 @@ function PreLiquidadorModal({
                       <tr key={vid} className="hover:bg-white/3 transition-colors">
                         <td className="py-3 flex items-center gap-2">
                           <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: v?.color || '#3b82f6' }} />
-                          <span className="font-bold text-white">{v?.nombre || vid}</span>
+                          <span className="font-bold font-sans" style={{ color: 'var(--text-primary)' }}>{v?.nombre || vid}</span>
                         </td>
-                        <td className="py-3 text-center font-bold text-white">{sx.length}</td>
-                        <td className="py-3 text-right font-mono font-bold text-slate-400">{neto.toFixed(1)} kg</td>
+                        <td className="py-3 text-center font-bold" style={{ color: 'var(--text-primary)' }}>{sx.length}</td>
+                        <td className="py-3 text-right font-mono font-bold" style={{ color: 'var(--text-secondary)' }}>{neto.toFixed(1)} kg</td>
                         <td className="py-3 text-center">
-                          <div className="inline-flex items-center gap-1 bg-white/5 border border-white/10 rounded-lg px-2 py-1 focus-within:border-blue-500/50">
-                            <span className="text-[10px] text-slate-500 font-bold">S/</span>
+                          <div className="inline-flex items-center gap-1 border rounded-lg px-2 py-1" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)' }}>
+                            <span className="text-[10px] font-bold" style={{ color: 'var(--text-tertiary)' }}>S/</span>
                             <input
                               type="number"
                               step="any"
@@ -704,42 +711,43 @@ function PreLiquidadorModal({
                                 const val = e.target.value;
                                 setPreciosLocales(prev => ({ ...prev, [vid]: val }));
                               }}
-                              className="w-16 bg-transparent border-none text-white text-right outline-none font-mono text-xs font-bold"
+                              className="w-16 bg-transparent border-none text-right outline-none font-mono text-xs font-bold"
+                              style={{ color: 'var(--text-primary)' }}
                             />
-                            <span className="text-[9px] text-slate-500 font-bold uppercase">{unit === 'ARROBA' ? '@' : 'kg'}</span>
+                            <span className="text-[9px] font-bold uppercase" style={{ color: 'var(--text-tertiary)' }}>{unit === 'ARROBA' ? '@' : 'kg'}</span>
                           </div>
                         </td>
-                        <td className="py-3 text-right font-mono font-bold text-white">S/ {sub.toFixed(2)}</td>
+                        <td className="py-3 text-right font-mono font-bold" style={{ color: 'var(--text-primary)' }}>S/ {sub.toFixed(2)}</td>
                       </tr>
                     );
                   })}
-                  <tr className="bg-blue-600/5 font-bold text-white border-t-2 border-blue-500/20">
-                    <td className="py-3 px-2 text-blue-300 text-[10px] font-black uppercase">Total General</td>
-                    <td className="py-3 text-center">{sacos.length}</td>
-                    <td className="py-3 text-right font-mono">{totalPesoNeto.toFixed(1)} kg</td>
+                  <tr className="font-bold border-t" style={{ background: 'var(--badge-bg-blue)', borderTopColor: 'var(--border-subtle)' }}>
+                    <td className="py-3 px-2 text-[10px] font-black uppercase" style={{ color: 'var(--text-primary)' }}>Total General</td>
+                    <td className="py-3 text-center" style={{ color: 'var(--text-primary)' }}>{sacos.length}</td>
+                    <td className="py-3 text-right font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>{totalPesoNeto.toFixed(1)} kg</td>
                     <td className="py-3"></td>
-                    <td className="py-3 text-right font-mono text-blue-400">S/ {totalDineroLocal.toFixed(2)}</td>
+                    <td className="py-3 text-right font-mono text-blue-650 dark:text-blue-400">S/ {totalDineroLocal.toFixed(2)}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div className="mt-4 bg-white/3 rounded-xl p-3 border border-white/5 space-y-2">
-              <p className="text-slate-500 text-[9px] font-black uppercase tracking-wider border-b border-white/5 pb-1">Conceptos Adicionales</p>
+            <div className="mt-4 rounded-xl p-3 border space-y-2" style={{ background: 'var(--white-alpha-3)', borderColor: 'var(--border-subtle)' }}>
+              <p className="text-[9px] font-black uppercase tracking-wider border-b pb-1" style={{ color: 'var(--text-tertiary)', borderColor: 'var(--border-subtle)' }}>Conceptos Adicionales</p>
               
               {extras.map(e => (
                 <div key={e.id_extra} className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">{e.descripcion}</span>
-                  <span className="font-mono font-bold text-red-400">−S/ {Number(e.monto).toFixed(2)}</span>
+                  <span style={{ color: 'var(--text-secondary)' }}>{e.descripcion}</span>
+                  <span className="font-mono font-bold text-red-550 dark:text-red-400">−S/ {Number(e.monto).toFixed(2)}</span>
                 </div>
               ))}
 
               {isCompra && fleteActivo === 1 && (
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">
+                  <span style={{ color: 'var(--text-secondary)' }}>
                     Flete Automático: {totalPesoNeto.toFixed(1)} kg x S/ {parseFloat(fletePrecioKg || 0).toFixed(2)}
                   </span>
-                  <span className={`font-mono font-bold ${fleteTipoSigno === 'SUMAR' ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span className={`font-mono font-bold ${fleteTipoSigno === 'SUMAR' ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
                     {fleteTipoSigno === 'SUMAR' ? '+' : '−'}S/ {fleteMontoTotalLocal.toFixed(2)}
                   </span>
                 </div>
@@ -747,26 +755,26 @@ function PreLiquidadorModal({
 
               {adicsCommitted.map(a => (
                 <div key={a.id} className="flex justify-between items-center text-xs">
-                  <span className="text-slate-400">{a.desc}</span>
-                  <span className={`font-mono font-bold ${a.op === '+' ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span style={{ color: 'var(--text-secondary)' }}>{a.desc}</span>
+                  <span className={`font-mono font-bold ${a.op === '+' ? 'text-emerald-500 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`}>
                     {a.op === '+' ? '+' : '−'}S/ {parseFloat(a.monto).toFixed(2)}
                   </span>
                 </div>
               ))}
 
               {extras.length === 0 && (!isCompra || fleteActivo === 0) && adicsCommitted.length === 0 && (
-                <p className="text-slate-600 text-[10px] italic">Ninguno aplicado</p>
+                <p className="text-[10px] italic" style={{ color: 'var(--text-tertiary)' }}>Ninguno aplicado</p>
               )}
             </div>
 
-            <div className="mt-4 flex items-center justify-between bg-blue-600/10 border border-blue-500/25 rounded-2xl px-4 py-3">
-              <span className="text-blue-300 text-xs font-black uppercase tracking-wider">Monto Final Recalculado</span>
-              <span className="text-blue-400 text-xl font-black font-mono">S/ {montoFinalLocal.toFixed(2)}</span>
+            <div className="mt-4 flex items-center justify-between border rounded-2xl px-4 py-3" style={{ background: 'var(--badge-bg-blue)', borderColor: 'rgba(37,99,235,0.3)' }}>
+              <span className="text-xs font-black uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>Monto Final Recalculado</span>
+              <span className="text-blue-650 dark:text-blue-400 text-xl font-black font-mono">S/ {montoFinalLocal.toFixed(2)}</span>
             </div>
           </div>
 
-          <div className="border-t border-white/5 pt-4 space-y-3">
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest">{labelPago}</p>
+          <div className="border-t pt-4 space-y-3" style={{ borderColor: 'var(--border-subtle)' }}>
+            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>{labelPago}</p>
             
             <div className="grid grid-cols-3 gap-2">
               {[
@@ -778,11 +786,11 @@ function PreLiquidadorModal({
                   key={k}
                   type="button"
                   onClick={() => setPagoMetodo(k)}
-                  className="py-2.5 rounded-xl text-xs font-black transition-all border outline-none active:scale-95"
+                  className="py-2.5 rounded-xl text-xs font-black transition-all border outline-none active:scale-95 cursor-pointer font-sans"
                   style={{
-                    backgroundColor: pagoMetodo === k ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.03)',
-                    borderColor: pagoMetodo === k ? 'rgba(59,130,246,0.4)' : 'rgba(255,255,255,0.06)',
-                    color: pagoMetodo === k ? '#60a5fa' : '#94a3b8'
+                    backgroundColor: pagoMetodo === k ? 'rgba(59,130,246,0.15)' : 'var(--white-alpha-3)',
+                    borderColor: pagoMetodo === k ? 'rgba(59,130,246,0.4)' : 'var(--border-subtle)',
+                    color: pagoMetodo === k ? '#3b82f6' : 'var(--text-secondary)'
                   }}
                 >
                   {l}
@@ -791,20 +799,21 @@ function PreLiquidadorModal({
             </div>
 
             <div className="flex gap-2">
-              <div className="flex-1 flex items-center bg-white/5 border border-white/10 rounded-xl px-3 focus-within:border-blue-500/50">
-                <span className="text-slate-500 font-bold text-xs mr-2">S/</span>
+              <div className="flex-1 flex items-center border rounded-xl px-3" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)' }}>
+                <span className="font-bold text-xs mr-2" style={{ color: 'var(--text-tertiary)' }}>S/</span>
                 <input
                   type="number"
                   placeholder={`Max S/ ${montoFinalLocal.toFixed(2)}`}
                   value={pagoMonto}
                   onChange={(e) => setPagoMonto(e.target.value)}
-                  className="flex-1 bg-transparent border-none text-white py-3 text-sm outline-none font-mono focus:ring-0"
+                  className="flex-1 bg-transparent border-none py-3 text-sm outline-none font-mono focus:ring-0"
+                  style={{ color: 'var(--text-primary)' }}
                 />
               </div>
               <button
                 type="button"
                 onClick={handleTodo}
-                className="px-4 py-3 rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 text-xs font-black transition-all hover:bg-blue-600/30 active:scale-95"
+                className="px-4 py-3 rounded-xl bg-blue-650/20 border border-blue-500/30 text-blue-650 dark:text-blue-400 text-xs font-black transition-all active:scale-95 cursor-pointer font-sans"
               >
                 TODO
               </button>
@@ -812,19 +821,19 @@ function PreLiquidadorModal({
           </div>
         </div>
 
-        <div className="bg-[#131b2b] px-6 py-4 flex gap-3 border-t border-white/5">
+        <div className="px-6 py-4 flex gap-3 border-t" style={{ background: 'var(--surface-base)', borderColor: 'var(--border-subtle)' }}>
           <button
             onClick={onCancel}
             type="button"
-            className="flex-1 py-3.5 rounded-xl text-slate-400 text-sm font-bold transition-all active:scale-[0.98]"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+            className="flex-1 py-3.5 rounded-xl text-sm font-bold transition-all active:scale-[0.98] border font-sans cursor-pointer"
+            style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}
           >
             Cancelar
           </button>
           <button
             onClick={handleFinalizar}
             type="button"
-            className="flex-1 py-3.5 rounded-xl bg-blue-600 text-white text-sm font-black transition-all hover:bg-blue-500 active:scale-[0.98]"
+            className="flex-1 py-3.5 rounded-xl bg-blue-650 hover:bg-blue-550 text-white text-sm font-black transition-all active:scale-[0.98] font-sans cursor-pointer"
           >
             Finalizar
           </button>
@@ -2068,14 +2077,14 @@ export default function Compra() {
   };
 
   if (!uuidActivo) return (
-    <div className="h-[100dvh] flex flex-col items-center justify-center" style={{ background: '#080E1A', fontFamily: FONT }}>
-      <p className="text-slate-400 text-sm mb-4">No hay ninguna compra activa.</p>
+    <div className="h-[100dvh] flex flex-col items-center justify-center" style={{ background: 'var(--surface-base)', color: 'var(--text-primary)', fontFamily: FONT }}>
+      <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>No hay ninguna compra activa.</p>
       <button onClick={() => navigate('/')} className="px-6 py-3 rounded-2xl bg-blue-600 text-white font-bold text-sm active:scale-95">Ir al Inicio</button>
     </div>
   );
 
   return (
-    <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: '#080E1A', fontFamily: FONT }}>
+    <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: 'var(--surface-base)', color: 'var(--text-primary)', fontFamily: FONT }}>
 
       {showGastos && <GastosModal uuid={uuidActivo} onClose={() => setSG(false)} />}
       {editSaco && <EditSacoModal saco={editSaco} onClose={() => setES(null)} />}
@@ -2171,22 +2180,22 @@ export default function Compra() {
       {/* Action sheet: Editar o Eliminar saco */}
       {sacoAccion && (
         <div className="fixed inset-0 z-[70] flex items-end justify-center">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSacoAccion(null)} />
-          <div className="relative w-full max-w-sm rounded-t-3xl pb-8" style={{ background: '#1A2438', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div className="flex justify-center pt-2 mb-2"><div className="w-8 h-1 rounded-full bg-slate-600" /></div>
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest text-center mb-1">Saco seleccionado</p>
-            <p className="text-white text-2xl font-black font-mono text-center mb-4" style={{ color: sacoAccion.color }}>
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={() => setSacoAccion(null)} />
+          <div className="relative w-full max-w-sm rounded-t-3xl pb-8 shadow-2xl" style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)' }}>
+            <div className="flex justify-center pt-2 mb-2"><div className="w-8 h-1 rounded-full" style={{ background: 'var(--text-tertiary)' }} /></div>
+            <p className="text-[10px] font-black uppercase tracking-widest text-center mb-1" style={{ color: 'var(--text-secondary)' }}>Saco seleccionado</p>
+            <p className="text-2xl font-black font-mono text-center mb-4" style={{ color: sacoAccion.color }}>
               {sacoAccion.saco.peso.toFixed(1)} kg
             </p>
             <div className="flex flex-col gap-2 px-4">
               <button onClick={() => { setES(sacoAccion.saco); setSacoAccion(null); }}
-                className="w-full py-3 rounded-2xl text-white text-sm font-bold active:scale-95 transition-all"
-                style={{ background: 'rgba(37,99,235,0.2)', border: '1px solid rgba(37,99,235,0.4)' }}>
+                className="w-full py-3 rounded-2xl text-sm font-bold active:scale-95 transition-all border font-sans"
+                style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)', color: 'var(--text-primary)' }}>
                 ✏️  Editar peso
               </button>
               <button onClick={() => { setCD2(sacoAccion.saco); setSacoAccion(null); }}
-                className="w-full py-3 rounded-2xl text-red-300 text-sm font-bold active:scale-95 transition-all"
-                style={{ background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)' }}>
+                className="w-full py-3 rounded-2xl text-red-500 dark:text-red-300 text-sm font-bold active:scale-95 transition-all border font-sans"
+                style={{ background: 'rgba(239,68,68,0.12)', borderColor: 'rgba(239,68,68,0.3)' }}>
                 🗑️  Eliminar este registro
               </button>
             </div>
@@ -2197,14 +2206,14 @@ export default function Compra() {
       {/* Confirmar eliminación */}
       {confirmDel && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center px-6">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setCD2(null)} />
-          <div className="relative w-full max-w-xs rounded-2xl p-5 text-center" style={{ background: '#1A2438', border: '1px solid rgba(239,68,68,0.3)' }}>
-            <Trash2 size={28} className="text-red-400 mx-auto mb-2" />
-            <p className="text-white font-black text-base mb-1">¿Eliminar este saco?</p>
-            <p className="text-red-300 font-black text-xl font-mono mb-4">{confirmDel.peso?.toFixed(1)} kg</p>
-            <p className="text-slate-500 text-xs mb-4">Esta acción no se puede deshacer.</p>
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={() => setCD2(null)} />
+          <div className="relative w-full max-w-xs rounded-2xl p-5 text-center shadow-2xl" style={{ background: 'var(--modal-bg)', border: '1px solid rgba(239,68,68,0.3)' }}>
+            <Trash2 size={28} className="text-red-500 dark:text-red-400 mx-auto mb-2" />
+            <p className="font-black text-base mb-1" style={{ color: 'var(--text-primary)' }}>¿Eliminar este saco?</p>
+            <p className="text-red-500 dark:text-red-300 font-black text-xl font-mono mb-4">{confirmDel.peso?.toFixed(1)} kg</p>
+            <p className="text-xs mb-4" style={{ color: 'var(--text-tertiary)' }}>Esta acción no se puede deshacer.</p>
             <div className="flex gap-2">
-              <button onClick={() => setCD2(null)} className="flex-1 py-2.5 rounded-xl text-slate-400 text-sm font-bold" style={{ background: 'rgba(255,255,255,0.05)' }}>Cancelar</button>
+              <button onClick={() => setCD2(null)} className="flex-1 py-2.5 rounded-xl text-sm font-bold border" style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}>Cancelar</button>
               <button onClick={async () => { await db.sacos.delete(confirmDel.id_saco); touchMovimiento(uuidActivo); setCD2(null); }}
                 className="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-sm font-black active:scale-95">Eliminar</button>
             </div>
@@ -2215,13 +2224,13 @@ export default function Compra() {
       <input ref={hiddenRef} type="text" inputMode="none" className="absolute w-0 h-0 opacity-0 pointer-events-none" onKeyDown={handlePhysical} readOnly />
 
       {/* ── STICKY HEADER ── */}
-      <div className="flex-shrink-0 z-40" style={{ background: 'rgba(8,14,26,0.96)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
+      <div className="flex-shrink-0 z-40" style={{ background: 'var(--header-bg)', borderBottom: '1px solid var(--border-subtle)' }}>
 
         {/* Carrusel — botón + FIJO + slots enriquecidos */}
         <div className="flex items-center gap-1.5 px-2 pt-2 pb-1 overflow-x-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           {/* Botón Nueva Compra — siempre visible a la izquierda, azul corporativo */}
           <button onClick={crearNuevaCompra}
-            className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center active:scale-90 transition-all"
+            className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center active:scale-90 transition-all cursor-pointer"
             style={{ background: 'linear-gradient(135deg,#2563eb,#1d4ed8)', boxShadow: '0 2px 8px rgba(37,99,235,0.45)' }}>
             <Plus size={16} className="text-white" />
           </button>
@@ -2254,29 +2263,29 @@ export default function Compra() {
 
             return (
               <button key={v.uuid} onClick={() => switchCompra(v.uuid)}
-                className="flex-shrink-0 flex flex-col gap-0.5 px-2.5 py-1.5 rounded-xl transition-all active:scale-95"
+                className="flex-shrink-0 flex flex-col gap-0.5 px-2.5 py-1.5 rounded-xl transition-all active:scale-95 border cursor-pointer font-sans"
                 style={{
-                  background: isA ? 'rgba(37,99,235,0.15)' : 'rgba(255,255,255,0.04)',
-                  border: isA ? '1.5px solid rgba(37,99,235,0.5)' : '1px solid rgba(255,255,255,0.08)',
+                  background: isA ? 'var(--badge-bg-blue)' : 'var(--white-alpha-3)',
+                  borderColor: isA ? 'rgba(37,99,235,0.5)' : 'var(--border-subtle)',
                   minWidth: 86,
                 }}>
                 {/* Línea 1: Avatar + Nombre + Hora */}
                 <div className="flex items-center gap-1">
                   <div className="w-4 h-4 flex-shrink-0 rounded-full flex items-center justify-center font-black"
-                    style={{ fontSize: '0.5rem', background: isA ? 'rgba(37,99,235,0.4)' : 'rgba(255,255,255,0.1)', color: isA ? '#93c5fd' : '#94a3b8' }}>
+                    style={{ fontSize: '0.5rem', background: isA ? 'rgba(37,99,235,0.2)' : 'var(--white-alpha-5)', color: isA ? '#3b82f6' : 'var(--text-secondary)' }}>
                     {inicial}
                   </div>
-                  <span className="font-bold leading-none truncate" style={{ fontSize: '0.65rem', color: isA ? '#93c5fd' : '#64748b', maxWidth: 72 }}>
+                  <span className="font-bold leading-none truncate" style={{ fontSize: '0.65rem', color: isA ? '#3b82f6' : 'var(--text-secondary)', maxWidth: 72 }}>
                     {nombre}
                   </span>
-                  <span className="flex-shrink-0 font-mono leading-none" style={{ fontSize: '0.55rem', color: isA ? '#bfdbfe' : '#334155' }}>
+                  <span className="flex-shrink-0 font-mono leading-none" style={{ fontSize: '0.55rem', color: isA ? '#60a5fa' : 'var(--text-tertiary)' }}>
                     {horaStr}
                   </span>
                 </div>
                 {/* Línea 2: Sacos + Mini-tags variedades */}
                 <div className="flex items-center gap-0.5">
                   <span className="flex-shrink-0 font-black leading-none px-1 py-0.5 rounded"
-                    style={{ fontSize: '0.55rem', background: isA ? 'rgba(37,99,235,0.25)' : 'rgba(255,255,255,0.06)', color: isA ? '#93c5fd' : '#475569', whiteSpace: 'nowrap' }}>
+                    style={{ fontSize: '0.55rem', background: isA ? 'rgba(37,99,235,0.2)' : 'var(--white-alpha-5)', color: isA ? '#3b82f6' : 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>
                     {sacosCount}s
                   </span>
                   {varsIds.slice(0, 3).map(vid => {
@@ -2291,7 +2300,7 @@ export default function Compra() {
                     );
                   })}
                   {varsIds.length > 3 && (
-                    <span style={{ fontSize: '0.5rem', color: '#475569' }}>+{varsIds.length - 3}</span>
+                    <span style={{ fontSize: '0.5rem', color: 'var(--text-tertiary)' }}>+{varsIds.length - 3}</span>
                   )}
                 </div>
               </button>
@@ -2301,23 +2310,23 @@ export default function Compra() {
 
         {/* Back + Titulo + Transbordo toggle + Fecha */}
         <div className="flex items-center gap-2 px-3 pt-2 pb-1">
-          <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white"><ChevronLeft size={18} /></button>
-          <span className="text-white font-bold text-base flex-1">Compra</span>
-          <button onClick={handleToggleTransbordo} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition-all"
-            style={{ background: modoTransbordo ? 'rgba(245,158,11,0.2)' : 'rgba(255,255,255,0.06)', border: modoTransbordo ? '1px solid rgba(245,158,11,0.4)' : '1px solid rgba(255,255,255,0.1)', color: modoTransbordo ? '#FBBF24' : '#64748B' }}>
+          <button onClick={() => navigate(-1)} className="w-8 h-8 rounded-full flex items-center justify-center transition active:scale-95 border" style={{ background: 'var(--white-alpha-5)', borderColor: 'var(--border-subtle)', color: 'var(--text-primary)' }}><ChevronLeft size={18} /></button>
+          <span className="font-bold text-base flex-1" style={{ color: 'var(--text-primary)' }}>Compra</span>
+          <button onClick={handleToggleTransbordo} className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[11px] font-bold transition-all border font-sans"
+            style={{ background: modoTransbordo ? 'var(--badge-bg-amber)' : 'var(--white-alpha-5)', borderColor: modoTransbordo ? 'rgba(245,158,11,0.4)' : 'var(--border-subtle)', color: modoTransbordo ? '#FBBF24' : 'var(--text-secondary)' }}>
             <ArrowLeftRight size={11} />
             <span>T-bordo</span>
-            <div className="w-6 h-3.5 rounded-full relative" style={{ background: modoTransbordo ? '#F59E0B' : '#334155' }}>
+            <div className="w-6 h-3.5 rounded-full relative" style={{ background: modoTransbordo ? '#F59E0B' : 'var(--border-subtle)' }}>
               <div className="absolute top-0.5 w-2.5 h-2.5 rounded-full bg-white shadow transition-all" style={{ left: modoTransbordo ? '13px' : '2px' }} />
             </div>
           </button>
-          <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} className="text-[11px] text-slate-300 bg-white/5 border border-white/10 rounded-lg px-2 py-1 outline-none" />
+          <input type="date" value={fecha} onChange={e => setFecha(e.target.value)} className="text-[11px] rounded-lg px-2 py-1 outline-none border" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)', colorScheme: 'dark' }} />
         </div>
 
         {/* Proveedor */}
         <div className="flex gap-1.5 px-3 pb-1.5">
-          <button onClick={() => setShowBP(true)} className="flex-1 flex items-center justify-between bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-xs font-medium active:scale-[0.98] transition-all">
-            <span className={(proveedorId || activeMov?.id_socio) ? "text-white" : "text-slate-400"}>
+          <button onClick={() => setShowBP(true)} className="flex-1 flex items-center justify-between border rounded-xl px-3 py-2 text-xs font-medium active:scale-[0.98] transition-all font-sans" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}>
+            <span style={{ color: (proveedorId || activeMov?.id_socio) ? 'var(--text-primary)' : 'var(--text-secondary)' }}>
               {(() => {
                 const currentSocioId = proveedorId || activeMov?.id_socio;
                 if (currentSocioId) {
@@ -2330,7 +2339,7 @@ export default function Compra() {
                 return activeMov?.socio_nombre_temporal || (pos > 0 ? `Proveedor ${pos}` : 'Cargando...');
               })()}
             </span>
-            <Search size={14} className="text-slate-500" />
+            <Search size={14} style={{ color: 'var(--text-tertiary)' }} />
           </button>
           <button onClick={() => setShowBP(true)} className="w-9 h-9 flex items-center justify-center rounded-xl bg-blue-600/20 border border-blue-500/30 text-blue-400 active:scale-95 transition-all">
             <Plus size={16} />
@@ -2339,10 +2348,10 @@ export default function Compra() {
 
         {/* Selector destino transbordo */}
         {modoTransbordo && (
-          <button onClick={() => setShowCDModal(true)} className="mx-3 mb-1.5 w-[calc(100%-1.5rem)] flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-all active:scale-95"
-            style={{ background: clienteDestino ? 'rgba(245,158,11,0.12)' : 'rgba(245,158,11,0.06)', border: clienteDestino ? '1px solid rgba(245,158,11,0.4)' : '1px solid rgba(245,158,11,0.2)' }}>
+          <button onClick={() => setShowCDModal(true)} className="mx-3 mb-1.5 w-[calc(100%-1.5rem)] flex items-center gap-3 px-3 py-2 rounded-xl text-left transition-all active:scale-95 border font-sans"
+            style={{ background: clienteDestino ? 'var(--badge-bg-amber)' : 'var(--white-alpha-3)', borderColor: clienteDestino ? 'rgba(245,158,11,0.4)' : 'var(--border-subtle)' }}>
             <ArrowLeftRight size={13} className="text-amber-400 flex-shrink-0" />
-            <span className={`flex-1 text-xs font-bold ${clienteDestino ? 'text-amber-200' : 'text-amber-600'}`}>{clienteDestino ? clienteDestino.nombre : 'Seleccionar cliente destino...'}</span>
+            <span className={`flex-1 text-xs font-bold ${clienteDestino ? 'text-amber-500 dark:text-amber-200' : 'text-amber-600'}`}>{clienteDestino ? clienteDestino.nombre : 'Seleccionar cliente destino...'}</span>
             {clienteDestino && uuidVentaTB && <span className="text-[9px] font-black text-amber-400 bg-amber-500/15 px-1.5 py-0.5 rounded-md">Venta activa</span>}
             <Search size={13} className="text-amber-500 flex-shrink-0" />
           </button>
@@ -2351,8 +2360,8 @@ export default function Compra() {
         {/* Variedades */}
         <div className="flex items-center gap-1.5 px-3 pb-2.5 overflow-x-auto" style={{ scrollbarWidth: 'none' }}>
           {variedadesSeleccionadas.length > 0 && (
-            <button onClick={() => setModoC(v => !v)} className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all"
-              style={{ background: modoConfig ? 'rgba(99,102,241,0.3)' : 'rgba(255,255,255,0.06)', border: modoConfig ? '1px solid rgba(99,102,241,0.5)' : '1px solid rgba(255,255,255,0.1)', color: modoConfig ? '#818CF8' : '#64748B' }}>
+            <button onClick={() => setModoC(v => !v)} className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all border font-sans"
+              style={{ background: modoConfig ? 'rgba(99,102,241,0.3)' : 'var(--white-alpha-5)', borderColor: modoConfig ? 'rgba(99,102,241,0.5)' : 'var(--border-subtle)', color: modoConfig ? '#818CF8' : 'var(--text-secondary)' }}>
               <Settings2 size={14} />
             </button>
           )}
@@ -2360,8 +2369,8 @@ export default function Compra() {
             const isA = variedadActiva?.id_variedad === v.id_variedad; const cnt = cntPV[v.id_variedad] || 0;
             return (
               <div key={v.id_variedad} className="flex-shrink-0 flex items-center rounded-lg overflow-hidden" style={{ border: isA ? `2px solid ${v.color}` : '2px solid transparent' }}>
-                <button onClick={() => { if (modoConfig) { setST(v.id_variedad); setShowVM(true); } else changeVarA(v); }} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-black rounded-lg"
-                  style={{ backgroundColor: isA ? v.color : `${v.color}44`, color: isA ? fg(v.color) : '#e2e8f0' }}>
+                <button onClick={() => { if (modoConfig) { setST(v.id_variedad); setShowVM(true); } else changeVarA(v); }} className="flex items-center gap-1.5 px-2.5 py-1.5 text-[11px] font-black rounded-lg font-sans"
+                  style={{ backgroundColor: isA ? v.color : `${v.color}44`, color: isA ? fg(v.color) : 'var(--text-primary)' }}>
                   <span>{v.codigo_corto}</span>
                   <span className="text-[10px] px-1 py-0.5 rounded font-black" style={{ background: 'rgba(0,0,0,0.25)' }}>{cnt}</span>
                 </button>
@@ -2369,7 +2378,7 @@ export default function Compra() {
               </div>
             );
           })}
-          <button onClick={() => { setST(null); setShowVM(true); }} className="flex-shrink-0 w-8 h-8 rounded-lg border border-dashed border-slate-600 flex items-center justify-center text-slate-500"><Plus size={14} /></button>
+          <button onClick={() => { setST(null); setShowVM(true); }} className="flex-shrink-0 w-8 h-8 rounded-lg border border-dashed flex items-center justify-center" style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}><Plus size={14} /></button>
         </div>
       </div>
 
@@ -2378,33 +2387,33 @@ export default function Compra() {
 
         {/* Display */}
         <div className={`mx-3 mt-2 rounded-2xl overflow-hidden transition-all ${flashOk ? 'ring-2 ring-blue-400' : ''}`}
-          style={{ background: 'linear-gradient(135deg,#0D1B2A,#111827)', border: '1px solid rgba(255,255,255,0.06)' }}>
+          style={{ background: 'var(--panel-display-bg)', border: '1px solid var(--panel-display-border)' }}>
           <div className="flex p-3">
-            <div className="w-[30%] flex flex-col justify-end pr-3 border-r border-white/5">
+            <div className="w-[30%] flex flex-col justify-end pr-3 border-r" style={{ borderColor: 'var(--border-subtle)' }}>
               {variedadActiva ? (
                 <>
-                  <p className="text-[8px] font-black uppercase tracking-widest mb-1 truncate" style={{ color: `${accent}80` }}>Lote {loteNum} · {variedadActiva.codigo_corto}</p>
-                  <div className="space-y-0.5 mb-1.5">
+                  <p className="text-[8px] font-black uppercase tracking-widest mb-1 truncate font-sans" style={{ color: `${accent}80` }}>Lote {loteNum} · {variedadActiva.codigo_corto}</p>
+                  <div className="space-y-0.5 mb-1.5 font-sans">
                     {loteActual.map((s, i) => <div key={s.id_saco || i} className="text-right font-mono font-bold text-xs leading-none" style={{ color: s.es_transbordo ? '#F59E0B' : accent }}>{s.peso.toFixed(1)}</div>)}
-                    {Array.from({ length: Math.max(0, 5 - loteActual.length) }).map((_, i) => <div key={`e${i}`} className="text-right font-mono text-xs leading-none text-slate-800">·</div>)}
+                    {Array.from({ length: Math.max(0, 5 - loteActual.length) }).map((_, i) => <div key={`e${i}`} className="text-right font-mono text-xs leading-none font-bold" style={{ color: 'var(--text-tertiary)' }}>·</div>)}
                   </div>
-                  <div className="border-t border-white/10 pt-1.5 text-right font-mono font-black text-sm" style={{ color: accent }}>{loteSuma > 0 ? loteSuma.toFixed(1) : '—'}</div>
+                  <div className="pt-1.5 text-right font-mono font-black text-sm" style={{ borderTop: '1px solid var(--border-subtle)', color: accent }}>{loteSuma > 0 ? loteSuma.toFixed(1) : '—'}</div>
                 </>
-              ) : <div className="text-slate-700 text-[9px] font-bold uppercase tracking-widest text-center">Sin variedad</div>}
+              ) : <div className="text-[9px] font-bold uppercase tracking-widest text-center font-sans" style={{ color: 'var(--text-tertiary)' }}>Sin variedad</div>}
             </div>
             <div className="flex-1 flex items-end justify-end pl-3 pb-1 relative overflow-hidden">
               {variedadActiva && <div className="absolute right-3 bottom-3 w-20 h-12 rounded-full blur-2xl opacity-20" style={{ backgroundColor: accent }} />}
-              {modoTransbordo && clienteDestino && <div className="absolute top-0 left-3 text-[9px] font-black text-amber-400 flex items-center gap-1"><ArrowLeftRight size={9} /><span>{clienteDestino.nombre}</span></div>}
-              <div className="flex items-end gap-1 z-10">
-                <span className="font-mono font-black tabular-nums leading-none" style={{ fontSize: peso.length > 4 ? '2.8rem' : '3.8rem', color: modoTransbordo && variedadActiva ? '#F59E0B' : (variedadActiva ? accent : '#374151'), textShadow: variedadActiva ? `0 0 30px ${modoTransbordo ? '#F59E0B' : accent}60` : 'none', transition: 'font-size 0.1s' }}>
+              {modoTransbordo && clienteDestino && <div className="absolute top-0 left-3 text-[9px] font-black text-amber-400 flex items-center gap-1 font-sans"><ArrowLeftRight size={9} /><span>{clienteDestino.nombre}</span></div>}
+              <div className="flex items-end gap-1 z-10 font-sans">
+                <span className="font-mono font-black tabular-nums leading-none" style={{ fontSize: peso.length > 4 ? '2.8rem' : '3.8rem', color: modoTransbordo && variedadActiva ? '#F59E0B' : (variedadActiva ? accent : 'var(--text-tertiary)'), textShadow: variedadActiva ? `0 0 30px ${modoTransbordo ? '#F59E0B' : accent}60` : 'none', transition: 'font-size 0.1s' }}>
                   {peso || (variedadActiva ? '0' : '—')}
                 </span>
-                <span className="text-slate-600 text-sm font-bold mb-1.5">kg</span>
+                <span className="text-sm font-bold mb-1.5" style={{ color: 'var(--text-secondary)' }}>kg</span>
               </div>
             </div>
           </div>
           <div className="flex items-center px-4 pb-2">
-            <span className="text-slate-600 text-[10px] flex-1">
+            <span className="text-[10px] flex-1 font-sans" style={{ color: 'var(--text-secondary)' }}>
               {sacos.length > 0 ? <><span style={{ color: accent }} className="font-bold">{sacos.length}</span> sacos · {totalPesoNeto.toFixed(1)} kg neto</> : 'Sin registros aún'}
             </span>
           </div>
@@ -2416,30 +2425,30 @@ export default function Compra() {
         <div className="p-2.5">
           <div className="grid grid-cols-4 gap-2 h-60" style={{ gridTemplateRows: 'repeat(4,1fr)' }}>
             {['7', '8', '9'].map(n => <Btn key={n} label={n} onClick={() => key(n)} />)}
-            <Btn icon={<Delete size={20} className="text-amber-200" />} onClick={() => key('BACK')} style={{ background: 'linear-gradient(145deg,#78350f,#92400e)', boxShadow: '0 3px 0 #451a03' }} />
+            <Btn icon={<Delete size={20} style={{ color: 'var(--btn-numpad-text)' }} />} onClick={() => key('BACK')} />
             {['4', '5', '6'].map(n => <Btn key={n} label={n} onClick={() => key(n)} />)}
-            <Btn icon={<RotateCcw size={18} className="text-red-200" />} onClick={() => key('C')} style={{ background: 'linear-gradient(145deg,#7f1d1d,#991b1b)', boxShadow: '0 3px 0 #450a0a' }} />
+            <Btn icon={<RotateCcw size={18} style={{ color: 'var(--btn-numpad-text)' }} />} onClick={() => key('C')} />
             {['1', '2', '3'].map(n => <Btn key={n} label={n} onClick={() => key(n)} />)}
-            <button onClick={() => key('ENTER')} className="row-span-2 rounded-xl flex flex-col items-center justify-center gap-1 active:scale-95 transition-all" style={{ background: 'linear-gradient(145deg,#065F46,#047857)', boxShadow: '0 3px 0 #022c22' }}>
+            <button onClick={() => key('ENTER')} className="row-span-2 rounded-xl flex flex-col items-center justify-center gap-1 active:scale-95 transition-all cursor-pointer font-sans" style={{ background: 'linear-gradient(145deg,#065F46,#047857)', boxShadow: '0 3px 0 #022c22' }}>
               <Check size={26} strokeWidth={3} className="text-emerald-100" />
               <span className="text-[9px] font-black tracking-widest text-emerald-200 uppercase">Enter</span>
             </button>
-            <button onClick={() => key('0')} className="col-span-2 rounded-xl text-white text-2xl font-bold active:scale-95 transition-all" style={{ background: 'linear-gradient(145deg,#1E293B,#162032)', boxShadow: '0 3px 0 #0a1120' }}>0</button>
+            <button onClick={() => key('0')} className="col-span-2 rounded-xl text-2xl font-bold active:scale-95 transition-all font-sans cursor-pointer" style={{ background: 'var(--btn-numpad-bg)', color: 'var(--btn-numpad-text)', boxShadow: '0 3px 0 var(--btn-numpad-shadow)' }}>0</button>
             <Btn label="." onClick={() => key('.')} />
           </div>
         </div>
 
         {/* Divisor */}
-        <div className="flex items-center gap-3 px-4 mb-3">
-          <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg,transparent,rgba(255,255,255,0.08))' }} />
-          <span className="text-slate-600 text-[10px] font-black uppercase tracking-widest">Registros en Vivo</span>
-          <div className="flex-1 h-px" style={{ background: 'linear-gradient(270deg,transparent,rgba(255,255,255,0.08))' }} />
+        <div className="flex items-center gap-3 px-4 mb-3 font-sans">
+          <div className="flex-1 h-px" style={{ background: 'linear-gradient(90deg,transparent,var(--border-subtle))' }} />
+          <span className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>Registros en Vivo</span>
+          <div className="flex-1 h-px" style={{ background: 'linear-gradient(270deg,transparent,var(--border-subtle))' }} />
         </div>
 
         {/* Tabla unificada: variedades + adicionales + monto final */}
-        <div className="mx-3 rounded-2xl overflow-hidden mb-3" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
+        <div className="mx-3 rounded-2xl overflow-hidden mb-3 border font-sans" style={{ borderColor: 'var(--border-subtle)' }}>
           {/* Cabecera */}
-          <div className="grid text-[10px] font-black uppercase tracking-wider text-slate-500 px-3 py-2 items-center" style={{ gridTemplateColumns: '2fr 1fr 2fr 2.2fr 1.8fr', background: 'rgba(255,255,255,0.03)' }}>
+          <div className="grid text-[10px] font-black uppercase tracking-wider px-3 py-2 items-center border-b" style={{ gridTemplateColumns: '2fr 1fr 2fr 2.2fr 1.8fr', background: 'var(--white-alpha-3)', color: 'var(--text-tertiary)', borderColor: 'var(--border-subtle)' }}>
             <span>Variedad</span>
             <span className="text-center">Sacos</span>
             <span className="text-right">Peso</span>
@@ -2463,153 +2472,164 @@ export default function Compra() {
             const unitLabel = unit === 'ARROBA' ? '@' : 'kg';
 
             return (
-              <div key={vid} className="grid items-center px-3 py-2.5 border-b border-white/5" style={{ gridTemplateColumns: '2fr 1fr 2fr 2.2fr 1.8fr' }}>
-                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: v?.color || BLU }} /><span className="text-white text-xs font-semibold truncate">{v?.codigo_corto || vid}</span></div>
-                <span className="text-center text-white text-xs font-bold">{sx.length}</span>
+              <div key={vid} className="grid items-center px-3 py-2.5 border-b" style={{ gridTemplateColumns: '2fr 1fr 2fr 2.2fr 1.8fr', borderColor: 'var(--border-subtle)' }}>
+                <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: v?.color || BLU }} /><span className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{v?.codigo_corto || vid}</span></div>
+                <span className="text-center text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{sx.length}</span>
                 <button
                   onClick={() => setShowAjusteModal({ vid, pesoBruto: bruto, tipoAjuste: tipo, kilosAjuste: kilos })}
-                  className="text-right text-slate-300 hover:text-white text-xs font-mono flex items-center justify-end gap-1 w-full ml-auto group"
+                  className="text-right text-xs font-mono flex items-center justify-end gap-1 w-full ml-auto group border-none bg-transparent outline-none cursor-pointer"
+                  style={{ color: 'var(--text-secondary)' }}
                 >
-                  <span className={tipo !== 'NINGUNO' ? "text-amber-400 font-bold" : ""}>
-                    {displayPeso.toFixed(1)} <span className="text-[10px] text-slate-500 font-normal">{unitLabel}</span>
+                  <span className={tipo !== 'NINGUNO' ? "text-amber-550 dark:text-amber-400 font-bold" : ""}>
+                    {displayPeso.toFixed(1)} <span className="text-[10px] font-normal" style={{ color: 'var(--text-tertiary)' }}>{unitLabel}</span>
                   </span>
                   <span className="text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">✏️</span>
                 </button>
                 <div className="flex items-center justify-end gap-1">
-                  <input type="number" placeholder={placeholder} value={precios[vid] || ''} onChange={e => handlePrecioChange(vid, e.target.value)} className="w-14 bg-white/5 border border-white/10 focus:border-blue-500/40 text-white text-xs text-right rounded-lg px-1.5 py-1 outline-none font-mono" />
-                  <button onClick={() => toggleRowUnit(vid)} className={`px-1 py-0.5 rounded text-[9px] font-black w-6 text-center transition-all ${unit === 'ARROBA' ? 'bg-amber-600/20 text-amber-400 border border-amber-500/30' : 'bg-white/5 text-slate-500 border border-white/10'}`}>
+                  <input type="number" placeholder={placeholder} value={precios[vid] || ''} onChange={e => handlePrecioChange(vid, e.target.value)} className="w-14 border text-xs text-right rounded-lg px-1.5 py-1 outline-none font-mono focus:border-blue-500/40" style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }} />
+                  <button onClick={() => toggleRowUnit(vid)} className="px-1 py-0.5 rounded text-[9px] font-black w-6 text-center transition-all border cursor-pointer font-sans"
+                    style={{
+                      background: unit === 'ARROBA' ? 'rgba(245,158,11,0.15)' : 'var(--white-alpha-3)',
+                      color: unit === 'ARROBA' ? '#F59E0B' : 'var(--text-secondary)',
+                      borderColor: unit === 'ARROBA' ? 'rgba(245,158,11,0.45)' : 'var(--border-subtle)'
+                    }}>
                     {unit === 'ARROBA' ? '@' : 'kg'}
                   </button>
                 </div>
-                <span className="text-right text-blue-400 text-xs font-bold font-mono">{subtotal > 0 ? `S/ ${subtotal.toFixed(2)}` : '—'}</span>
+                <span className="text-right text-blue-600 dark:text-blue-400 text-xs font-bold font-mono">{subtotal > 0 ? `S/ ${subtotal.toFixed(2)}` : '—'}</span>
               </div>
             );
           })}
           {/* Extras DB legacy */}
           {extras.map(e => (
-            <div key={e.id_extra} className="grid items-center px-3 py-2 border-b border-white/5" style={{ gridTemplateColumns: '2fr 1fr 2fr 2.2fr 1.8fr' }}>
-              <span className="text-amber-300 text-xs col-span-4 truncate">{e.descripcion}</span>
-              <span className="text-right text-red-400 text-xs font-bold font-mono">-S/ {Number(e.monto).toFixed(2)}</span>
+            <div key={e.id_extra} className="grid items-center px-3 py-2 border-b" style={{ gridTemplateColumns: '2fr 1fr 2fr 2.2fr 1.8fr', borderColor: 'var(--border-subtle)' }}>
+              <span className="text-xs col-span-4 truncate" style={{ color: 'var(--text-primary)' }}>{e.descripcion}</span>
+              <span className="text-right text-red-500 dark:text-red-400 text-xs font-bold font-mono">-S/ {Number(e.monto).toFixed(2)}</span>
             </div>
           ))}
-          {!varIds.length && !extras.length && <p className="text-slate-700 text-xs text-center py-5">Ingresa pesos para ver la tabla</p>}
+          {!varIds.length && !extras.length && <p className="text-xs text-center py-5" style={{ color: 'var(--text-tertiary)' }}>Ingresa pesos para ver la tabla</p>}
           {/* Fila Total General */}
           {(varIds.length > 0 || extras.length > 0) && (
-            <div className="grid items-center px-3 py-2.5" style={{ gridTemplateColumns: '2fr 1fr 2fr 2.2fr 1.8fr', background: 'rgba(37,99,235,0.08)', borderTop: '1px solid rgba(37,99,235,0.15)' }}>
-              <span className="text-blue-300 text-[10px] font-black uppercase">Total General</span>
-              <span className="text-center text-white text-xs font-bold">{sacos.length}</span>
-              <span className="text-right text-slate-300 text-xs font-mono font-bold">{totalPesoNeto.toFixed(1)} kg</span>
+            <div className="grid items-center px-3 py-2.5" style={{ gridTemplateColumns: '2fr 1fr 2fr 2.2fr 1.8fr', background: 'var(--badge-bg-blue)', borderTop: '1px solid var(--border-subtle)' }}>
+              <span className="text-[10px] font-black uppercase font-sans" style={{ color: 'var(--text-primary)' }}>Total General</span>
+              <span className="text-center text-xs font-bold font-sans" style={{ color: 'var(--text-primary)' }}>{sacos.length}</span>
+              <span className="text-right text-xs font-mono font-bold" style={{ color: 'var(--text-secondary)' }}>{totalPesoNeto.toFixed(1)} kg</span>
               <span></span>
-              <span className="text-right text-blue-300 text-sm font-black font-mono">S/ {totalDinero.toFixed(2)}</span>
+              <span className="text-right text-sm font-black font-mono" style={{ color: 'var(--text-primary)' }}>S/ {totalDinero.toFixed(2)}</span>
             </div>
           )}
           {/* Divisor Conceptos Adicionales */}
-          <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'rgba(255,255,255,0.02)', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-            <div className="flex-1 h-px bg-white/5" />
-            <span className="text-slate-600 text-[9px] font-black uppercase tracking-widest">Conceptos Adicionales</span>
-            <div className="flex-1 h-px bg-white/5" />
+          <div className="flex items-center gap-2 px-3 py-1.5" style={{ background: 'var(--white-alpha-3)', borderTop: '1px solid var(--border-subtle)' }}>
+            <div className="flex-1 h-px" style={{ background: 'var(--border-subtle)' }} />
+            <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>Conceptos Adicionales</span>
+            <div className="flex-1 h-px" style={{ background: 'var(--border-subtle)' }} />
           </div>
           {/* Filas de adicionales confirmados */}
           {fleteActivo === 1 && (
-            <div className="flex items-center px-3 py-2 border-b border-white/5 gap-2">
-              <span className="flex-1 text-slate-300 text-xs">
+            <div className="flex items-center px-3 py-2 border-b gap-2" style={{ borderColor: 'var(--border-subtle)' }}>
+              <span className="flex-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
                 Flete Automático: {totalPesoNeto.toFixed(1)} kg x S/ {parseFloat(fletePrecioKg || 0).toFixed(2)}
               </span>
               <button
                 onClick={handleRemoveFlete}
-                className="text-slate-600 hover:text-red-400 transition-colors text-xs px-1"
+                className="transition-colors text-xs px-1 border-none bg-transparent cursor-pointer"
+                style={{ color: 'var(--text-tertiary)' }}
                 title="Eliminar flete"
               >×</button>
-              <span className="text-xs font-mono font-bold flex-shrink-0 w-20 text-right" style={{ color: fleteTipoSigno === 'SUMAR' ? '#34d399' : '#f87171' }}>
+              <span className="text-xs font-mono font-bold flex-shrink-0 w-20 text-right" style={{ color: fleteTipoSigno === 'SUMAR' ? '#10B981' : '#EF4444' }}>
                 {fleteTipoSigno === 'SUMAR' ? '+' : '−'}S/ {fleteMontoTotal.toFixed(2)}
               </span>
             </div>
           )}
           {adicsCommitted.map(a => (
-            <div key={a.id} className="flex items-center px-3 py-2 border-b border-white/5 gap-2">
-              <span className="flex-1 text-slate-300 text-xs truncate">{a.desc}</span>
+            <div key={a.id} className="flex items-center px-3 py-2 border-b gap-2" style={{ borderColor: 'var(--border-subtle)' }}>
+              <span className="flex-1 text-xs truncate" style={{ color: 'var(--text-secondary)' }}>{a.desc}</span>
               <button
                 onClick={() => removeAdic(a.id)}
-                className="text-slate-600 hover:text-red-400 transition-colors text-xs px-1"
+                className="transition-colors text-xs px-1 border-none bg-transparent cursor-pointer"
+                style={{ color: 'var(--text-tertiary)' }}
                 title="Eliminar"
               >×</button>
-              <span className="text-xs font-mono font-bold flex-shrink-0 w-20 text-right" style={{ color: a.op === '+' ? '#34d399' : '#f87171' }}>
+              <span className="text-xs font-mono font-bold flex-shrink-0 w-20 text-right" style={{ color: a.op === '+' ? '#10B981' : '#EF4444' }}>
                 {a.op === '+' ? '+' : '−'}S/ {parseFloat(a.monto).toFixed(2)}
               </span>
             </div>
           ))}
           {/* Fila Flete Automático */}
           {fleteActivo === 0 && (
-            <div className="flex items-center px-3 py-2 border-b border-white/5 gap-2">
-              <span className="flex-1 text-slate-300 text-xs font-semibold">Flete Automático</span>
+            <div className="flex items-center px-3 py-2 border-b gap-2" style={{ borderColor: 'var(--border-subtle)' }}>
+              <span className="flex-1 text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>Flete Automático</span>
               <div className="flex items-center gap-1.5">
                 <input
                   type="number"
                   placeholder="S// kg"
                   value={fletePrecioKg}
                   onChange={e => handleFletePrecioChange(e.target.value)}
-                  className="w-16 bg-white/5 border border-white/8 text-white text-xs text-right rounded-lg px-2 py-1 outline-none font-mono"
+                  className="w-16 border text-xs text-right rounded-lg px-2 py-1 outline-none font-mono"
+                  style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
                 />
                 <button
                   onClick={() => handleApplyFlete('RESTAR')}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0 transition-all active:scale-90"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0 transition-all active:scale-95 border cursor-pointer"
                   style={{
                     background: 'rgba(239,68,68,0.1)',
-                    color: '#f87171',
-                    border: '1px solid rgba(239,68,68,0.25)'
+                    color: '#EF4444',
+                    borderColor: 'rgba(239,68,68,0.25)'
                   }}
                 >
                   −
                 </button>
                 <button
                   onClick={() => handleApplyFlete('SUMAR')}
-                  className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0 transition-all active:scale-90"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0 transition-all active:scale-95 border cursor-pointer"
                   style={{
                     background: 'rgba(16,185,129,0.1)',
-                    color: '#34d399',
-                    border: '1px solid rgba(16,185,129,0.25)'
+                    color: '#10B981',
+                    borderColor: 'rgba(16,185,129,0.25)'
                   }}
                 >
                   +
                 </button>
               </div>
-              <span className="text-xs font-mono font-bold flex-shrink-0 w-20 text-right text-slate-500">
+              <span className="text-xs font-mono font-bold flex-shrink-0 w-20 text-right" style={{ color: 'var(--text-tertiary)' }}>
                 S/ {fleteMontoTotal.toFixed(2)}
               </span>
             </div>
           )}
 
           {/* Fila de input único */}
-          <div className="flex items-center gap-1.5 px-2 py-2 border-b border-white/5">
+          <div className="flex items-center gap-1.5 px-2 py-2 border-b" style={{ borderColor: 'var(--border-subtle)' }}>
             <input
               type="text"
               placeholder="Estiba, Sacos, Viáticos..."
               value={adicDesc}
               onChange={e => setAdicDesc(e.target.value)}
-              className="flex-1 bg-white/5 border border-white/8 text-white text-xs rounded-lg px-2 py-1.5 outline-none font-medium min-w-0"
+              className="flex-1 border text-xs rounded-lg px-2 py-1.5 outline-none font-medium min-w-0"
+              style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
             />
             <input
               type="number"
               placeholder="0.00"
               value={adicMonto}
               onChange={e => setAdicMonto(e.target.value)}
-              className="w-16 bg-white/5 border border-white/8 text-white text-xs text-right rounded-lg px-2 py-1.5 outline-none font-mono flex-shrink-0"
+              className="w-16 border text-xs text-right rounded-lg px-2 py-1.5 outline-none font-mono flex-shrink-0"
+              style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
             />
             <button
               onClick={() => commitAdic('-')}
-              className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0 transition-all active:scale-90"
-              style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.25)' }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0 transition-all active:scale-95 border cursor-pointer"
+              style={{ background: 'rgba(239,68,68,0.1)', color: '#EF4444', borderColor: 'rgba(239,68,68,0.25)' }}
             >−</button>
             <button
               onClick={() => commitAdic('+')}
-              className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0 transition-all active:scale-90"
-              style={{ background: 'rgba(16,185,129,0.1)', color: '#34d399', border: '1px solid rgba(16,185,129,0.25)' }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center font-black text-sm flex-shrink-0 transition-all active:scale-95 border cursor-pointer"
+              style={{ background: 'rgba(16,185,129,0.1)', color: '#10B981', borderColor: 'rgba(16,185,129,0.25)' }}
             >+</button>
           </div>
           {/* Fila Monto Final */}
-          <div className="flex items-center justify-between px-3 py-3" style={{ background: 'rgba(37,99,235,0.1)', borderTop: '1px solid rgba(37,99,235,0.15)' }}>
-            <span className="text-blue-300 text-xs font-black uppercase tracking-wide">Monto Final</span>
-            <span className="text-blue-300 text-sm font-black font-mono">S/ {totalNeto.toFixed(2)}</span>
+          <div className="flex items-center justify-between px-3 py-3" style={{ background: 'var(--badge-bg-blue)', borderTop: '1px solid var(--border-subtle)' }}>
+            <span className="text-xs font-black uppercase tracking-wide" style={{ color: 'var(--text-primary)' }}>Monto Final</span>
+            <span className="text-sm font-black font-mono" style={{ color: 'var(--text-primary)' }}>S/ {totalNeto.toFixed(2)}</span>
           </div>
         </div>
 
@@ -2617,27 +2637,27 @@ export default function Compra() {
         {varIds.map(vid => {
           const v = varMap[vid]; const sx = sacos.filter(s => s.id_variedad === vid); const nC = Math.ceil(sx.length / 5);
           return (
-            <div key={vid} className="mx-3 mb-3 rounded-2xl overflow-hidden" style={{ border: '1px solid rgba(255,255,255,0.07)' }}>
-              <div className="flex items-center gap-2 px-3 py-2" style={{ backgroundColor: `${v?.color || BLU}20`, borderBottom: `1px solid ${v?.color || BLU}30` }}>
+            <div key={vid} className="mx-3 mb-3 rounded-2xl overflow-hidden border" style={{ borderColor: 'var(--border-subtle)' }}>
+              <div className="flex items-center gap-2 px-3 py-2 border-b" style={{ backgroundColor: `${v?.color || BLU}20`, borderColor: 'var(--border-subtle)' }}>
                 <div className="w-3 h-3 rounded-full" style={{ backgroundColor: v?.color }} />
-                <span className="text-white font-bold text-xs">{v?.nombre || vid}</span>
-                <span className="text-slate-500 text-[10px]">({sx.length} sacos)</span>
+                <span className="font-bold text-xs" style={{ color: 'var(--text-primary)' }}>{v?.nombre || vid}</span>
+                <span className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>({sx.length} sacos)</span>
               </div>
               <div className="p-2 overflow-x-auto">
                 <div className="flex gap-2" style={{ minWidth: 'max-content' }}>
                   {Array.from({ length: nC }).map((_, ci) => {
                     const lote = sx.slice(ci * 5, (ci + 1) * 5);
                     return (
-                      <div key={ci} className="rounded-xl overflow-hidden flex flex-col" style={{ minWidth: 68, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                      <div key={ci} className="rounded-xl overflow-hidden flex flex-col border" style={{ minWidth: 68, background: 'var(--white-alpha-3)', borderColor: 'var(--border-subtle)' }}>
                         {lote.map(saco => (
                           <button key={saco.id_saco}
                             onClick={() => setSacoAccion({ saco, color: v?.color || BLU })}
-                            className="text-center font-mono font-bold text-xs py-1.5 border-b border-white/5 active:bg-white/10 transition-all"
-                            style={{ color: saco.es_transbordo ? '#F59E0B' : (v?.color || BLU) }}>
+                            className="text-center font-mono font-bold text-xs py-1.5 border-b active:opacity-75 transition-all bg-transparent outline-none cursor-pointer"
+                            style={{ borderColor: 'var(--border-subtle)', color: saco.es_transbordo ? '#F59E0B' : (v?.color || BLU) }}>
                             {saco.peso.toFixed(1)}
                           </button>
                         ))}
-                        {Array.from({ length: 5 - lote.length }).map((_, i) => <div key={i} className="text-center text-slate-800 text-[10px] py-1.5 border-b border-white/3">·</div>)}
+                        {Array.from({ length: 5 - lote.length }).map((_, i) => <div key={i} className="text-center text-[10px] py-1.5 border-b" style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}>·</div>)}
                         <div className="text-center font-black text-xs py-1.5 font-mono" style={{ color: v?.color, background: `${v?.color}18` }}>{lote.reduce((a, s) => a + s.peso, 0).toFixed(1)}</div>
                       </div>
                     );
@@ -2651,9 +2671,9 @@ export default function Compra() {
       </div>
 
       {/* ── STICKY FOOTER ── */}
-      <div className="fixed bottom-0 left-0 w-full bg-slate-950/80 backdrop-blur border-t border-white/5 px-4 py-3 flex gap-2 z-50">
+      <div className="fixed bottom-0 left-0 w-full border-t px-4 py-3 flex gap-2 z-50 backdrop-blur" style={{ background: 'var(--nav-bg)', borderColor: 'var(--border-subtle)' }}>
         {/* Botón Izquierdo: PDF */}
-        <button onClick={generarPDF} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-2xl text-cyan-400 text-xs font-bold active:scale-95 transition-all cursor-pointer" style={{ background: 'rgba(6,182,212,0.12)', border: '1px solid rgba(6,182,212,0.25)' }}>
+        <button onClick={generarPDF} className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-2xl text-cyan-500 dark:text-cyan-400 text-xs font-bold active:scale-95 transition-all cursor-pointer border" style={{ background: 'rgba(6,182,212,0.12)', borderColor: 'rgba(6,182,212,0.25)' }}>
           <Printer size={14} /><span>🖨️ PDF</span>
         </button>
 
@@ -2663,15 +2683,16 @@ export default function Compra() {
           return (
             <button onClick={() => setShowFin(true)}
               disabled={isMontoZero}
-              className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-2xl text-xs font-black transition-all ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-3 rounded-2xl text-xs font-black transition-all border font-sans ${
                 isMontoZero ? 'opacity-40 cursor-not-allowed text-slate-500' : 'active:scale-95 cursor-pointer text-white'
               }`}
               style={isMontoZero ? {
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'var(--white-alpha-5)',
+                borderColor: 'var(--border-subtle)',
               } : {
                 background: `linear-gradient(135deg,${BLU},${BLU_DK})`,
-                boxShadow: '0 3px 12px rgba(37,99,235,0.4)',
+                borderColor: 'transparent',
+                boxShadow: '0 2px 8px rgba(37,99,235,0.45)',
               }}>
               {isMontoZero ? 'Esperando datos...' : `✓ Finalizar • S/ ${totalNeto.toFixed(2)}`}
             </button>

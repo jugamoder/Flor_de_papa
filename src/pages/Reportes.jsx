@@ -83,11 +83,12 @@ function PagoModal({ mov, pagos, onClose, onPago, onEditar }) {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="relative w-full max-w-lg rounded-t-3xl flex flex-col pb-10" style={{ background: '#1A2438' }}>
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
+      <div className="relative w-full max-w-lg rounded-t-3xl flex flex-col pb-10 shadow-2xl" style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)', borderBottom: 'none' }}>
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors"
+          className="absolute top-4 right-4 transition-colors"
+          style={{ color: 'var(--text-secondary)' }}
           type="button"
         >
           <X size={18} />
@@ -98,33 +99,36 @@ function PagoModal({ mov, pagos, onClose, onPago, onEditar }) {
           onTouchEnd={handleTouchEnd}
           className="flex justify-center pt-2 pb-1 cursor-grab active:cursor-grabbing w-full"
         >
-          <div className="w-8 h-1 rounded-full bg-slate-600" />
+          <div className="w-8 h-1 rounded-full" style={{ background: 'var(--text-tertiary)' }} />
         </div>
         <div className="px-4 pt-3 pb-4">
-          <p className="text-white font-bold text-sm mb-3">Actualizar Operación</p>
-          <div className="rounded-xl p-3 mb-3" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}>
-            <div className="flex justify-between text-xs mb-1"><span className="text-slate-400">Total</span><span className="text-white font-mono font-bold">S/ {total.toFixed(2)}</span></div>
-            <div className="flex justify-between text-xs mb-1"><span className="text-slate-400">Pagado</span><span className="text-emerald-400 font-mono font-bold">S/ {pagado.toFixed(2)}</span></div>
-            <div className="flex justify-between text-xs"><span className="text-slate-400">Pendiente</span><span className={`font-mono font-bold ${pend > 0 ? 'text-red-400' : 'text-emerald-400'}`}>S/ {pend.toFixed(2)}</span></div>
+          <p className="font-bold text-sm mb-3" style={{ color: 'var(--text-primary)' }}>Actualizar Operación</p>
+          <div className="rounded-xl p-3 mb-3" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
+            <div className="flex justify-between text-xs mb-1"><span style={{ color: 'var(--text-secondary)' }}>Total</span><span className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>S/ {total.toFixed(2)}</span></div>
+            <div className="flex justify-between text-xs mb-1"><span style={{ color: 'var(--text-secondary)' }}>Pagado</span><span className="text-emerald-500 dark:text-emerald-400 font-mono font-bold">S/ {pagado.toFixed(2)}</span></div>
+            <div className="flex justify-between text-xs"><span style={{ color: 'var(--text-secondary)' }}>Pendiente</span><span className={`font-mono font-bold ${pend > 0 ? 'text-red-500 dark:text-red-400' : 'text-emerald-500 dark:text-emerald-400'}`}>S/ {pend.toFixed(2)}</span></div>
           </div>
 
-          <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">{sectionTitle}</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>{sectionTitle}</p>
           <div className="flex gap-2 mb-3">
             {[
               { k: 'efectivo', l: '💵 Efectivo', I: Banknote },
               { k: 'yape', l: '📱 Yape', I: CreditCard },
               { k: 'deposito', l: '🏦 Depósito', I: Landmark }
-            ].map(({ k, l, I }) => (
-              <button key={k} onClick={() => setMetodo(k)}
-                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all border outline-none"
-                style={{
-                  background: metodo === k ? 'rgba(99,102,241,0.2)' : 'rgba(255,255,255,0.04)',
-                  border: metodo === k ? '1px solid rgba(99,102,241,0.4)' : '1px solid rgba(255,255,255,0.06)',
-                  color: metodo === k ? '#a5b4fc' : '#94a3b8'
-                }}>
-                <I size={13} /> {l}
-              </button>
-            ))}
+            ].map(({ k, l, I: Icon }) => {
+              const isSelected = metodo === k;
+              return (
+                <button key={k} onClick={() => setMetodo(k)}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all border outline-none font-sans"
+                  style={{
+                    background: isSelected ? 'rgba(99,102,241,0.15)' : 'var(--white-alpha-3)',
+                    borderColor: isSelected ? 'rgba(99,102,241,0.4)' : 'var(--border-subtle)',
+                    color: isSelected ? '#818cf8' : 'var(--text-secondary)'
+                  }}>
+                  {Icon({ size: 13 })} {l}
+                </button>
+              );
+            })}
           </div>
           <div className="flex gap-2 mb-4">
             <button
@@ -149,12 +153,13 @@ function PagoModal({ mov, pagos, onClose, onPago, onEditar }) {
                 }
               }}
               disabled={pend <= 0}
-              className="flex-1 bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2.5 text-sm outline-none font-mono focus:border-indigo-500/50 disabled:opacity-40"
+              className="flex-1 border rounded-xl px-3 py-2.5 text-sm outline-none font-mono focus:border-indigo-500/50 disabled:opacity-40"
+              style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
             />
             <button
               onClick={guardar}
               disabled={!monto || parseFloat(monto) <= 0 || pend <= 0}
-              className="px-5 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-bold disabled:opacity-40 active:scale-95 transition-all"
+              className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold disabled:opacity-40 active:scale-95 transition-all"
             >
               {actionLabel}
             </button>
@@ -162,12 +167,12 @@ function PagoModal({ mov, pagos, onClose, onPago, onEditar }) {
 
           {pagos.length > 0 && (
             <>
-              <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-2">Historial de Pagos</p>
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>Historial de Pagos</p>
               <div className="space-y-1 max-h-28 overflow-y-auto mb-3">
                 {pagos.map(p => (
-                  <div key={p.id_pago} className="flex justify-between items-center px-3 py-1.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.03)' }}>
-                    <span className="text-slate-400 text-xs">{getMetodoIconAndLabel(p.metodo)} · {p.fecha}</span>
-                    <span className="text-emerald-400 font-mono text-xs font-bold">S/ {(p.monto || 0).toFixed(2)}</span>
+                  <div key={p.id_pago} className="flex justify-between items-center px-3 py-1.5 rounded-lg" style={{ background: 'var(--white-alpha-3)' }}>
+                    <span style={{ color: 'var(--text-secondary)' }} className="text-xs">{getMetodoIconAndLabel(p.metodo)} · {p.fecha}</span>
+                    <span className="text-emerald-550 dark:text-emerald-400 font-mono text-xs font-bold">S/ {(p.monto || 0).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -176,7 +181,8 @@ function PagoModal({ mov, pagos, onClose, onPago, onEditar }) {
 
           {/* Botón Editar - Secundario */}
           <button onClick={() => { onClose(); onEditar(mov); }}
-            className="w-full py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-95 text-slate-400 bg-white/5 border border-white/10 flex items-center justify-center gap-1.5">
+            className="w-full py-2.5 rounded-xl text-xs font-semibold transition-all active:scale-95 flex items-center justify-center gap-1.5"
+            style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
             <Edit2 size={12} /> Editar Registro Completo (Solo correcciones)
           </button>
         </div>
@@ -194,16 +200,16 @@ function SacosGrid({ sacos, color, showSum }) {
         const lote = sacos.slice(ci * 5, (ci + 1) * 5);
         const sum = lote.reduce((a, s) => a + s.peso, 0);
         return (
-          <div key={ci} className="rounded-xl overflow-hidden flex flex-col" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          <div key={ci} className="rounded-xl overflow-hidden flex flex-col" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
             {/* Peso sacos */}
             {lote.map((saco, si) => (
-              <div key={saco.id_saco || si} className="text-center font-mono font-bold text-sm py-1.5 border-b border-white/5 text-slate-100">
+              <div key={saco.id_saco || si} className="text-center font-mono font-bold text-sm py-1.5" style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
                 {saco.peso.toFixed(1)}
               </div>
             ))}
             {/* Rellenar vacíos para mantener 5 filas */}
             {Array.from({ length: 5 - lote.length }).map((_, i) => (
-              <div key={i} className="text-center text-slate-700/50 text-[10px] py-1.5 border-b border-white/5">·</div>
+              <div key={i} className="text-center text-[10px] py-1.5" style={{ borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-tertiary)' }}>·</div>
             ))}
             {/* Subtotal columna */}
             {showSum && (
@@ -235,30 +241,30 @@ function DetalleTicketModal({ mov, sacos, varMap, onClose }) {
   return (
     <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center p-0 sm:p-4">
       {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
       
       {/* Content Container */}
-      <div className="relative w-full max-w-4xl rounded-t-3xl sm:rounded-2xl flex flex-col max-h-[90vh] overflow-hidden" style={{ background: '#0D1527', border: '1px solid rgba(255,255,255,0.08)' }}>
+      <div className="relative w-full max-w-4xl rounded-t-3xl sm:rounded-2xl flex flex-col max-h-[90vh] overflow-hidden shadow-2xl" style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)' }}>
         {/* Drag handle for mobile */}
-        <div className="flex justify-center pt-2 sm:hidden flex-shrink-0"><div className="w-8 h-1 rounded-full bg-slate-700" /></div>
+        <div className="flex justify-center pt-2 sm:hidden flex-shrink-0"><div className="w-8 h-1 rounded-full" style={{ background: 'var(--text-tertiary)' }} /></div>
         
         {/* Cabecera */}
-        <div className="px-5 pt-4 pb-3 border-b border-white/5 flex justify-between items-start flex-shrink-0">
+        <div className="px-5 pt-4 pb-3 flex justify-between items-start flex-shrink-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className={`text-[10px] font-black tracking-widest px-2 py-0.5 rounded-md uppercase ${
                 esTransbordo
-                  ? 'bg-amber-500/20 text-amber-300'
-                  : (esCompra ? 'bg-blue-500/20 text-blue-300' : 'bg-emerald-500/20 text-emerald-300')
+                  ? 'bg-amber-600/20 text-amber-500 dark:text-amber-300'
+                  : (esCompra ? 'bg-blue-600/20 text-blue-500 dark:text-blue-300' : 'bg-emerald-600/20 text-emerald-500 dark:text-emerald-300')
               }`}>
                 {esTransbordo ? 'Transbordo' : (esCompra ? 'Compra' : 'Venta')}
               </span>
-              <span className="text-slate-400 text-xs font-medium">{fechaPE} · {horaPE}</span>
+              <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{fechaPE} · {horaPE}</span>
             </div>
-            <h2 className="text-white text-lg font-black">{mov._nombreSocioResolv || 'Socio'}</h2>
-            <p className="text-slate-400 text-xs mt-0.5">Total de sacos registrados: <span className="text-white font-bold">{mov._sacos}</span></p>
+            <h2 className="text-lg font-black" style={{ color: 'var(--text-primary)' }}>{mov._nombreSocioResolv || 'Socio'}</h2>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>Total de sacos registrados: <span className="font-bold" style={{ color: 'var(--text-primary)' }}>{mov._sacos}</span></p>
           </div>
-          <button onClick={onClose} className="p-1 rounded-full bg-white/5 border border-white/10 text-slate-400 hover:text-white active:scale-90 transition-all">
+          <button onClick={onClose} className="p-1 rounded-full transition-all active:scale-95" style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
             <X size={18} />
           </button>
         </div>
@@ -280,8 +286,8 @@ function DetalleTicketModal({ mov, sacos, varMap, onClose }) {
               <div key={vid} className="mb-4">
                 {/* Variedad Banner */}
                 <div className="flex items-center justify-between px-3 py-2 rounded-xl mb-2" style={{ backgroundColor: `${v.color}15`, borderLeft: `4px solid ${v.color}` }}>
-                  <span className="text-white font-bold text-xs uppercase tracking-wide">{v.codigo_corto} - {v.nombre}</span>
-                  <span className="text-slate-300 font-mono text-xs font-semibold">
+                  <span className="font-bold text-xs uppercase tracking-wide" style={{ color: 'var(--text-primary)' }}>{v.codigo_corto} - {v.nombre}</span>
+                  <span className="font-mono text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>
                     {sacosVar.length} sacos · {neto.toFixed(1)} kg {tipo !== 'NINGUNO' ? `(Neto)` : ''}
                   </span>
                 </div>
@@ -293,18 +299,18 @@ function DetalleTicketModal({ mov, sacos, varMap, onClose }) {
           })}
 
           {/* Resumen Financiero */}
-          <div className="mt-6 border-t border-white/10 pt-4 space-y-2">
-            <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mb-3">Resumen Financiero</p>
+          <div className="mt-6 pt-4 space-y-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+            <p className="text-[10px] font-black uppercase tracking-widest mb-3" style={{ color: 'var(--text-secondary)' }}>Resumen Financiero</p>
             
             <div className="flex justify-between text-sm">
-              <span className="text-slate-400">Subtotal de Variedades</span>
-              <span className="text-white font-semibold font-mono">S/ {mov._subtotal.toFixed(2)}</span>
+              <span style={{ color: 'var(--text-secondary)' }}>Subtotal de Variedades</span>
+              <span className="font-semibold font-mono" style={{ color: 'var(--text-primary)' }}>S/ {mov._subtotal.toFixed(2)}</span>
             </div>
 
             {mov.flete_activo === 1 && (
               <div className="flex justify-between text-sm">
-                <span className="text-slate-400">Flete ({mov._totalPeso.toFixed(1)} kg x S/ {(mov.flete_precio_kg || 0).toFixed(2)})</span>
-                <span className={`font-mono font-semibold ${mov.flete_tipo_signo === 'SUMAR' ? 'text-emerald-400' : 'text-red-400'}`}>
+                <span style={{ color: 'var(--text-secondary)' }}>Flete ({mov._totalPeso.toFixed(1)} kg x S/ {(mov.flete_precio_kg || 0).toFixed(2)})</span>
+                <span className={`font-mono font-semibold ${mov.flete_tipo_signo === 'SUMAR' ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500'}`}>
                   {mov.flete_tipo_signo === 'SUMAR' ? '+' : '−'} S/ {(mov.flete_monto_total || 0).toFixed(2)}
                 </span>
               </div>
@@ -312,29 +318,29 @@ function DetalleTicketModal({ mov, sacos, varMap, onClose }) {
 
             {Array.isArray(mov._adicionales) && mov._adicionales.map((a, i) => (
               <div key={i} className="flex justify-between text-sm">
-                <span className="text-slate-400">{a.descripcion}</span>
-                <span className={`font-mono font-semibold ${a.tipo === 'suma' ? 'text-emerald-400' : 'text-red-400'}`}>
+                <span style={{ color: 'var(--text-secondary)' }}>{a.descripcion}</span>
+                <span className={`font-mono font-semibold ${a.tipo === 'suma' ? 'text-emerald-500 dark:text-emerald-400' : 'text-rose-500'}`}>
                   {a.tipo === 'suma' ? '+' : '−'} S/ {a.monto.toFixed(2)}
                 </span>
               </div>
             ))}
 
             {mov.fecha_edicion && (
-              <div className="text-[10px] text-slate-500 italic mt-2">
+              <div className="text-[10px] italic mt-2" style={{ color: 'var(--text-tertiary)' }}>
                 Última edición: {new Date(mov.fecha_edicion).toLocaleString('es-PE')}
               </div>
             )}
 
-            <div className="flex justify-between items-center pt-3 border-t border-white/5 mt-2">
-              <span className="text-white font-bold text-base">MONTO FINAL</span>
-              <span className="text-emerald-400 font-black text-2xl font-mono">S/ {mov._totalDinero.toFixed(2)}</span>
+            <div className="flex justify-between items-center pt-3 mt-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+              <span className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>MONTO FINAL</span>
+              <span className="text-emerald-500 dark:text-emerald-400 font-black text-2xl font-mono">S/ {mov._totalDinero.toFixed(2)}</span>
             </div>
           </div>
 
           {/* Close button inside scroll for mobile compatibility */}
           <button onClick={onClose}
-            className="w-full mt-6 py-3 rounded-xl bg-slate-800 text-white font-bold text-sm active:scale-95 transition-all hover:bg-slate-700"
-            style={{ border: '1px solid rgba(255,255,255,0.08)' }}>
+            className="w-full mt-6 py-3 rounded-xl font-bold text-sm active:scale-95 transition-all"
+            style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
             Cerrar
           </button>
         </div>
@@ -511,54 +517,54 @@ export default function Reportes() {
   const clearSocio = () => { setSocioSel(null); setBusq(''); };
 
   return (
-    <div className="flex flex-col h-[100dvh] overflow-hidden" style={{ background: '#080E1A', fontFamily: FONT }}>
+    <div className="flex flex-col h-[100dvh] overflow-hidden" style={{ background: 'var(--surface-base)', color: 'var(--text-primary)', fontFamily: FONT }}>
 
       {/* HEADER */}
-      <div className="flex-shrink-0 px-4 pt-5 pb-2" style={{ background: 'linear-gradient(180deg,rgba(30,41,59,0.9) 0%,rgba(8,14,26,0) 100%)' }}>
-        <h1 className="text-white text-lg font-black tracking-tight mb-3">Reportes</h1>
+      <div className="flex-shrink-0 px-4 pt-5 pb-2" style={{ background: 'linear-gradient(180deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%)' }}>
+        <h1 className="text-lg font-black tracking-tight mb-3" style={{ color: 'var(--text-primary)' }}>Reportes</h1>
 
         {/* Buscador de socio */}
         <div className="relative mb-2.5" ref={suggRef}>
           {socioSel ? (
-            <div className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.3)' }}>
+            <div className="flex items-center justify-between px-3 py-2 rounded-xl" style={{ background: 'var(--icon-bg-indigo)', border: '1px solid rgba(99,102,241,0.3)' }}>
               <div className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px]" style={{ background: 'rgba(99,102,241,0.3)', color: '#a5b4fc' }}>{socioSel.nombre[0]}</div>
-                <span className="text-white text-sm font-semibold">{socioSel.nombre}</span>
+                <span className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>{socioSel.nombre}</span>
               </div>
-              <button onClick={clearSocio}><X size={14} className="text-slate-400" /></button>
+              <button onClick={clearSocio}><X size={14} style={{ color: 'var(--text-secondary)' }} /></button>
             </div>
           ) : (
             <>
-              <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+              <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-tertiary)' }} />
               <input type="text" placeholder="Buscar socio..."
-                className="w-full pl-8 pr-3 py-2 text-sm text-white placeholder-slate-600 outline-none rounded-xl"
-                style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                className="w-full pl-8 pr-3 py-2 text-sm outline-none rounded-xl"
+                style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
                 value={busq} onChange={e => { setBusq(e.target.value); setShowSugg(true); }}
                 onFocus={() => setShowSugg(true)} />
               {/* Dropdown: Operaciones Rápidas + socios frecuentes */}
               {showSugg && (
-                <div className="absolute left-0 right-0 top-full mt-1 z-50 rounded-xl overflow-hidden" style={{ background: '#1A2438', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 12px 32px rgba(0,0,0,0.5)', maxHeight: 240, overflowY: 'auto' }}>
+                <div className="absolute left-0 right-0 top-full mt-1 z-50 rounded-xl overflow-hidden shadow-2xl" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-card)', maxHeight: 240, overflowY: 'auto' }}>
                   {/* Acceso directo a Operaciones Rápidas — siempre visible */}
                   <button
                     onClick={() => { setSocioSel(SOCIO_OCASIONAL_VIRTUAL); setShowSugg(false); setBusq(''); }}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 text-left transition-all active:bg-white/5"
-                    style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}
+                    className="w-full flex items-center gap-2 px-3 py-2.5 text-left transition-all active:bg-black/5 dark:active:bg-white/5"
+                    style={{ borderBottom: '1px solid var(--border-subtle)' }}
                   >
                     <div className="w-6 h-6 rounded-full flex items-center justify-center text-[11px]" style={{ background: 'rgba(250,204,21,0.15)', color: '#FACC15' }}>⚡</div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-yellow-300 text-sm font-bold">Operaciones Rápidas</p>
-                      <p className="text-yellow-500/70 text-[10px]">Ver todas las op. sin socio registrado</p>
+                      <p className="text-yellow-500 dark:text-yellow-300 text-sm font-bold">Operaciones Rápidas</p>
+                      <p className="text-yellow-600 dark:text-yellow-500/70 text-[10px]">Ver todas las op. sin socio registrado</p>
                     </div>
                   </button>
                   {/* Socios frecuentes filtrados */}
                   {suggFiltered.map(s => (
                     <button key={s.id_socio} onClick={() => { setSocioSel(s); setBusq(''); setShowSugg(false); }}
-                      className="w-full flex items-center gap-2 px-3 py-2.5 text-left transition-all active:bg-white/5"
-                      style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <div className="w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px]" style={{ background: 'rgba(100,116,139,0.3)', color: '#cbd5e1' }}>{s.nombre[0]}</div>
+                      className="w-full flex items-center gap-2 px-3 py-2.5 text-left transition-all active:bg-black/5 dark:active:bg-white/5"
+                      style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <div className="w-6 h-6 rounded-full flex items-center justify-center font-black text-[10px]" style={{ background: 'rgba(100,116,139,0.3)', color: 'var(--text-secondary)' }}>{s.nombre[0]}</div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-white text-sm font-medium truncate">{s.nombre}</p>
-                        {s.documento && <p className="text-slate-500 text-[10px] font-mono">{s.documento}</p>}
+                        <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{s.nombre}</p>
+                        {s.documento && <p className="text-[10px] font-mono" style={{ color: 'var(--text-tertiary)' }}>{s.documento}</p>}
                       </div>
                       <span className="text-[9px] font-bold px-1.5 py-0.5 rounded" style={{ background: s.es_proveedor ? 'rgba(37,99,235,0.15)' : 'rgba(16,185,129,0.15)', color: s.es_proveedor ? '#60a5fa' : '#34d399' }}>
                         {s.es_proveedor ? 'Prov' : 'Cli'}
@@ -575,8 +581,11 @@ export default function Reportes() {
         <div className="flex gap-1.5 mb-2">
           {[{ k: 'todos', l: 'Todos' }, { k: 'compra', l: 'Compras' }, { k: 'venta', l: 'Ventas' }].map(t => (
             <button key={t.k} onClick={() => setTipoF(t.k)}
-              className="px-3 py-1.5 rounded-full text-xs font-bold transition-all"
-              style={{ background: tipoF === t.k ? '#fff' : 'rgba(255,255,255,0.05)', color: tipoF === t.k ? '#0f172a' : '#64748b' }}>
+              className="px-3 py-1.5 rounded-full text-xs font-bold transition-all font-sans"
+              style={{
+                background: tipoF === t.k ? 'var(--filter-tab-active-bg)' : 'var(--filter-tab-bg)',
+                color: tipoF === t.k ? 'var(--filter-tab-active-text)' : 'var(--filter-tab-text)',
+              }}>
               {t.l}
             </button>
           ))}
@@ -589,31 +598,39 @@ export default function Reportes() {
             { k: 'pagado', l: 'Pagados', c: '#10b981' },
             { k: 'parcial', l: 'Parciales', c: '#f59e0b' },
             { k: 'pendiente', l: 'Pendientes', c: '#ef4444' },
-          ].map(t => (
-            <button key={t.k} onClick={() => setEstadoF(t.k)}
-              className="px-2.5 py-1 rounded-full text-[10px] font-bold transition-all"
-              style={{ background: estadoF === t.k ? `${t.c}20` : 'rgba(255,255,255,0.03)', color: estadoF === t.k ? t.c : '#475569', border: estadoF === t.k ? `1px solid ${t.c}40` : '1px solid transparent' }}>
-              {t.l}
-            </button>
-          ))}
+          ].map(t => {
+            const isActive = estadoF === t.k;
+            return (
+              <button key={t.k} onClick={() => setEstadoF(t.k)}
+                className="px-2.5 py-1 rounded-full text-[10px] font-bold transition-all border outline-none font-sans"
+                style={{
+                  background: isActive ? `${t.c}20` : 'var(--white-alpha-3)',
+                  color: isActive ? t.c : 'var(--text-secondary)',
+                  borderColor: isActive ? `${t.c}40` : 'transparent'
+                }}
+              >
+                {t.l}
+              </button>
+            );
+          })}
         </div>
 
         {/* Filtros fecha */}
         <div className="flex gap-2 mb-1">
           <div className="flex-1 relative">
-            <Calendar size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+            <Calendar size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-tertiary)' }} />
             <input type="date" value={fechaDesde} onChange={e => setFechaDesde(e.target.value)}
-              className="w-full pl-7 pr-2 py-1.5 text-[11px] text-white rounded-lg outline-none"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', colorScheme: 'dark' }} />
+              className="w-full pl-7 pr-2 py-1.5 text-[11px] rounded-lg outline-none"
+              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', colorScheme: 'dark' }} />
           </div>
           <div className="flex-1 relative">
-            <Calendar size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+            <Calendar size={11} className="absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-tertiary)' }} />
             <input type="date" value={fechaHasta} onChange={e => setFechaHasta(e.target.value)}
-              className="w-full pl-7 pr-2 py-1.5 text-[11px] text-white rounded-lg outline-none"
-              style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', colorScheme: 'dark' }} />
+              className="w-full pl-7 pr-2 py-1.5 text-[11px] rounded-lg outline-none"
+              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)', colorScheme: 'dark' }} />
           </div>
           {(fechaDesde || fechaHasta) && (
-            <button onClick={() => { setFechaDesde(''); setFechaHasta(''); }} className="px-2 text-slate-500"><X size={13} /></button>
+            <button onClick={() => { setFechaDesde(''); setFechaHasta(''); }} className="px-2" style={{ color: 'var(--text-secondary)' }}><X size={13} /></button>
           )}
         </div>
       </div>
@@ -624,10 +641,10 @@ export default function Reportes() {
           <div className="p-3 rounded-xl" style={{ background: deudaSocio.total > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(16,185,129,0.08)', border: `1px solid ${deudaSocio.total > 0 ? 'rgba(239,68,68,0.2)' : 'rgba(16,185,129,0.2)'}` }}>
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">Saldo Total · {socioSel.nombre}</p>
-                <p className="text-xs text-slate-500 mt-0.5">{deudaSocio.ops} operaciones</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Saldo Total · {socioSel.nombre}</p>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-tertiary)' }}>{deudaSocio.ops} operaciones</p>
               </div>
-              <p className={`text-xl font-black font-mono ${deudaSocio.total > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
+              <p className={`text-xl font-black font-mono ${deudaSocio.total > 0 ? 'text-red-500 dark:text-red-400' : 'text-emerald-500 dark:text-emerald-400'}`}>
                 S/ {deudaSocio.total.toFixed(2)}
               </p>
             </div>
@@ -636,7 +653,7 @@ export default function Reportes() {
           <button
             onClick={() => navigate('/estado-cuenta/' + socioSel.id_socio + '?tipoFlujo=' + tipoF)}
             className="w-full mt-2 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-[0.98] flex items-center justify-center gap-2"
-            style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', color: '#a5b4fc' }}
+            style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
           >
             <FileText size={14} />
             📄 Ver Estado de Cuenta
@@ -646,11 +663,11 @@ export default function Reportes() {
 
       {/* LISTA */}
       <div className="flex-1 overflow-y-auto px-4 pb-24 min-h-0">
-        <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mb-2">{movsFiltrados.length} registros</p>
+        <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: 'var(--text-tertiary)' }}>{movsFiltrados.length} registros</p>
 
         {movsFiltrados.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40">
-            <p className="text-slate-600 text-sm">Sin resultados</p>
+            <p className="text-sm" style={{ color: 'var(--text-tertiary)' }}>Sin resultados</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -661,7 +678,7 @@ export default function Reportes() {
 
               return (
                 <div key={mov.id_movimiento} className="rounded-2xl p-3 transition-all"
-                  style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                  style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
                   {/* Row 1 */}
                   <div className="flex items-center gap-2 mb-1.5">
                     <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${
@@ -681,10 +698,10 @@ export default function Reportes() {
                     }`}>
                       {mov.es_transbordo === 1 ? 'Transbordo' : (esCompra ? 'Compra' : 'Venta')}
                     </span>
-                    <span className={`text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md ${mov.estado === 'activo' ? 'bg-amber-500/20 text-amber-300' : 'bg-slate-500/20 text-slate-400'}`}>
+                    <span className={`text-[9px] font-black tracking-wider px-1.5 py-0.5 rounded-md ${mov.estado === 'activo' ? 'bg-amber-500/20 text-amber-350 dark:text-amber-300' : 'bg-slate-500/20 text-slate-500 dark:text-slate-400'}`}>
                       {mov.estado === 'activo' ? 'Activo' : 'Cerrado'}
                     </span>
-                    <span className="text-white text-xs font-bold truncate flex-1">{nombreSocio}</span>
+                    <span className="text-xs font-bold truncate flex-1" style={{ color: 'var(--text-primary)' }}>{nombreSocio}</span>
                   </div>
                   {/* Row 2: var tags + fecha */}
                   <div className="flex items-center flex-wrap gap-1 mb-2">
@@ -694,21 +711,21 @@ export default function Reportes() {
                         {v.codigo_corto}<span className="opacity-70">·{cnt}</span>
                       </span>
                     ))}
-                    {fecha && <span className="text-slate-600 text-[10px] ml-auto">{fecha}</span>}
+                    {fecha && <span className="text-[10px] ml-auto" style={{ color: 'var(--text-tertiary)' }}>{fecha}</span>}
                   </div>
                   {/* Row 3: Resumen de sacos y peso + TOTAL */}
                   <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-1">
-                        <Layers size={10} className="text-slate-500" />
-                        <span className="text-white font-bold text-xs">{mov._sacos}</span>
-                        <span className="text-slate-500 text-[10px]">sacos</span>
+                        <Layers size={10} style={{ color: 'var(--text-tertiary)' }} />
+                        <span className="font-bold text-xs" style={{ color: 'var(--text-primary)' }}>{mov._sacos}</span>
+                        <span className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>sacos</span>
                       </div>
-                      <span className="text-slate-500 text-[10px]">{fmt(mov._totalPeso)} kg</span>
+                      <span className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>{fmt(mov._totalPeso)} kg</span>
                     </div>
                     <div className="text-right">
-                      <span className="text-slate-500 text-[8px] font-bold uppercase tracking-wider block mb-0.5">TOTAL</span>
-                      <span className="font-mono font-black text-sm text-white block">
+                      <span className="text-[8px] font-bold uppercase tracking-wider block mb-0.5" style={{ color: 'var(--text-tertiary)' }}>TOTAL</span>
+                      <span className="font-mono font-black text-sm block" style={{ color: 'var(--text-primary)' }}>
                         S/ {mov._totalDinero.toFixed(2)}
                       </span>
                     </div>
@@ -721,14 +738,23 @@ export default function Reportes() {
                     const porcentaje = totalDinero > 0 ? Math.min(100, Math.round((totalPagado / totalDinero) * 100)) : 100;
                     const isCompraReal = mov.tipo === 'compra' && mov.es_transbordo !== 1;
                     const labelTexto = isCompraReal ? 'PAGADO' : 'COBRADO';
+                    const pendiente = Math.max(0, totalDinero - totalPagado);
+                    const textFalta = isCompraReal ? 'Falta Pagar' : 'Falta Cobrar';
 
                     return (
                       <div className="mb-3.5">
-                        <div className="flex justify-between items-center text-[9px] font-bold text-slate-500 mb-1">
-                          <span>{labelTexto}: S/ {totalPagado.toFixed(2)}</span>
-                          <span className="text-emerald-400">{porcentaje}%</span>
+                        <div className="flex justify-between items-center text-[9px] font-bold mb-1" style={{ color: 'var(--text-secondary)' }}>
+                          <span>
+                            {labelTexto}: S/ {totalPagado.toFixed(2)}
+                            {pendiente > 0 && (
+                              <span className="text-rose-500 dark:text-rose-400 font-black ml-1.5">
+                                · {textFalta}: S/ {pendiente.toFixed(2)}
+                              </span>
+                            )}
+                          </span>
+                          <span className="text-emerald-500 dark:text-emerald-400">{porcentaje}%</span>
                         </div>
-                        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                        <div className="h-1.5 w-full rounded-full overflow-hidden" style={{ background: 'var(--white-alpha-5)' }}>
                           <div className="bg-emerald-500 h-full rounded-full transition-all duration-500" style={{ width: `${porcentaje}%` }} />
                         </div>
                       </div>
@@ -739,7 +765,7 @@ export default function Reportes() {
                   <div className="flex w-full gap-2">
                     <button onClick={() => setModalDetalle(mov)}
                       className="flex-1 py-2 rounded-xl text-xs font-bold transition-all active:scale-95 flex items-center justify-center gap-1 cursor-pointer"
-                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#cbd5e1' }}>
+                      style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
                       👁️ Detalles
                     </button>
                     <button onClick={() => setModalMov(mov)}

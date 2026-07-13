@@ -17,6 +17,7 @@ import EstadoCuenta from './pages/EstadoCuenta';
 import Usuarios from './pages/Usuarios';
 import { seedSentinelSocio, seedDefaultUsuarios } from './db/database';
 import { UserProvider } from './context/UserContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 function ProtectedRoute({ children }) {
   const isAuth = localStorage.getItem('isAuth') === 'true';
@@ -25,7 +26,7 @@ function ProtectedRoute({ children }) {
 
 function Layout({ children }) {
   return (
-    <div className="flex flex-col h-screen bg-gray-50 pb-16">
+    <div className="flex flex-col h-screen pb-16" style={{ background: 'var(--surface-base)' }}>
       <main className="flex-1 overflow-y-auto">
         {children}
       </main>
@@ -42,30 +43,32 @@ function App() {
   }, []);
 
   return (
-    <UserProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/registro" element={<Registro />} />
+    <ThemeProvider>
+      <UserProvider>
+        <Router>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/registro" element={<Registro />} />
 
-          {/* Protected Routes con BottomNav */}
-          <Route path="/" element={<ProtectedRoute><Layout><Inicio /></Layout></ProtectedRoute>} />
-          <Route path="/socios" element={<ProtectedRoute><Layout><Socios /></Layout></ProtectedRoute>} />
-          <Route path="/variedades" element={<ProtectedRoute><Layout><Variedades /></Layout></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute><Layout><Finanzas /></Layout></ProtectedRoute>} />
-          <Route path="/reportes" element={<ProtectedRoute><Layout><Reportes /></Layout></ProtectedRoute>} />
-          <Route path="/caja-chica" element={<ProtectedRoute><Layout><CajaChica /></Layout></ProtectedRoute>} />
+            {/* Protected Routes con BottomNav */}
+            <Route path="/" element={<ProtectedRoute><Layout><Inicio /></Layout></ProtectedRoute>} />
+            <Route path="/socios" element={<ProtectedRoute><Layout><Socios /></Layout></ProtectedRoute>} />
+            <Route path="/variedades" element={<ProtectedRoute><Layout><Variedades /></Layout></ProtectedRoute>} />
+            <Route path="/dashboard" element={<ProtectedRoute><Layout><Finanzas /></Layout></ProtectedRoute>} />
+            <Route path="/reportes" element={<ProtectedRoute><Layout><Reportes /></Layout></ProtectedRoute>} />
+            <Route path="/caja-chica" element={<ProtectedRoute><Layout><CajaChica /></Layout></ProtectedRoute>} />
 
-          {/* Operational Views - Sin BottomNav */}
-          <Route path="/compra" element={<ProtectedRoute><Compra /></ProtectedRoute>} />
-          <Route path="/venta" element={<ProtectedRoute><Venta /></ProtectedRoute>} />
-          <Route path="/registros_compras" element={<ProtectedRoute><RegistrosCompras /></ProtectedRoute>} />
-          <Route path="/registros_ventas" element={<ProtectedRoute><RegistrosVentas /></ProtectedRoute>} />
-          <Route path="/estado-cuenta/:idSocio" element={<ProtectedRoute><EstadoCuenta /></ProtectedRoute>} />
-          <Route path="/admin-usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
-        </Routes>
-      </Router>
-    </UserProvider>
+            {/* Operational Views - Sin BottomNav */}
+            <Route path="/compra" element={<ProtectedRoute><Compra /></ProtectedRoute>} />
+            <Route path="/venta" element={<ProtectedRoute><Venta /></ProtectedRoute>} />
+            <Route path="/registros_compras" element={<ProtectedRoute><RegistrosCompras /></ProtectedRoute>} />
+            <Route path="/registros_ventas" element={<ProtectedRoute><RegistrosVentas /></ProtectedRoute>} />
+            <Route path="/estado-cuenta/:idSocio" element={<ProtectedRoute><EstadoCuenta /></ProtectedRoute>} />
+            <Route path="/admin-usuarios" element={<ProtectedRoute><Usuarios /></ProtectedRoute>} />
+          </Routes>
+        </Router>
+      </UserProvider>
+    </ThemeProvider>
   );
 }
 

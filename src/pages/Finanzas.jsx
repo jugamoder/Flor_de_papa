@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, SENTINEL_ID, resolveNombreSocio } from '../db/database';
 import { useUser } from '../context/UserContext';
+import { useTheme } from '../context/ThemeContext';
 import {
   ChevronLeft,
   ChevronRight,
@@ -31,8 +32,8 @@ const FONT = '"Inter", "SF Pro Display", system-ui, sans-serif';
 const CustomTooltip = ({ active, payload, label, unit = '' }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-[#11192E]/95 border border-white/10 p-3 rounded-xl shadow-xl backdrop-blur-md text-[11px]">
-        <p className="text-white font-bold mb-1.5">{label}</p>
+      <div className="p-3 rounded-xl shadow-xl backdrop-blur-md text-[11px]" style={{ background: 'var(--tooltip-bg)', border: '1px solid var(--border-card)' }}>
+        <p className="font-bold mb-1.5" style={{ color: 'var(--text-primary)' }}>{label}</p>
         {payload.map((item, idx) => {
           let valueText = '';
           if (unit === 'S/ ') {
@@ -59,6 +60,12 @@ const CustomTooltip = ({ active, payload, label, unit = '' }) => {
 export default function Finanzas() {
   const navigate = useNavigate();
   const { currentUser } = useUser();
+  const { theme } = useTheme();
+
+  // Dynamic chart colors based on theme
+  const axisColor = theme === 'dark' ? '#94a3b8' : '#475569';
+  const gridColor = theme === 'dark' ? '#ffffff10' : '#00000010';
+  const cursorFill = theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
 
   useEffect(() => {
     if (!currentUser || currentUser.rol !== 'Administrador') {
@@ -68,11 +75,11 @@ export default function Finanzas() {
 
   if (!currentUser || currentUser.rol !== 'Administrador') {
     return (
-      <div className="min-h-screen bg-[#080E1A] flex flex-col items-center justify-center p-6 text-center font-sans">
-        <div className="bg-[#1A2438] border border-white/5 p-8 rounded-3xl max-w-sm space-y-4 shadow-xl">
+      <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center font-sans" style={{ background: 'var(--surface-base)' }}>
+        <div className="p-8 rounded-3xl max-w-sm space-y-4 shadow-xl" style={{ background: 'var(--surface-card)', border: '1px solid var(--border-card)' }}>
           <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center mx-auto text-red-400 text-lg">⚠️</div>
-          <h2 className="text-white font-bold text-base">Acceso Denegado</h2>
-          <p className="text-slate-400 text-xs">Esta sección está restringida únicamente para administradores.</p>
+          <h2 className="font-bold text-base" style={{ color: 'var(--text-primary)' }}>Acceso Denegado</h2>
+          <p className="text-xs" style={{ color: 'var(--text-secondary)' }}>Esta sección está restringida únicamente para administradores.</p>
         </div>
       </div>
     );
@@ -312,6 +319,7 @@ export default function Finanzas() {
     const buyers = {};
     salesMovs.forEach(m => {
       const key = m.id_socio;
+      if (key === SENTINEL_ID) return; // Ignore quick sales
       if (!buyers[key]) {
         buyers[key] = { dinero: 0, peso: 0, sacos: 0, id_socio: key, nombre: resolveNombreSocio(m, socioMap) };
       }
@@ -325,6 +333,7 @@ export default function Finanzas() {
     const sellers = {};
     purchaseMovs.forEach(m => {
       const key = m.id_socio;
+      if (key === SENTINEL_ID) return; // Ignore quick purchases
       if (!sellers[key]) {
         sellers[key] = { dinero: 0, peso: 0, sacos: 0, id_socio: key, nombre: resolveNombreSocio(m, socioMap) };
       }
@@ -520,7 +529,6 @@ export default function Finanzas() {
   const renderBalanceRow = (label, diffValue, type = 'sacos') => {
     const isPositive = diffValue > 0;
     const isNegative = diffValue < 0;
-    const sign = isPositive ? '+' : '';
     
     let colorClass = 'text-slate-400';
     if (isPositive) colorClass = 'text-emerald-400';
@@ -548,8 +556,8 @@ export default function Finanzas() {
     }
 
     return (
-      <div className="flex justify-between items-center py-2.5 border-b border-white/5 last:border-0">
-        <span className="text-slate-400 text-xs font-medium">{label}</span>
+      <div className="flex justify-between items-center py-2.5 last:border-0" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+        <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
         <span className={`font-mono text-sm font-black ${colorClass}`}>
           {formattedVal}
         </span>
@@ -558,17 +566,17 @@ export default function Finanzas() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080E1A] text-slate-100 p-4 pb-24 flex flex-col" style={{ fontFamily: FONT }}>
+    <div className="min-h-screen p-4 pb-24 flex flex-col" style={{ background: 'var(--surface-base)', color: 'var(--text-primary)', fontFamily: FONT }}>
       
       {/* ── HEADER & TEMPORAL FILTERS ── */}
       <div className="flex-shrink-0 flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 mt-2">
         <div className="flex items-center space-x-3">
-          <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition">
-            <ChevronLeft size={20} className="text-white" />
+          <button onClick={() => navigate(-1)} className="w-9 h-9 rounded-full flex items-center justify-center transition" style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)' }}>
+            <ChevronLeft size={20} style={{ color: 'var(--text-primary)' }} />
           </button>
           <div>
-            <h1 className="text-white font-bold text-lg leading-none">Finanzas</h1>
-            <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mt-1 flex items-center gap-1">
+            <h1 className="font-bold text-lg leading-none" style={{ color: 'var(--text-primary)' }}>Finanzas</h1>
+            <p className="text-[10px] uppercase font-bold tracking-wider mt-1 flex items-center gap-1" style={{ color: 'var(--text-tertiary)' }}>
               <TrendingUp size={12} className="text-blue-400" />
               Inteligencia Comercial
             </p>
@@ -578,7 +586,7 @@ export default function Finanzas() {
         {/* Temporal Filters Group */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Buttons: Semanal, Mensual, Anual */}
-          <div className="flex bg-white/5 p-1 rounded-xl border border-white/8">
+          <div className="flex p-1 rounded-xl" style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)' }}>
             {['semanal', 'mensual', 'anual'].map((t) => (
               <button
                 key={t}
@@ -586,8 +594,9 @@ export default function Finanzas() {
                 className={`py-1.5 px-4 text-xs font-bold rounded-lg transition-all capitalize ${
                   temporalFilter === t
                     ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                    : 'text-slate-400 hover:text-slate-200'
+                    : ''
                 }`}
+                style={temporalFilter !== t ? { color: 'var(--text-secondary)' } : {}}
               >
                 {t}
               </button>
@@ -600,29 +609,31 @@ export default function Finanzas() {
               <select
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(Number(e.target.value))}
-                className="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:ring-1 focus:ring-blue-500/50 cursor-pointer"
+                className="rounded-xl px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500/50 cursor-pointer"
+                style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
               >
-                <option value={1} className="bg-[#11192E] text-white">Enero</option>
-                <option value={2} className="bg-[#11192E] text-white">Febrero</option>
-                <option value={3} className="bg-[#11192E] text-white">Marzo</option>
-                <option value={4} className="bg-[#11192E] text-white">Abril</option>
-                <option value={5} className="bg-[#11192E] text-white">Mayo</option>
-                <option value={6} className="bg-[#11192E] text-white">Junio</option>
-                <option value={7} className="bg-[#11192E] text-white">Julio</option>
-                <option value={8} className="bg-[#11192E] text-white">Agosto</option>
-                <option value={9} className="bg-[#11192E] text-white">Septiembre</option>
-                <option value={10} className="bg-[#11192E] text-white">Octubre</option>
-                <option value={11} className="bg-[#11192E] text-white">Noviembre</option>
-                <option value={12} className="bg-[#11192E] text-white">Diciembre</option>
+                <option value={1} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Enero</option>
+                <option value={2} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Febrero</option>
+                <option value={3} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Marzo</option>
+                <option value={4} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Abril</option>
+                <option value={5} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Mayo</option>
+                <option value={6} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Junio</option>
+                <option value={7} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Julio</option>
+                <option value={8} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Agosto</option>
+                <option value={9} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Septiembre</option>
+                <option value={10} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Octubre</option>
+                <option value={11} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Noviembre</option>
+                <option value={12} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Diciembre</option>
               </select>
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(Number(e.target.value))}
-                className="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:ring-1 focus:ring-blue-500/50 cursor-pointer"
+                className="rounded-xl px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500/50 cursor-pointer"
+                style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
               >
-                <option value={2024} className="bg-[#11192E] text-white">2024</option>
-                <option value={2025} className="bg-[#11192E] text-white">2025</option>
-                <option value={2026} className="bg-[#11192E] text-white">2026</option>
+                <option value={2024} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>2024</option>
+                <option value={2025} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>2025</option>
+                <option value={2026} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>2026</option>
               </select>
             </div>
           )}
@@ -631,11 +642,12 @@ export default function Finanzas() {
             <select
               value={selectedYear}
               onChange={(e) => setSelectedYear(Number(e.target.value))}
-              className="bg-white/5 border border-white/10 rounded-xl px-3 py-1.5 text-xs text-white outline-none focus:ring-1 focus:ring-blue-500/50 cursor-pointer"
+              className="rounded-xl px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500/50 cursor-pointer"
+              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
             >
-              <option value={2024} className="bg-[#11192E] text-white">2024</option>
-              <option value={2025} className="bg-[#11192E] text-white">2025</option>
-              <option value={2026} className="bg-[#11192E] text-white">2026</option>
+              <option value={2024} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>2024</option>
+              <option value={2025} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>2025</option>
+              <option value={2026} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>2026</option>
             </select>
           )}
         </div>
@@ -643,10 +655,11 @@ export default function Finanzas() {
 
       {/* ── KPI SECTION HEADER WITH TOGGLE ── */}
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-slate-400 text-[10px] font-black uppercase tracking-widest">Resumen Financiero</h3>
+        <h3 className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>Resumen Financiero</h3>
         <button 
           onClick={() => setShowKpiChart(!showKpiChart)} 
-          className="px-3 py-1.5 rounded-xl bg-white/5 border border-white/8 text-slate-400 hover:text-white transition flex items-center gap-1.5 text-[11px] font-bold"
+          className="px-3 py-1.5 rounded-xl transition flex items-center gap-1.5 text-[11px] font-bold"
+          style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
         >
           {showKpiChart ? <List size={14} /> : <BarChart3 size={14} />}
           <span>{showKpiChart ? 'Ver Tarjetas' : 'Ver Gráfico'}</span>
@@ -659,21 +672,21 @@ export default function Finanzas() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           
           {/* Card A: Total Ventas */}
-          <div className="bg-[#11192E] p-4 rounded-2xl border border-white/8 relative overflow-hidden shadow-xl shadow-black/30">
+          <div className="p-4 rounded-2xl relative overflow-hidden shadow-xl" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', boxShadow: '0 20px 25px -5px var(--shadow-card)' }}>
             <div className="absolute top-0 left-0 w-1.5 h-full bg-emerald-500" />
-            <h2 className="text-white font-black text-sm flex items-center gap-2 mb-4">
+            <h2 className="font-black text-sm flex items-center gap-2 mb-4" style={{ color: 'var(--text-primary)' }}>
               📈 Total Ventas
             </h2>
             <div className="flex flex-col space-y-3">
               <div className="flex justify-between items-baseline">
-                <span className="text-slate-400 text-xs font-medium">Sacos vendidos</span>
-                <span className="font-mono text-lg font-black text-white">{sales.sacos.toLocaleString('es-PE')}</span>
+                <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Sacos vendidos</span>
+                <span className="font-mono text-lg font-black" style={{ color: 'var(--text-primary)' }}>{sales.sacos.toLocaleString('es-PE')}</span>
               </div>
               <div className="flex justify-between items-baseline">
-                <span className="text-slate-400 text-xs font-medium">Kilos totales</span>
-                <span className="font-mono text-lg font-black text-white">{sales.kilos.toFixed(1)} kg</span>
+                <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Kilos totales</span>
+                <span className="font-mono text-lg font-black" style={{ color: 'var(--text-primary)' }}>{sales.kilos.toFixed(1)} kg</span>
               </div>
-              <div className="flex justify-between items-baseline pt-2 border-t border-white/5">
+              <div className="flex justify-between items-baseline pt-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
                 <span className="text-emerald-400 text-xs font-bold">Total Facturado</span>
                 <span className="font-mono text-xl font-black text-emerald-400">S/ {sales.dinero.toFixed(2)}</span>
               </div>
@@ -681,21 +694,21 @@ export default function Finanzas() {
           </div>
 
           {/* Card B: Total Compras */}
-          <div className="bg-[#11192E] p-4 rounded-2xl border border-white/8 relative overflow-hidden shadow-xl shadow-black/30">
+          <div className="p-4 rounded-2xl relative overflow-hidden shadow-xl" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', boxShadow: '0 20px 25px -5px var(--shadow-card)' }}>
             <div className="absolute top-0 left-0 w-1.5 h-full bg-rose-500" />
-            <h2 className="text-white font-black text-sm flex items-center gap-2 mb-4">
+            <h2 className="font-black text-sm flex items-center gap-2 mb-4" style={{ color: 'var(--text-primary)' }}>
               📉 Total Compras
             </h2>
             <div className="flex flex-col space-y-3">
               <div className="flex justify-between items-baseline">
-                <span className="text-slate-400 text-xs font-medium">Sacos comprados</span>
-                <span className="font-mono text-lg font-black text-white">{purchases.sacos.toLocaleString('es-PE')}</span>
+                <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Sacos comprados</span>
+                <span className="font-mono text-lg font-black" style={{ color: 'var(--text-primary)' }}>{purchases.sacos.toLocaleString('es-PE')}</span>
               </div>
               <div className="flex justify-between items-baseline">
-                <span className="text-slate-400 text-xs font-medium">Kilos totales</span>
-                <span className="font-mono text-lg font-black text-white">{purchases.kilos.toFixed(1)} kg</span>
+                <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Kilos totales</span>
+                <span className="font-mono text-lg font-black" style={{ color: 'var(--text-primary)' }}>{purchases.kilos.toFixed(1)} kg</span>
               </div>
-              <div className="flex justify-between items-baseline pt-2 border-t border-white/5">
+              <div className="flex justify-between items-baseline pt-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
                 <span className="text-rose-400 text-xs font-bold">Total Invertido</span>
                 <span className="font-mono text-xl font-black text-rose-400">S/ {purchases.dinero.toFixed(2)}</span>
               </div>
@@ -703,9 +716,9 @@ export default function Finanzas() {
           </div>
 
           {/* Card C: Balance de Operación */}
-          <div className="bg-[#11192E] p-4 rounded-2xl border border-white/8 relative overflow-hidden shadow-xl shadow-black/30">
+          <div className="p-4 rounded-2xl relative overflow-hidden shadow-xl" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', boxShadow: '0 20px 25px -5px var(--shadow-card)' }}>
             <div className="absolute top-0 left-0 w-1.5 h-full bg-indigo-500" />
-            <h2 className="text-white font-black text-sm flex items-center gap-2 mb-2">
+            <h2 className="font-black text-sm flex items-center gap-2 mb-2" style={{ color: 'var(--text-primary)' }}>
               ⚖️ Balance de Operación
             </h2>
             <div className="flex flex-col">
@@ -717,11 +730,11 @@ export default function Finanzas() {
         </div>
       ) : (
         /* Chart view: Grouped Bar Chart */
-        <div className="bg-[#11192E] p-5 rounded-2xl border border-white/8 shadow-xl shadow-black/30 mb-6 flex flex-col">
+        <div className="p-5 rounded-2xl shadow-xl mb-6 flex flex-col" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', boxShadow: '0 20px 25px -5px var(--shadow-card)' }}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
-            <h4 className="text-white font-bold text-xs">Comparativa Temporal: Ventas vs Compras</h4>
+            <h4 className="font-bold text-xs" style={{ color: 'var(--text-primary)' }}>Comparativa Temporal: Ventas vs Compras</h4>
             {/* Sub-metric Selection */}
-            <div className="flex bg-white/5 p-0.5 rounded-lg border border-white/5 max-w-xs self-start text-[10px]">
+            <div className="flex p-0.5 rounded-lg max-w-xs self-start text-[10px]" style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)' }}>
               {['sacos', 'kilos', 'dinero'].map((m) => (
                 <button
                   key={m}
@@ -729,8 +742,9 @@ export default function Finanzas() {
                   className={`px-3 py-1.5 rounded-md font-bold transition-all capitalize ${
                     kpiMetric === m
                       ? 'bg-blue-600 text-white'
-                      : 'text-slate-400 hover:text-slate-200'
+                      : ''
                   }`}
+                  style={kpiMetric !== m ? { color: 'var(--text-secondary)' } : {}}
                 >
                   {m === 'dinero' ? 'Montos (S/)' : m}
                 </button>
@@ -741,12 +755,12 @@ export default function Finanzas() {
           <div className="w-full">
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={kpiChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                <XAxis dataKey="name" stroke={axisColor} fontSize={11} tickLine={false} />
+                <YAxis stroke={axisColor} fontSize={11} tickLine={false} />
                 <Tooltip 
                   content={<CustomTooltip unit={kpiMetric === 'dinero' ? 'S/ ' : kpiMetric === 'kilos' ? ' kg' : ' sacos'} />} 
-                  cursor={{ fill: 'rgba(255,255,255,0.05)' }} 
+                  cursor={{ fill: cursorFill }} 
                 />
                 <Legend wrapperStyle={{ fontSize: 11, paddingTop: 10 }} />
                 <Bar name="Ventas (Ingresos)" dataKey="Ventas" fill="#10b981" radius={[4, 4, 0, 0]} />
@@ -761,9 +775,9 @@ export default function Finanzas() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         
         {/* Top 5 Variedades */}
-        <div className="bg-[#11192E]/60 p-5 rounded-2xl border border-white/8 backdrop-blur-md">
-          <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-            <h3 className="text-white font-bold text-sm flex items-center gap-2">
+        <div className="p-5 rounded-2xl backdrop-blur-md" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)' }}>
+          <div className="flex items-center justify-between pb-3 mb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <Award size={18} className="text-amber-400" />
               Top 5 Variedades
             </h3>
@@ -772,27 +786,30 @@ export default function Finanzas() {
               {/* Text/Graph Toggle */}
               <button
                 onClick={() => setShowVarietyChart(!showVarietyChart)}
-                className="p-1.5 rounded-lg bg-white/5 border border-white/8 text-slate-400 hover:text-white transition"
+                className="p-1.5 rounded-lg transition"
+                style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
                 title={showVarietyChart ? 'Ver Lista' : 'Ver Gráfico'}
               >
                 {showVarietyChart ? <List size={14} /> : <BarChart3 size={14} />}
               </button>
 
               {/* Tabs */}
-              <div className="flex bg-white/5 p-0.5 rounded-lg border border-white/5 text-[10px]">
+              <div className="flex p-0.5 rounded-lg text-[10px]" style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)' }}>
                 <button
                   onClick={() => setVarietyTab('vendidas')}
                   className={`px-3 py-1 rounded-md font-bold transition-all ${
-                    varietyTab === 'vendidas' ? 'bg-emerald-600 text-white' : 'text-slate-400'
+                    varietyTab === 'vendidas' ? 'bg-emerald-600 text-white' : ''
                   }`}
+                  style={varietyTab !== 'vendidas' ? { color: 'var(--text-secondary)' } : {}}
                 >
                   Más Vendidas
                 </button>
                 <button
                   onClick={() => setVarietyTab('compradas')}
                   className={`px-3 py-1 rounded-md font-bold transition-all ${
-                    varietyTab === 'compradas' ? 'bg-blue-600 text-white' : 'text-slate-400'
+                    varietyTab === 'compradas' ? 'bg-blue-600 text-white' : ''
                   }`}
+                  style={varietyTab !== 'compradas' ? { color: 'var(--text-secondary)' } : {}}
                 >
                   Más Compradas
                 </button>
@@ -808,17 +825,17 @@ export default function Finanzas() {
                   <p className="text-slate-500 text-center py-6 text-xs">Sin registros de ventas en este periodo</p>
                 ) : (
                   topVarSales.map((v, idx) => (
-                    <div key={v.id_variedad} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/2 border border-white/5">
+                    <div key={v.id_variedad} className="flex items-center justify-between px-3 py-2.5 rounded-xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
                       <div className="flex items-center space-x-3">
                         <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
                           idx === 0 ? 'bg-amber-400/20 text-amber-300' : idx === 1 ? 'bg-slate-300/20 text-slate-300' : 'bg-slate-700/20 text-slate-400'
                         }`}>
                           {idx + 1}
                         </span>
-                        <span className="text-white text-xs font-semibold">{v.nombre}</span>
-                        {v.codigo_corto && <span className="text-[9px] bg-slate-800 text-slate-400 px-1 py-0.5 rounded font-mono uppercase">{v.codigo_corto}</span>}
+                        <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{v.nombre}</span>
+                        {v.codigo_corto && <span className="text-[9px] px-1 py-0.5 rounded font-mono uppercase" style={{ background: 'var(--white-alpha-5)', color: 'var(--text-secondary)' }}>{v.codigo_corto}</span>}
                       </div>
-                      <span className="font-mono text-xs text-slate-300">
+                      <span className="font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
                         {v.sacos} sacos / {v.kilos.toFixed(0)} kg
                       </span>
                     </div>
@@ -829,15 +846,15 @@ export default function Finanzas() {
                   <p className="text-slate-500 text-center py-6 text-xs">Sin registros de compras en este periodo</p>
                 ) : (
                   topVarPurchases.map((v, idx) => (
-                    <div key={v.id_variedad} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/2 border border-white/5">
+                    <div key={v.id_variedad} className="flex items-center justify-between px-3 py-2.5 rounded-xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
                       <div className="flex items-center space-x-3">
                         <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black ${
                           idx === 0 ? 'bg-amber-400/20 text-amber-300' : idx === 1 ? 'bg-slate-300/20 text-slate-300' : 'bg-slate-700/20 text-slate-400'
                         }`}>
                           {idx + 1}
                         </span>
-                        <span className="text-white text-xs font-semibold">{v.nombre}</span>
-                        {v.codigo_corto && <span className="text-[9px] bg-slate-800 text-slate-400 px-1 py-0.5 rounded font-mono uppercase">{v.codigo_corto}</span>}
+                        <span className="text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>{v.nombre}</span>
+                        {v.codigo_corto && <span className="text-[9px] px-1 py-0.5 rounded font-mono uppercase" style={{ background: 'var(--white-alpha-5)', color: 'var(--text-secondary)' }}>{v.codigo_corto}</span>}
                       </div>
                       <span className="font-mono text-xs text-slate-300">
                         {v.sacos} sacos / {v.kilos.toFixed(0)} kg
@@ -855,10 +872,10 @@ export default function Finanzas() {
               ) : (
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart layout="vertical" data={varietyChartData} margin={{ top: 5, right: 15, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                    <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                    <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={11} tickLine={false} width={80} />
-                    <Tooltip content={<CustomTooltip unit=" sacos" />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                    <XAxis type="number" stroke={axisColor} fontSize={11} tickLine={false} />
+                    <YAxis dataKey="name" type="category" stroke={axisColor} fontSize={11} tickLine={false} width={80} />
+                    <Tooltip content={<CustomTooltip unit=" sacos" />} cursor={{ fill: cursorFill }} />
                     <Bar 
                       dataKey="value" 
                       fill={varietyTab === 'vendidas' ? '#10b981' : '#3b82f6'} 
@@ -873,9 +890,9 @@ export default function Finanzas() {
         </div>
 
         {/* Top 5 Socios */}
-        <div className="bg-[#11192E]/60 p-5 rounded-2xl border border-white/8 backdrop-blur-md">
-          <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-            <h3 className="text-white font-bold text-sm flex items-center gap-2">
+        <div className="p-5 rounded-2xl backdrop-blur-md" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)' }}>
+          <div className="flex items-center justify-between pb-3 mb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <Users size={18} className="text-blue-400" />
               Top 5 Socios
             </h3>
@@ -884,27 +901,30 @@ export default function Finanzas() {
               {/* Text/Graph Toggle */}
               <button
                 onClick={() => setShowSocioChart(!showSocioChart)}
-                className="p-1.5 rounded-lg bg-white/5 border border-white/8 text-slate-400 hover:text-white transition"
+                className="p-1.5 rounded-lg transition"
+                style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
                 title={showSocioChart ? 'Ver Lista' : 'Ver Gráfico'}
               >
                 {showSocioChart ? <List size={14} /> : <BarChart3 size={14} />}
               </button>
 
               {/* Tabs */}
-              <div className="flex bg-white/5 p-0.5 rounded-lg border border-white/5 text-[10px]">
+              <div className="flex p-0.5 rounded-lg text-[10px]" style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)' }}>
                 <button
                   onClick={() => setSocioTab('compradores')}
                   className={`px-3 py-1 rounded-md font-bold transition-all ${
-                    socioTab === 'compradores' ? 'bg-emerald-600 text-white' : 'text-slate-400'
+                    socioTab === 'compradores' ? 'bg-emerald-600 text-white' : ''
                   }`}
+                  style={socioTab !== 'compradores' ? { color: 'var(--text-secondary)' } : {}}
                 >
                   Compradores
                 </button>
                 <button
                   onClick={() => setSocioTab('vendedores')}
                   className={`px-3 py-1 rounded-md font-bold transition-all ${
-                    socioTab === 'vendedores' ? 'bg-blue-600 text-white' : 'text-slate-400'
+                    socioTab === 'vendedores' ? 'bg-blue-600 text-white' : ''
                   }`}
+                  style={socioTab !== 'vendedores' ? { color: 'var(--text-secondary)' } : {}}
                 >
                   Vendedores
                 </button>
@@ -920,18 +940,18 @@ export default function Finanzas() {
                   <p className="text-slate-500 text-center py-6 text-xs">Sin registros de ventas en este periodo</p>
                 ) : (
                   topBuyers.map((s, idx) => (
-                    <div key={s.id_socio} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/2 border border-white/5">
+                    <div key={s.id_socio} className="flex items-center justify-between px-3 py-2.5 rounded-xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
                       <div className="flex items-center space-x-3 min-w-0">
                         <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 ${
                           idx === 0 ? 'bg-amber-400/20 text-amber-300' : idx === 1 ? 'bg-slate-300/20 text-slate-300' : 'bg-slate-700/20 text-slate-400'
                         }`}>
                           {idx + 1}
                         </span>
-                        <span className="text-white text-xs font-semibold truncate">{s.nombre}</span>
+                        <span className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{s.nombre}</span>
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className="font-mono text-xs font-bold text-emerald-400">S/ {s.dinero.toFixed(2)}</p>
-                        <p className="text-[10px] text-slate-500 font-mono">{s.sacos} sacos ({s.peso.toFixed(0)} kg)</p>
+                        <p className="text-[10px] font-mono" style={{ color: 'var(--text-secondary)' }}>{s.sacos} sacos ({s.peso.toFixed(0)} kg)</p>
                       </div>
                     </div>
                   ))
@@ -941,18 +961,18 @@ export default function Finanzas() {
                   <p className="text-slate-500 text-center py-6 text-xs">Sin registros de compras en este periodo</p>
                 ) : (
                   topSellers.map((s, idx) => (
-                    <div key={s.id_socio} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/2 border border-white/5">
+                    <div key={s.id_socio} className="flex items-center justify-between px-3 py-2.5 rounded-xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
                       <div className="flex items-center space-x-3 min-w-0">
                         <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 ${
                           idx === 0 ? 'bg-amber-400/20 text-amber-300' : idx === 1 ? 'bg-slate-300/20 text-slate-300' : 'bg-slate-700/20 text-slate-400'
                         }`}>
                           {idx + 1}
                         </span>
-                        <span className="text-white text-xs font-semibold truncate">{s.nombre}</span>
+                        <span className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{s.nombre}</span>
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className="font-mono text-xs font-bold text-blue-400">S/ {s.dinero.toFixed(2)}</p>
-                        <p className="text-[10px] text-slate-500 font-mono">{s.sacos} sacos ({s.peso.toFixed(0)} kg)</p>
+                        <p className="text-[10px] font-mono" style={{ color: 'var(--text-secondary)' }}>{s.sacos} sacos ({s.peso.toFixed(0)} kg)</p>
                       </div>
                     </div>
                   ))
@@ -967,10 +987,10 @@ export default function Finanzas() {
               ) : (
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart layout="vertical" data={socioChartData} margin={{ top: 5, right: 15, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                    <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                    <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={11} tickLine={false} width={80} />
-                    <Tooltip content={<CustomTooltip unit="S/ " />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                    <XAxis type="number" stroke={axisColor} fontSize={11} tickLine={false} />
+                    <YAxis dataKey="name" type="category" stroke={axisColor} fontSize={11} tickLine={false} width={80} />
+                    <Tooltip content={<CustomTooltip unit="S/ " />} cursor={{ fill: cursorFill }} />
                     <Bar 
                       dataKey="value" 
                       fill={socioTab === 'compradores' ? '#10b981' : '#3b82f6'} 
@@ -986,28 +1006,28 @@ export default function Finanzas() {
       </div>
 
       {/* ── HISTORICAL DEBT BALANCE (Cuentas por Cobrar vs por Pagar) ── */}
-      <div className="bg-[#11192E] p-5 rounded-2xl border border-white/8 shadow-xl shadow-black/25 mb-6">
-        <h3 className="text-white font-bold text-sm mb-4 flex items-center gap-2">
+      <div className="p-5 rounded-2xl shadow-xl mb-6" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', boxShadow: '0 20px 25px -5px var(--shadow-card)' }}>
+        <h3 className="font-bold text-sm mb-4 flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
           <Scale size={18} className="text-indigo-400" />
           Balance General de Deudas (Histórico)
         </h3>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div className="bg-slate-900/40 p-3.5 rounded-xl border border-white/5">
-            <span className="text-slate-400 text-xs font-medium">Cuentas por Cobrar (Ventas pendientes)</span>
+          <div className="p-3.5 rounded-xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
+            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Cuentas por Cobrar (Ventas pendientes)</span>
             <p className="font-mono text-xl font-black text-emerald-400 mt-1">S/ {cobrosPendientesHistorico.toFixed(2)}</p>
           </div>
-          <div className="bg-slate-900/40 p-3.5 rounded-xl border border-white/5">
-            <span className="text-slate-400 text-xs font-medium">Cuentas por Pagar (Debemos a productores)</span>
+          <div className="p-3.5 rounded-xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
+            <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>Cuentas por Pagar (Debemos a productores)</span>
             <p className="font-mono text-xl font-black text-rose-500 mt-1">S/ {pagosPendientesHistorico.toFixed(2)}</p>
           </div>
         </div>
 
         {/* Graphical Balance Bar */}
         <div className="space-y-2">
-          <div className="w-full h-3 rounded-full overflow-hidden flex bg-slate-800">
+          <div className="w-full h-3 rounded-full overflow-hidden flex" style={{ background: 'var(--white-alpha-5)' }}>
             {totalDebts === 0 ? (
-              <div className="w-full bg-slate-700 h-full" />
+              <div className="w-full h-full" style={{ background: 'var(--text-secondary)' }} />
             ) : (
               <>
                 <div style={{ width: `${percentCobrar}%` }} className="bg-emerald-500 h-full transition-all duration-500" />
@@ -1015,7 +1035,7 @@ export default function Finanzas() {
               </>
             )}
           </div>
-          <div className="flex justify-between text-[10px] text-slate-500 font-bold">
+          <div className="flex justify-between text-[10px] font-bold" style={{ color: 'var(--text-secondary)' }}>
             <span>Cobros ({totalDebts > 0 ? percentCobrar.toFixed(0) : 50}%)</span>
             <span>Pagos ({totalDebts > 0 ? percentPagar.toFixed(0) : 50}%)</span>
           </div>
@@ -1026,9 +1046,9 @@ export default function Finanzas() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Top 5 Deudores */}
-        <div className="bg-[#11192E]/60 p-5 rounded-2xl border border-white/8 backdrop-blur-md">
-          <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-            <h3 className="text-white font-bold text-sm flex items-center gap-2">
+        <div className="p-5 rounded-2xl backdrop-blur-md" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)' }}>
+          <div className="flex items-center justify-between pb-3 mb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <TrendingDown size={18} className="text-emerald-400" />
               Top 5 Mayores Deudores (Nos deben)
             </h3>
@@ -1036,7 +1056,8 @@ export default function Finanzas() {
             {/* Text/Graph Toggle */}
             <button
               onClick={() => setShowDeudoresChart(!showDeudoresChart)}
-              className="p-1.5 rounded-lg bg-white/5 border border-white/8 text-slate-400 hover:text-white transition"
+              className="p-1.5 rounded-lg transition"
+              style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
               title={showDeudoresChart ? 'Ver Lista' : 'Ver Gráfico'}
             >
               {showDeudoresChart ? <List size={14} /> : <BarChart3 size={14} />}
@@ -1053,19 +1074,20 @@ export default function Finanzas() {
                   <button
                     key={d.id_socio}
                     onClick={() => navigate(`/estado-cuenta/${d.id_socio}?tipoFlujo=venta`)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/2 border border-white/5 cursor-pointer hover:bg-white/5 active:scale-[0.99] transition-all text-left"
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.99] transition-all text-left"
+                    style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}
                   >
                     <div className="flex items-center space-x-3 min-w-0">
-                      <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 bg-emerald-500/10 text-emerald-400">
+                      <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 bg-emerald-500/10 text-emerald-450 dark:text-emerald-400">
                         {idx + 1}
                       </span>
-                      <span className="text-white text-xs font-semibold truncate">{d.nombre}</span>
+                      <span className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{d.nombre}</span>
                     </div>
                     <div className="flex items-center space-x-2 flex-shrink-0 ml-2">
                       <span className="font-mono text-xs font-black text-emerald-400">
                         S/ {d.saldo.toFixed(2)}
                       </span>
-                      <ChevronRight size={14} className="text-slate-500" />
+                      <ChevronRight size={14} style={{ color: 'var(--text-secondary)' }} />
                     </div>
                   </button>
                 ))
@@ -1079,10 +1101,10 @@ export default function Finanzas() {
               ) : (
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart layout="vertical" data={deudoresChartData} margin={{ top: 5, right: 15, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                    <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                    <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={11} tickLine={false} width={80} />
-                    <Tooltip content={<CustomTooltip unit="S/ " />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                    <XAxis type="number" stroke={axisColor} fontSize={11} tickLine={false} />
+                    <YAxis dataKey="name" type="category" stroke={axisColor} fontSize={11} tickLine={false} width={80} />
+                    <Tooltip content={<CustomTooltip unit="S/ " />} cursor={{ fill: cursorFill }} />
                     <Bar 
                       dataKey="value" 
                       fill="#f43f5e" 
@@ -1097,9 +1119,9 @@ export default function Finanzas() {
         </div>
 
         {/* Top 5 Acreedores */}
-        <div className="bg-[#11192E]/60 p-5 rounded-2xl border border-white/8 backdrop-blur-md">
-          <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-            <h3 className="text-white font-bold text-sm flex items-center gap-2">
+        <div className="p-5 rounded-2xl backdrop-blur-md" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)' }}>
+          <div className="flex items-center justify-between pb-3 mb-4" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+            <h3 className="font-bold text-sm flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
               <TrendingDown size={18} className="text-rose-500" />
               Top 5 Mayores Acreedores (Debemos)
             </h3>
@@ -1107,7 +1129,8 @@ export default function Finanzas() {
             {/* Text/Graph Toggle */}
             <button
               onClick={() => setShowAcreedoresChart(!showAcreedoresChart)}
-              className="p-1.5 rounded-lg bg-white/5 border border-white/8 text-slate-400 hover:text-white transition"
+              className="p-1.5 rounded-lg transition"
+              style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
               title={showAcreedoresChart ? 'Ver Lista' : 'Ver Gráfico'}
             >
               {showAcreedoresChart ? <List size={14} /> : <BarChart3 size={14} />}
@@ -1124,19 +1147,20 @@ export default function Finanzas() {
                   <button
                     key={a.id_socio}
                     onClick={() => navigate(`/estado-cuenta/${a.id_socio}?tipoFlujo=compra`)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/2 border border-white/5 cursor-pointer hover:bg-white/5 active:scale-[0.99] transition-all text-left"
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.99] transition-all text-left"
+                    style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}
                   >
                     <div className="flex items-center space-x-3 min-w-0">
-                      <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 bg-rose-500/10 text-rose-400">
+                      <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black flex-shrink-0 bg-rose-500/10 text-rose-450 dark:text-rose-400">
                         {idx + 1}
                       </span>
-                      <span className="text-white text-xs font-semibold truncate">{a.nombre}</span>
+                      <span className="text-xs font-semibold truncate" style={{ color: 'var(--text-primary)' }}>{a.nombre}</span>
                     </div>
                     <div className="flex items-center space-x-2 flex-shrink-0 ml-2">
                       <span className="font-mono text-xs font-black text-rose-400">
                         S/ {a.saldo.toFixed(2)}
                       </span>
-                      <ChevronRight size={14} className="text-slate-500" />
+                      <ChevronRight size={14} style={{ color: 'var(--text-secondary)' }} />
                     </div>
                   </button>
                 ))
@@ -1150,10 +1174,10 @@ export default function Finanzas() {
               ) : (
                 <ResponsiveContainer width="100%" height={240}>
                   <BarChart layout="vertical" data={acreedoresChartData} margin={{ top: 5, right: 15, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
-                    <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                    <YAxis dataKey="name" type="category" stroke="#94a3b8" fontSize={11} tickLine={false} width={80} />
-                    <Tooltip content={<CustomTooltip unit="S/ " />} cursor={{ fill: 'rgba(255,255,255,0.05)' }} />
+                    <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                    <XAxis type="number" stroke={axisColor} fontSize={11} tickLine={false} />
+                    <YAxis dataKey="name" type="category" stroke={axisColor} fontSize={11} tickLine={false} width={80} />
+                    <Tooltip content={<CustomTooltip unit="S/ " />} cursor={{ fill: cursorFill }} />
                     <Bar 
                       dataKey="value" 
                       fill="#60a5fa" 

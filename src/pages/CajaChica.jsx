@@ -335,31 +335,32 @@ export default function CajaChica() {
   };
 
   return (
-    <div className="flex flex-col h-[100dvh] overflow-hidden" style={{ background: '#080E1A', fontFamily: FONT }}>
+    <div className="flex flex-col h-[100dvh] overflow-hidden" style={{ background: 'var(--surface-base)', color: 'var(--text-primary)', fontFamily: FONT }}>
       
       {/* HEADER */}
-      <div className="flex-shrink-0 px-4 pt-5 pb-3 border-b border-white/5" style={{ background: 'linear-gradient(180deg,rgba(30,41,59,0.9) 0%,rgba(8,14,26,0) 100%)' }}>
+      <div className="flex-shrink-0 px-4 pt-5 pb-3" style={{ borderBottom: '1px solid var(--border-subtle)', background: 'linear-gradient(180deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%)' }}>
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-white text-lg font-black tracking-tight leading-none flex items-center gap-2">
-              <Wallet size={20} className="text-emerald-400" />
+            <h1 className="text-lg font-black tracking-tight leading-none flex items-center gap-2" style={{ color: 'var(--text-primary)' }}>
+              <Wallet size={20} className="text-emerald-450 dark:text-emerald-400" />
               Caja Chica
             </h1>
-            <p className="text-slate-500 text-[10px] font-medium mt-1">Control de saldos y caja integrada</p>
+            <p className="text-[10px] font-medium mt-1" style={{ color: 'var(--text-tertiary)' }}>Control de saldos y caja integrada</p>
           </div>
 
           {/* Admin Cash Box Selector */}
           {currentUser.rol === 'Administrador' && (
-            <div className="flex items-center bg-white/5 border border-white/10 rounded-xl px-2.5 py-1.5 focus-within:border-indigo-500/50">
-              <span className="text-[9px] font-black text-indigo-300 mr-1.5 uppercase tracking-wider">Filtrar Caja:</span>
+            <div className="flex items-center rounded-xl px-2.5 py-1.5" style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)' }}>
+              <span className="text-[9px] font-black text-indigo-500 dark:text-indigo-300 mr-1.5 uppercase tracking-wider">Filtrar Caja:</span>
               <select
                 value={selectedUserFilter}
                 onChange={(e) => setSelectedUserFilter(e.target.value)}
-                className="bg-transparent border-none text-white text-[10px] font-bold outline-none cursor-pointer"
+                className="bg-transparent border-none text-[10px] font-bold outline-none cursor-pointer"
+                style={{ color: 'var(--text-primary)' }}
               >
-                <option value="general" style={{ background: '#111A2E' }}>Vista General</option>
+                <option value="general" style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>Vista General</option>
                 {dbUsers.map(u => (
-                  <option key={u.id_usuario} value={u.id_usuario} style={{ background: '#111A2E' }}>
+                  <option key={u.id_usuario} value={u.id_usuario} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>
                     {u.username} ({u.rol.substring(0, 5)})
                   </option>
                 ))}
@@ -369,7 +370,7 @@ export default function CajaChica() {
         </div>
         
         {currentUser.rol === 'Trabajador' && (
-          <p className="text-indigo-300 text-[9px] font-black uppercase tracking-wider mt-1.5 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-0.5 rounded-md inline-block">
+          <p className="text-[9px] font-black uppercase tracking-wider mt-1.5 px-2.5 py-0.5 rounded-md inline-block" style={{ background: 'var(--icon-bg-indigo)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
             👤 Turno activo: {currentUser.username}
           </p>
         )}
@@ -385,35 +386,38 @@ export default function CajaChica() {
             { k: 'efectivo', l: '💵 Efectivo' },
             { k: 'yape', l: '📱 Yape' },
             { k: 'deposito', l: '🏦 Depósito' }
-          ].map(({ k, l }) => (
-            <button
-              key={k}
-              type="button"
-              onClick={() => setFilterMetodo(k)}
-              className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap active:scale-95 border outline-none"
-              style={{
-                backgroundColor: filterMetodo === k ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.03)',
-                borderColor: filterMetodo === k ? 'rgba(74,222,128,0.4)' : 'rgba(255,255,255,0.06)',
-                color: filterMetodo === k ? '#4ade80' : '#94a3b8'
-              }}
-            >
-              {l}
-            </button>
-          ))}
+          ].map(({ k, l }) => {
+            const isActive = filterMetodo === k;
+            return (
+              <button
+                key={k}
+                type="button"
+                onClick={() => setFilterMetodo(k)}
+                className="px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap active:scale-95 border outline-none font-sans"
+                style={{
+                  backgroundColor: isActive ? 'rgba(74,222,128,0.15)' : 'var(--white-alpha-3)',
+                  borderColor: isActive ? 'rgba(74,222,128,0.4)' : 'var(--border-subtle)',
+                  color: isActive ? '#22c55e' : 'var(--text-secondary)'
+                }}
+              >
+                {l}
+              </button>
+            );
+          })}
         </div>
 
         {/* TOP BALANCE CARD */}
-        <div className="rounded-3xl bg-[#091515] p-6 border border-[#142e2e] text-center shadow-lg shadow-[#091515]/50 transition-all">
-          <p className="text-slate-400 text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all">
+        <div className="rounded-3xl p-6 text-center shadow-lg transition-all" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', boxShadow: '0 10px 15px -3px var(--shadow-card)' }}>
+          <p className="text-[10px] sm:text-xs font-bold tracking-widest uppercase transition-all" style={{ color: 'var(--text-secondary)' }}>
             {getBalanceTitle()}
           </p>
-          <h2 className={`text-4xl sm:text-5xl font-mono font-bold drop-shadow-[0_0_10px_rgba(74,222,128,0.3)] my-3 transition-all ${
-            filteredBalance >= 0 ? 'text-[#4ade80]' : 'text-rose-400'
+          <h2 className={`text-4xl sm:text-5xl font-mono font-bold my-3 transition-all ${
+            filteredBalance >= 0 ? 'text-[#4ade80] dark:text-[#4ade80]' : 'text-rose-500'
           }`}>
             S/. {formatNumber(filteredBalance)}
           </h2>
           
-          <div className="border-t border-[#142e2e]/60 my-4"></div>
+          <div className="my-4" style={{ borderTop: '1px solid var(--border-subtle)' }}></div>
           
           <div className="flex justify-around items-center pt-2">
             {/* Col 1: Inputs */}
@@ -426,14 +430,14 @@ export default function CajaChica() {
             </div>
 
             {/* Divider */}
-            <div className="h-8 border-l border-[#142e2e]"></div>
+            <div className="h-8" style={{ borderLeft: '1px solid var(--border-subtle)' }}></div>
 
             {/* Col 2: Outputs */}
             <div className="flex items-center space-x-2">
-              <span className="text-rose-400 text-xl font-bold">↓</span>
+              <span className="text-rose-500 text-xl font-bold">↓</span>
               <div className="text-left">
-                <p className="text-rose-400 text-[10px] font-bold tracking-wider">Salidas:</p>
-                <p className="text-rose-400 text-sm font-black font-mono">S/. {formatNumber(filteredSalidas)}</p>
+                <p className="text-rose-500 text-[10px] font-bold tracking-wider">Salidas:</p>
+                <p className="text-rose-500 text-sm font-black font-mono">S/. {formatNumber(filteredSalidas)}</p>
               </div>
             </div>
           </div>
@@ -460,8 +464,8 @@ export default function CajaChica() {
         {/* COMBINED HISTORY LIST */}
         <div className="space-y-3">
           <div className="flex justify-between items-center px-1">
-            <span className="text-white text-xs font-black uppercase tracking-widest">Historial de Movimientos</span>
-            <span className="text-slate-500 text-[10px] font-bold">
+            <span className="text-xs font-black uppercase tracking-widest" style={{ color: 'var(--text-primary)' }}>Historial de Movimientos</span>
+            <span className="text-[10px] font-bold" style={{ color: 'var(--text-tertiary)' }}>
               {historialFiltrado.length === historialUnificado.length 
                 ? `${historialUnificado.length} operaciones`
                 : `${historialFiltrado.length} de ${historialUnificado.length} filtradas`}
@@ -470,8 +474,8 @@ export default function CajaChica() {
 
           <div className="space-y-2">
             {historialFiltrado.length === 0 ? (
-              <div className="text-center py-10 bg-white/3 border border-white/5 rounded-2xl">
-                <p className="text-slate-500 text-xs">No hay movimientos registrados para este filtro.</p>
+              <div className="text-center py-10 rounded-2xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
+                <p className="text-xs" style={{ color: 'var(--text-tertiary)' }}>No hay movimientos registrados para este filtro.</p>
               </div>
             ) : (
               historialFiltrado.map((item) => {
@@ -481,24 +485,25 @@ export default function CajaChica() {
                 return (
                   <div
                     key={item.id}
-                    className="flex flex-col p-3 rounded-2xl border bg-white/3 border-white/5 space-y-1.5"
+                    className="flex flex-col p-3 rounded-2xl border space-y-1.5"
+                    style={{ background: 'var(--white-alpha-3)', borderColor: 'var(--border-subtle)' }}
                   >
                     <div className="flex items-center space-x-3">
                       {/* Type icon */}
                       <div className={`w-8 h-8 flex-shrink-0 rounded-xl flex items-center justify-center ${
-                        isIngreso ? 'bg-[#4ade80]/15 text-[#4ade80]' : 'bg-rose-500/15 text-rose-400'
+                        isIngreso ? 'bg-[#4ade80]/15 text-[#4ade80]' : 'bg-rose-500/15 text-rose-500 dark:text-rose-450'
                       }`}>
                         {isIngreso ? <ArrowUp size={15} /> : <ArrowDown size={15} />}
                       </div>
 
                       {/* Detail and Concept */}
                       <div className="flex-1 min-w-0">
-                        <p className="text-white text-xs font-bold truncate leading-snug">{item.concepto}</p>
+                        <p className="text-xs font-bold truncate leading-snug" style={{ color: 'var(--text-primary)' }}>{item.concepto}</p>
                         <div className="flex items-center space-x-2 mt-0.5">
-                          <span className="text-slate-400 text-[9px] font-bold px-1.5 py-0.5 rounded bg-white/5 leading-none">
+                          <span className="text-[9px] font-bold px-1.5 py-0.5 rounded leading-none" style={{ background: 'var(--white-alpha-5)', color: 'var(--text-secondary)' }}>
                             {getMethodEmoji(item.metodo)}
                           </span>
-                          <span className="text-slate-600 text-[9px] font-bold">
+                          <span className="text-[9px] font-bold" style={{ color: 'var(--text-tertiary)' }}>
                             {formatDate(item.timestamp, item.fecha)} · {formatTime(item.timestamp)}
                           </span>
                         </div>
@@ -506,13 +511,14 @@ export default function CajaChica() {
 
                       {/* Amount and delete button */}
                       <div className="flex items-center space-x-2">
-                        <span className={`text-xs font-black font-mono ${isIngreso ? 'text-[#4ade80]' : 'text-rose-400'}`}>
+                        <span className={`text-xs font-black font-mono ${isIngreso ? 'text-[#4ade80]' : 'text-rose-500'}`}>
                           {isIngreso ? '+' : '-'} S/. {formatNumber(item.monto)}
                         </span>
                         {item.esManual && (
                           <button
                             onClick={() => handleDeleteManual(item.dbId, item.concepto)}
-                            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 active:scale-90 transition-colors"
+                            className="w-7 h-7 rounded-lg flex items-center justify-center hover:text-rose-500 active:scale-90 transition-colors"
+                            style={{ color: 'var(--text-tertiary)' }}
                           >
                             <Trash2 size={13} />
                           </button>
@@ -521,10 +527,10 @@ export default function CajaChica() {
                     </div>
 
                     {/* Operator Tag */}
-                    <div className="flex items-center justify-between border-t border-white/3 pt-1.5 text-[9px] text-slate-500">
+                    <div className="flex items-center justify-between pt-1.5 text-[9px]" style={{ borderTop: '1px solid var(--border-subtle)', color: 'var(--text-tertiary)' }}>
                       <span>👤 Operador: {operatorName}</span>
                       {item.concepto.includes('Apertura') && (
-                        <span className="text-emerald-400 bg-emerald-500/10 px-1 py-0.2 rounded font-black tracking-widest uppercase">APERTURA</span>
+                        <span className="text-emerald-500 bg-emerald-500/10 px-1 py-0.2 rounded font-black tracking-widest uppercase">APERTURA</span>
                       )}
                     </div>
                   </div>
@@ -539,19 +545,21 @@ export default function CajaChica() {
       {/* TRANSACTIONS REGISTER MODAL */}
       {modalType && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={() => setModalType(null)} />
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={() => setModalType(null)} />
           <form
             onSubmit={handleSave}
-            className="relative w-full max-w-md bg-[#111A2E] rounded-3xl p-6 shadow-2xl border border-white/5 space-y-4"
+            className="relative w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4"
+            style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)' }}
           >
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
-              <h3 className="text-white text-sm font-black uppercase tracking-wider">
+            <div className="flex items-center justify-between pb-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+              <h3 className="text-sm font-black uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
                 Registrar {modalType === 'ingreso' ? 'Ingreso' : 'Egreso'}
               </h3>
               <button
                 type="button"
                 onClick={() => setModalType(null)}
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
               >
                 <X size={18} />
               </button>
@@ -561,8 +569,8 @@ export default function CajaChica() {
               
               {/* SWITCH TRANSFERENCIA - Only for egresos */}
               {modalType === 'egreso' && (
-                <div className="flex items-center justify-between p-3 rounded-2xl bg-white/3 border border-white/5">
-                  <span className="text-white text-xs font-bold">¿Es una transferencia de fondos?</span>
+                <div className="flex items-center justify-between p-3 rounded-2xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
+                  <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>¿Es una transferencia de fondos?</span>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input 
                       type="checkbox" 
@@ -580,9 +588,9 @@ export default function CajaChica() {
 
               {/* AMOUNT */}
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-slate-400 font-black uppercase tracking-wider">Monto (S/.)</label>
-                <div className="flex items-center bg-white/5 border border-white/10 rounded-2xl px-3 focus-within:border-indigo-500/50">
-                  <span className="text-slate-400 font-bold text-sm mr-2">S/.</span>
+                <label className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Monto (S/.)</label>
+                <div className="flex items-center rounded-2xl px-3" style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)' }}>
+                  <span className="font-bold text-sm mr-2" style={{ color: 'var(--text-secondary)' }}>S/.</span>
                   <input
                     type="number"
                     step="0.01"
@@ -590,7 +598,8 @@ export default function CajaChica() {
                     placeholder="0.00"
                     value={montoInput}
                     onChange={(e) => setMontoInput(e.target.value)}
-                    className="w-full bg-transparent border-none text-white py-3 text-sm font-black font-mono outline-none"
+                    className="w-full bg-transparent border-none py-3 text-sm font-black font-mono outline-none"
+                    style={{ color: 'var(--text-primary)' }}
                   />
                 </div>
               </div>
@@ -598,78 +607,84 @@ export default function CajaChica() {
               {/* CONCEPT OR RECIPIENT SELECTOR */}
               {isTransfer && modalType === 'egreso' ? (
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] text-slate-400 font-black uppercase tracking-wider">Seleccionar Usuario Destinatario</label>
+                  <label className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Seleccionar Usuario Destinatario</label>
                   <select
                     required
                     value={destUsuarioId}
                     onChange={(e) => setDestUsuarioId(e.target.value)}
-                    className="w-full bg-[#111A2E] border border-white/10 text-white rounded-2xl px-3 py-3 text-xs outline-none focus:border-indigo-500/50"
+                    className="w-full border text-xs rounded-2xl px-3 py-3 outline-none focus:border-indigo-500/50"
+                    style={{ background: 'var(--select-option-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
                   >
-                    <option value="" disabled>-- Seleccione un usuario --</option>
+                    <option value="" disabled style={{ color: 'var(--text-secondary)' }}>-- Seleccione un usuario --</option>
                     {availableDestinatarios.map(u => (
-                      <option key={u.id_usuario} value={u.id_usuario}>
+                      <option key={u.id_usuario} value={u.id_usuario} style={{ background: 'var(--select-option-bg)', color: 'var(--text-primary)' }}>
                         {u.username} ({u.rol})
                       </option>
                     ))}
                     {availableDestinatarios.length === 0 && (
-                      <option value="" disabled>No hay usuarios de destino activos</option>
+                      <option value="" disabled style={{ color: 'var(--text-secondary)' }}>No hay usuarios de destino activos</option>
                     )}
                   </select>
                 </div>
               ) : (
                 <div className="flex flex-col gap-1">
-                  <label className="text-[10px] text-slate-400 font-black uppercase tracking-wider">Concepto</label>
+                  <label className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Concepto</label>
                   <input
                     type="text"
                     required
                     placeholder={modalType === 'ingreso' ? 'Ej. Venta rápida de sacos vacíos, etc.' : 'Ej. Comida personal, estibadores, etc.'}
                     value={conceptoInput}
                     onChange={(e) => setConceptoInput(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 text-white rounded-2xl px-3 py-3 text-xs outline-none focus:border-indigo-500/50"
+                    className="w-full border rounded-2xl px-3 py-3 text-xs outline-none focus:border-indigo-500/50"
+                    style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
                   />
                 </div>
               )}
 
               {/* CAJA METHOD */}
               <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-slate-400 font-black uppercase tracking-wider">Método de Caja</label>
+                <label className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Método de Caja</label>
                 <div className="grid grid-cols-3 gap-2">
                   {[
                     { k: 'efectivo', l: '💵 Efectivo' },
                     { k: 'yape', l: '📱 Yape' },
                     { k: 'deposito', l: '🏦 Depósito' }
-                  ].map(({ k, l }) => (
-                    <button
-                      key={k}
-                      type="button"
-                      onClick={() => setMetodoInput(k)}
-                      className="py-2.5 rounded-xl text-xs font-black transition-all border outline-none active:scale-95"
-                      style={{
-                        backgroundColor: metodoInput === k ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.03)',
-                        borderColor: metodoInput === k ? 'rgba(99,102,241,0.4)' : 'rgba(255,255,255,0.06)',
-                        color: metodoInput === k ? '#818cf8' : '#94a3b8'
-                      }}
-                    >
-                      {l}
-                    </button>
-                  ))}
+                  ].map(({ k, l }) => {
+                    const isSelected = metodoInput === k;
+                    return (
+                      <button
+                        key={k}
+                        type="button"
+                        onClick={() => setMetodoInput(k)}
+                        className="py-2.5 rounded-xl text-xs font-black transition-all border outline-none active:scale-95 font-sans"
+                        style={{
+                          backgroundColor: isSelected ? 'rgba(99,102,241,0.15)' : 'var(--white-alpha-3)',
+                          borderColor: isSelected ? 'rgba(99,102,241,0.4)' : 'var(--border-subtle)',
+                          color: isSelected ? '#818cf8' : 'var(--text-secondary)'
+                        }}
+                      >
+                        {l}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
 
             {/* MODAL ACTIONS */}
-            <div className="flex gap-2 border-t border-white/5 pt-3">
+            <div className="flex gap-2 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
               <button
                 type="button"
                 onClick={() => setModalType(null)}
-                className="flex-1 py-3.5 rounded-2xl bg-white/5 border border-white/10 text-slate-400 text-xs font-bold transition-all active:scale-[0.98]"
+                className="flex-1 py-3.5 rounded-2xl text-xs font-bold transition-all active:scale-[0.98]"
+                style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className={`flex-1 py-3.5 rounded-2xl text-white text-xs font-bold transition-all active:scale-[0.98] ${
-                  modalType === 'ingreso' ? 'bg-[#4ade80] hover:bg-[#3ec472] text-[#091515]' : 'bg-rose-500 hover:bg-rose-600'
+                className={`flex-1 py-3.5 rounded-2xl text-xs font-bold transition-all active:scale-[0.98] ${
+                  modalType === 'ingreso' ? 'bg-[#4ade80] hover:bg-[#3ec472] text-[#091515]' : 'bg-rose-500 hover:bg-rose-600 text-white'
                 }`}
               >
                 Guardar Movimiento

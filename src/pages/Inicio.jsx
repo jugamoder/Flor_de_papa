@@ -1,9 +1,11 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Search, PackageMinus, PackagePlus, X, Edit2, Clock, Layers, Users, Leaf, ChevronRight, ChevronLeft, ArrowLeftRight, Landmark, UserCheck } from 'lucide-react';
+import { User, Search, PackageMinus, PackagePlus, X, Edit2, Clock, Layers, Users, Leaf, ChevronRight, ChevronLeft, ArrowLeftRight, Landmark, UserCheck, Sun, Moon } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, genUUID, SENTINEL_ID, getOcasionalCorrelativo } from '../db/database';
-import { useUser } from '../context/UserContext';const FONT = '"Inter","SF Pro Display",system-ui,sans-serif';
+import { useUser } from '../context/UserContext';
+import { useTheme } from '../context/ThemeContext';
+const FONT = '"Inter","SF Pro Display",system-ui,sans-serif';
 
 /* ─── Contraste dinámico para textos sobre fondo de color ─── */
 function getLuminance(hex) {
@@ -25,8 +27,8 @@ const TipoBadge = ({ tipo, esTransbordo }) => (
     esTransbordo
       ? 'bg-amber-600/30 text-amber-300'
       : (tipo === 'compra'
-          ? 'bg-blue-500/20 text-blue-300'
-          : 'bg-emerald-500/20 text-emerald-300')
+          ? 'bg-blue-500/20 text-blue-400 dark:text-blue-300'
+          : 'bg-emerald-500/20 text-emerald-500 dark:text-emerald-300')
   }`}>
     {esTransbordo ? 'Transbordo' : (tipo === 'compra' ? 'Compra' : 'Venta')}
   </span>
@@ -34,8 +36,8 @@ const TipoBadge = ({ tipo, esTransbordo }) => (
 
 const EstadoBadge = ({ estado }) => {
   const map = {
-    activo:    'bg-amber-500/20 text-amber-300',
-    finalizado:'bg-slate-500/20 text-slate-400',
+    activo:    'bg-amber-500/20 text-amber-400 dark:text-amber-300',
+    finalizado:'bg-slate-500/20 text-slate-500 dark:text-slate-400',
     borrador:  'bg-slate-700/30 text-slate-500',
   };
   const label = { activo: 'Activo', finalizado: 'Cerrado', borrador: 'Borrador' };
@@ -88,14 +90,14 @@ function MovimientoRow({ mov, socios, variedadesMap, sacosGlobal, onEdit }) {
       style={{
         background: esActivo
           ? (mov.es_transbordo === 1
-              ? 'rgba(245,158,11,0.07)'
-              : (mov.tipo === 'compra' ? 'rgba(37,99,235,0.07)' : 'rgba(5,150,105,0.07)'))
-          : 'rgba(255,255,255,0.03)',
+              ? 'var(--mov-transbordo-bg)'
+              : (mov.tipo === 'compra' ? 'var(--mov-compra-bg)' : 'var(--mov-venta-bg)'))
+          : 'var(--mov-inactive-bg)',
         border: esActivo
           ? (mov.es_transbordo === 1
-              ? '1px solid rgba(245,158,11,0.2)'
-              : (mov.tipo === 'compra' ? '1px solid rgba(37,99,235,0.2)' : '1px solid rgba(5,150,105,0.2)'))
-          : '1px solid rgba(255,255,255,0.06)',
+              ? '1px solid var(--mov-transbordo-border)'
+              : (mov.tipo === 'compra' ? '1px solid var(--mov-compra-border)' : '1px solid var(--mov-venta-border)'))
+          : '1px solid var(--mov-inactive-border)',
       }}
     >
       {/* Icono */}
@@ -118,7 +120,7 @@ function MovimientoRow({ mov, socios, variedadesMap, sacosGlobal, onEdit }) {
         <div className="flex items-center gap-1.5 mb-1 flex-wrap">
           <TipoBadge tipo={mov.tipo} esTransbordo={mov.es_transbordo === 1} />
           <EstadoBadge estado={mov.estado} />
-          <span className="text-white text-xs font-bold truncate">{nombreSocio}</span>
+          <span className="text-xs font-bold truncate" style={{ color: 'var(--text-primary)' }}>{nombreSocio}</span>
         </div>
         {/* Fila 2: tags variedad + fecha */}
         <div className="flex items-center flex-wrap gap-1">
@@ -136,12 +138,12 @@ function MovimientoRow({ mov, socios, variedadesMap, sacosGlobal, onEdit }) {
             </span>
           ))}
           {varTags.length === 0 && (
-            <span className="text-slate-700 text-[10px] italic">sin sacos</span>
+            <span className="text-[10px] italic" style={{ color: 'var(--text-tertiary)' }}>sin sacos</span>
           )}
-          {fecha && <span className="text-slate-600 text-[10px] ml-0.5">{fecha}</span>}
+          {fecha && <span className="text-[10px] ml-0.5" style={{ color: 'var(--text-tertiary)' }}>{fecha}</span>}
         </div>
         {/* Fila 3: Operator audit badge */}
-        <div className="text-[10px] text-slate-400 mt-1.5 flex items-center gap-1">
+        <div className="text-[10px] mt-1.5 flex items-center gap-1" style={{ color: 'var(--text-secondary)' }}>
           <span>👤 Registrado por: {mov.creado_por_username || 'admin'}</span>
         </div>
       </div>
@@ -149,9 +151,9 @@ function MovimientoRow({ mov, socios, variedadesMap, sacosGlobal, onEdit }) {
       {/* Derecha: total sacos + botón editar */}
       <div className="flex-shrink-0 flex flex-col items-end gap-1">
         <div className="flex items-center gap-1">
-          <Layers size={11} className="text-slate-500" />
-          <span className="text-white font-black text-sm leading-none">{totalSacos}</span>
-          <span className="text-slate-500 text-[10px]">sacos</span>
+          <Layers size={11} style={{ color: 'var(--text-tertiary)' }} />
+          <span className="font-black text-sm leading-none" style={{ color: 'var(--text-primary)' }}>{totalSacos}</span>
+          <span className="text-[10px]" style={{ color: 'var(--text-tertiary)' }}>sacos</span>
         </div>
         <button
           onClick={() => onEdit(mov)}
@@ -159,7 +161,7 @@ function MovimientoRow({ mov, socios, variedadesMap, sacosGlobal, onEdit }) {
           style={{
             color: esActivo
               ? (mov.tipo === 'compra' ? '#60a5fa' : '#34d399')
-              : '#64748b',
+              : 'var(--text-tertiary)',
           }}
         >
           <Edit2 size={9} />
@@ -216,22 +218,22 @@ function DatosNegocioModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <form onSubmit={handleSave} className="relative w-full max-w-md bg-[#1A2438] rounded-3xl p-6 shadow-2xl border border-white/5 space-y-4">
-        <div className="flex items-center justify-between border-b border-white/5 pb-3">
-          <h3 className="text-white text-base font-black uppercase tracking-wider">Datos del Negocio</h3>
-          <button type="button" onClick={onClose} className="text-slate-400 hover:text-white transition-colors">
+      <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={onClose} />
+      <form onSubmit={handleSave} className="relative w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-4" style={{ background: 'var(--modal-bg)', border: '1px solid var(--border-card)' }}>
+        <div className="flex items-center justify-between pb-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+          <h3 className="text-base font-black uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>Datos del Negocio</h3>
+          <button type="button" onClick={onClose} className="transition-colors" style={{ color: 'var(--text-secondary)' }}>
             <X size={18} />
           </button>
         </div>
 
         <div className="space-y-3">
-          <div className="flex flex-col items-center gap-2 border border-white/5 p-3 rounded-2xl bg-white/3">
-            <span className="text-slate-400 text-xs font-semibold">Logotipo del Negocio</span>
+          <div className="flex flex-col items-center gap-2 p-3 rounded-2xl" style={{ border: '1px solid var(--border-subtle)', background: 'var(--white-alpha-3)' }}>
+            <span className="text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>Logotipo del Negocio</span>
             {logo ? (
-              <img src={logo} alt="Logo preview" className="w-16 h-16 object-contain rounded-lg bg-white/10 p-1" />
+              <img src={logo} alt="Logo preview" className="w-16 h-16 object-contain rounded-lg p-1" style={{ background: 'var(--white-alpha-5)' }} />
             ) : (
-              <div className="w-16 h-16 border-2 border-dashed border-white/10 rounded-lg flex items-center justify-center text-slate-600 text-xs">Sin logo</div>
+              <div className="w-16 h-16 border-2 border-dashed rounded-lg flex items-center justify-center text-xs" style={{ borderColor: 'var(--border-subtle)', color: 'var(--text-tertiary)' }}>Sin logo</div>
             )}
             <input
               type="file"
@@ -242,63 +244,68 @@ function DatosNegocioModal({ onClose }) {
             />
             <label
               htmlFor="negocio-logo-input"
-              className="cursor-pointer text-xs bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all"
+              className="cursor-pointer text-xs bg-indigo-600/20 border border-indigo-500/30 text-indigo-400 dark:text-indigo-300 font-bold px-3 py-1.5 rounded-lg active:scale-95 transition-all"
             >
               Seleccionar Imagen
             </label>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] text-slate-500 font-black uppercase tracking-wider">Nombre Comercial</label>
+            <label className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Nombre Comercial</label>
             <input
               type="text"
               required
               placeholder='Ej: Almacenes "Flor de Papa"'
               value={nombre}
               onChange={e => setNombre(e.target.value)}
-              className="bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500/50"
+              className="rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500/50"
+              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] text-slate-500 font-black uppercase tracking-wider">Dirección</label>
+            <label className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Dirección</label>
             <input
               type="text"
               placeholder="Ej: Av. Las Papas 123"
               value={direccion}
               onChange={e => setDireccion(e.target.value)}
-              className="bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500/50"
+              className="rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500/50"
+              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] text-slate-500 font-black uppercase tracking-wider">Teléfonos de Contacto</label>
+            <label className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Teléfonos de Contacto</label>
             <input
               type="text"
               placeholder="Ej: +51 987654321 / 01-2345678"
               value={telefonos}
               onChange={e => setTelefonos(e.target.value)}
-              className="bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500/50"
+              className="rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500/50"
+              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
             />
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] text-slate-500 font-black uppercase tracking-wider">Descripción Comercial</label>
+            <label className="text-[10px] font-black uppercase tracking-wider" style={{ color: 'var(--text-tertiary)' }}>Descripción Comercial</label>
             <textarea
               placeholder="Ej: Compra y venta de papa al por mayor"
               value={descripcion}
               onChange={e => setDescripcion(e.target.value)}
               rows={2}
-              className="bg-white/5 border border-white/10 text-white rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500/50 resize-none"
+              className="rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-500/50 resize-none"
+              style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
             />
           </div>
         </div>
 
-        <div className="flex gap-2 border-t border-white/5 pt-3">
+        <div className="flex gap-2 pt-3" style={{ borderTop: '1px solid var(--border-subtle)' }}>
           <button
             type="button"
             onClick={onClose}
-            className="flex-1 py-2.5 rounded-xl bg-white/5 border border-white/10 text-slate-400 text-xs font-bold transition-all active:scale-[0.98]"
+            className="flex-1 py-2.5 rounded-xl text-xs font-bold transition-all active:scale-[0.98]"
+            style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
           >
             Cancelar
           </button>
@@ -318,6 +325,7 @@ function DatosNegocioModal({ onClose }) {
 export default function Inicio() {
   const navigate = useNavigate();
   const { currentUser, setCurrentUser } = useUser();
+  const { theme, toggleTheme } = useTheme();
   const [filter, setFilter] = useState('todos');
   const [search, setSearch] = useState('');
   const [showMenu, setShowMenu] = useState(false);
@@ -495,15 +503,15 @@ export default function Inicio() {
   ];
 
   return (
-    <div className="flex flex-col h-[100dvh] overflow-hidden" style={{ background: '#080E1A', fontFamily: FONT }}>
+    <div className="flex flex-col h-[100dvh] overflow-hidden" style={{ background: 'var(--surface-base)', fontFamily: FONT }}>
 
       {/* ── HEADER ── */}
       <div className="flex-shrink-0 px-4 pt-5 pb-1"
-        style={{ background: 'linear-gradient(180deg,rgba(30,41,59,0.9) 0%,rgba(8,14,26,0) 100%)' }}>
+        style={{ background: `linear-gradient(180deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%)` }}>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <h1 className="text-white text-lg font-black tracking-tight leading-none">SisgecoMVP</h1>
-            <p className="text-slate-500 text-[11px] font-medium mt-0.5">
+            <h1 className="text-lg font-black tracking-tight leading-none" style={{ color: 'var(--text-primary)' }}>SisgecoMVP</h1>
+            <p className="text-[11px] font-medium mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
               Hoy · {new Date().toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long' })}
             </p>
           </div>
@@ -511,86 +519,106 @@ export default function Inicio() {
           <div className="relative" ref={menuRef}>
             <button
               onClick={() => setShowMenu(v => !v)}
-              className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center transition-all active:scale-90"
-              style={{ background: showMenu ? 'rgba(99,102,241,0.25)' : 'rgba(255,255,255,0.06)', borderColor: showMenu ? 'rgba(99,102,241,0.5)' : 'rgba(255,255,255,0.1)' }}
+              className="w-9 h-9 rounded-full flex items-center justify-center transition-all active:scale-90"
+              style={{ background: showMenu ? 'rgba(99,102,241,0.25)' : 'var(--white-alpha-6)', border: `1px solid ${showMenu ? 'rgba(99,102,241,0.5)' : 'var(--border-subtle)'}` }}
             >
-              <User size={17} className="text-slate-400" />
+              <User size={17} style={{ color: 'var(--text-secondary)' }} />
             </button>
 
             {/* Dropdown */}
             {showMenu && (
               <div
                 className="absolute right-0 top-11 z-50 rounded-2xl overflow-hidden"
-                style={{ background: '#1A2438', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 40px rgba(0,0,0,0.5)', minWidth: 200 }}
+                style={{ background: 'var(--surface-card)', border: '1px solid var(--border-card)', boxShadow: `0 16px 40px var(--shadow-card)`, minWidth: 200 }}
               >
                 {/* Active user credentials display */}
-                <div className="px-4 py-2.5 border-b border-white/5 bg-white/3">
-                  <p className="text-white text-xs font-bold truncate">👤 {currentUser.username}</p>
-                  <p className="text-indigo-300 text-[8px] font-black uppercase tracking-widest mt-0.5">{currentUser.rol}</p>
+                <div className="px-4 py-2.5" style={{ borderBottom: '1px solid var(--border-subtle)', background: 'var(--white-alpha-3)' }}>
+                  <p className="text-xs font-bold truncate" style={{ color: 'var(--text-primary)' }}>👤 {currentUser.username}</p>
+                  <p className="text-indigo-400 dark:text-indigo-300 text-[8px] font-black uppercase tracking-widest mt-0.5">{currentUser.rol}</p>
                 </div>
                 
-                <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest px-4 pt-3 pb-1">Configuración</p>
+                <p className="text-[9px] font-black uppercase tracking-widest px-4 pt-3 pb-1" style={{ color: 'var(--text-tertiary)' }}>Configuración</p>
                 
                 <button
                   onClick={() => { setShowMenu(false); navigate('/socios'); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-white/5"
+                  className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-black/5 dark:active:bg-white/5"
                 >
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)' }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--icon-bg-indigo)' }}>
                     <Users size={14} className="text-indigo-400" />
                   </div>
-                  <span className="text-white text-sm font-semibold flex-1 text-left">Socios</span>
-                  <ChevronRight size={13} className="text-slate-600" />
+                  <span className="text-sm font-semibold flex-1 text-left" style={{ color: 'var(--text-primary)' }}>Socios</span>
+                  <ChevronRight size={13} style={{ color: 'var(--text-tertiary)' }} />
                 </button>
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 16px' }} />
+                <div style={{ height: 1, background: 'var(--dropdown-separator)', margin: '0 16px' }} />
                 
                 <button
                   onClick={() => { setShowMenu(false); navigate('/variedades'); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-white/5"
+                  className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-black/5 dark:active:bg-white/5"
                 >
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(16,185,129,0.15)' }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--icon-bg-emerald)' }}>
                     <Leaf size={14} className="text-emerald-400" />
                   </div>
-                  <span className="text-white text-sm font-semibold flex-1 text-left">Variedades</span>
-                  <ChevronRight size={13} className="text-slate-600" />
+                  <span className="text-sm font-semibold flex-1 text-left" style={{ color: 'var(--text-primary)' }}>Variedades</span>
+                  <ChevronRight size={13} style={{ color: 'var(--text-tertiary)' }} />
                 </button>
                 
                 {currentUser.rol === 'Administrador' && (
                   <>
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 16px' }} />
+                    <div style={{ height: 1, background: 'var(--dropdown-separator)', margin: '0 16px' }} />
                     <button
                       onClick={() => { setShowMenu(false); setShowNegocioModal(true); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-white/5"
+                      className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-black/5 dark:active:bg-white/5"
                     >
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(234,179,8,0.15)' }}>
-                        <Landmark size={14} className="text-yellow-400" />
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--icon-bg-yellow)' }}>
+                        <Landmark size={14} className="text-yellow-500 dark:text-yellow-400" />
                       </div>
-                      <span className="text-white text-sm font-semibold flex-1 text-left">Datos del Negocio</span>
-                      <ChevronRight size={13} className="text-slate-600" />
+                      <span className="text-sm font-semibold flex-1 text-left" style={{ color: 'var(--text-primary)' }}>Datos del Negocio</span>
+                      <ChevronRight size={13} style={{ color: 'var(--text-tertiary)' }} />
                     </button>
-                    <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 16px' }} />
+                    <div style={{ height: 1, background: 'var(--dropdown-separator)', margin: '0 16px' }} />
                     <button
                       onClick={() => { setShowMenu(false); navigate('/admin-usuarios'); }}
-                      className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-white/5"
+                      className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-black/5 dark:active:bg-white/5"
                     >
-                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(234,179,8,0.15)' }}>
-                        <UserCheck size={14} className="text-yellow-400" />
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--icon-bg-yellow)' }}>
+                        <UserCheck size={14} className="text-yellow-500 dark:text-yellow-400" />
                       </div>
-                      <span className="text-white text-sm font-semibold flex-1 text-left">Administrar Usuarios</span>
-                      <ChevronRight size={13} className="text-slate-600" />
+                      <span className="text-sm font-semibold flex-1 text-left" style={{ color: 'var(--text-primary)' }}>Administrar Usuarios</span>
+                      <ChevronRight size={13} style={{ color: 'var(--text-tertiary)' }} />
                     </button>
                   </>
                 )}
 
-                <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 16px' }} />
+                <div style={{ height: 1, background: 'var(--dropdown-separator)', margin: '0 16px' }} />
                 <button
                   onClick={() => { setShowMenu(false); setShowSwitchUserModal(true); setSelectedUserToSwitch(null); setPinInput(''); setPinError(''); }}
-                  className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-white/5"
+                  className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-black/5 dark:active:bg-white/5"
                 >
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)' }}>
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'var(--icon-bg-indigo)' }}>
                     <ArrowLeftRight size={14} className="text-indigo-400" />
                   </div>
-                  <span className="text-white text-sm font-semibold flex-1 text-left">Cambiar de Usuario</span>
-                  <ChevronRight size={13} className="text-slate-600" />
+                  <span className="text-sm font-semibold flex-1 text-left" style={{ color: 'var(--text-primary)' }}>Cambiar de Usuario</span>
+                  <ChevronRight size={13} style={{ color: 'var(--text-tertiary)' }} />
+                </button>
+
+                {/* ── THEME TOGGLE ROW ── */}
+                <div style={{ height: 1, background: 'var(--dropdown-separator)', margin: '0 16px' }} />
+                <button
+                  onClick={() => { toggleTheme(); setShowMenu(false); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-black/5 dark:active:bg-white/5"
+                >
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center"
+                    style={{ background: theme === 'dark' ? 'rgba(251,191,36,0.15)' : 'rgba(99,102,241,0.15)' }}
+                  >
+                    {theme === 'dark'
+                      ? <Sun size={14} className="text-amber-400" />
+                      : <Moon size={14} className="text-indigo-400" />
+                    }
+                  </div>
+                  <span className="text-sm font-semibold flex-1 text-left" style={{ color: 'var(--text-primary)' }}>
+                    {theme === 'dark' ? 'Modo Claro' : 'Modo Oscuro'}
+                  </span>
+                  <ChevronRight size={13} style={{ color: 'var(--text-tertiary)' }} />
                 </button>
 
                 <div className="pb-2" />
@@ -601,13 +629,13 @@ export default function Inicio() {
 
         {/* Search */}
         <div className="relative mb-2.5">
-          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
+          <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" style={{ color: 'var(--text-tertiary)' }} />
           <input type="text" placeholder="Buscar socio..."
-            className="w-full pl-8 pr-8 py-2 text-sm text-white placeholder-slate-600 outline-none rounded-xl"
-            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+            className="w-full pl-8 pr-8 py-2 text-sm outline-none rounded-xl"
+            style={{ background: 'var(--input-bg)', border: '1px solid var(--input-border)', color: 'var(--text-primary)' }}
             value={search} onChange={e => setSearch(e.target.value)} />
           {search && (
-            <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">
+            <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2" style={{ color: 'var(--text-tertiary)' }}>
               <X size={13} />
             </button>
           )}
@@ -619,8 +647,8 @@ export default function Inicio() {
             <button key={tab.key} onClick={() => setFilter(tab.key)}
               className="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all"
               style={{
-                background: filter === tab.key ? '#fff' : 'rgba(255,255,255,0.05)',
-                color: filter === tab.key ? '#0F172A' : '#64748B',
+                background: filter === tab.key ? 'var(--filter-tab-active-bg)' : 'var(--filter-tab-bg)',
+                color: filter === tab.key ? 'var(--filter-tab-active-text)' : 'var(--filter-tab-text)',
               }}>
               {tab.label}
             </button>
@@ -631,19 +659,19 @@ export default function Inicio() {
       {/* ── ACTIVITY LIST ── */}
       {/* pb-40 = 64px nav + ~80px botones, para que el último ítem se vea completo */}
       <div className="flex-1 overflow-y-auto px-4 pb-40 min-h-0">
-        <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest mb-2 mt-1">
+        <p className="text-[10px] font-bold uppercase tracking-widest mb-2 mt-1" style={{ color: 'var(--text-tertiary)' }}>
           Actividad de Hoy
         </p>
 
         {movsFiltrados.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-48 space-y-3">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'rgba(255,255,255,0.04)' }}>
-              <Clock size={22} className="text-slate-700" />
+            <div className="w-14 h-14 rounded-full flex items-center justify-center" style={{ background: 'var(--white-alpha-5)' }}>
+              <Clock size={22} style={{ color: 'var(--text-tertiary)' }} />
             </div>
-            <p className="text-slate-600 text-sm font-medium text-center">
+            <p className="text-sm font-medium text-center" style={{ color: 'var(--text-tertiary)' }}>
               {search ? `Sin resultados para "${search}"` : 'Sin operaciones hoy'}
             </p>
-            <p className="text-slate-700 text-xs text-center">Las operaciones aparecen aquí tras el primer pesaje</p>
+            <p className="text-xs text-center" style={{ color: 'var(--text-tertiary)' }}>Las operaciones aparecen aquí tras el primer pesaje</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -665,13 +693,13 @@ export default function Inicio() {
       <div
         className="fixed bottom-16 left-0 right-0 z-40 px-4 pt-2 pb-3"
         style={{
-          background: 'linear-gradient(0deg, rgba(8,14,26,0.98) 70%, rgba(8,14,26,0) 100%)',
+          background: `linear-gradient(0deg, var(--gradient-action-start) 70%, var(--gradient-action-end) 100%)`,
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
         }}
       >
         <div className="flex space-x-3 max-w-lg mx-auto"
-          style={{ filter: 'drop-shadow(0 -8px 24px rgba(0,0,0,0.6))' }}>
+          style={{ filter: 'drop-shadow(0 -8px 24px rgba(0,0,0,0.3))' }}>
           <button onClick={nuevaCompra}
             className="flex-1 flex items-center justify-center space-x-2 py-4 rounded-2xl bg-blue-600 active:scale-95 transition-all"
             style={{ boxShadow: '0 4px 0 #1d4ed8, 0 8px 24px rgba(37,99,235,0.45)' }}>
@@ -691,27 +719,29 @@ export default function Inicio() {
       )}
       {showSwitchUserModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={() => setShowSwitchUserModal(false)} />
-          <div className="relative w-full max-w-sm bg-[#111A2E] rounded-3xl p-6 shadow-2xl border border-white/5 flex flex-col space-y-4">
+          <div className="absolute inset-0 backdrop-blur-sm" style={{ background: 'var(--overlay-backdrop)' }} onClick={() => setShowSwitchUserModal(false)} />
+          <div className="relative w-full max-w-sm rounded-3xl p-6 shadow-2xl flex flex-col space-y-4" style={{ background: 'var(--surface-overlay)', border: '1px solid var(--border-card)' }}>
             
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+            <div className="flex items-center justify-between pb-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
               <div className="flex items-center gap-2">
                 {selectedUserToSwitch && (
                   <button 
                     onClick={() => { setSelectedUserToSwitch(null); setPinInput(''); setPinError(''); }}
-                    className="text-slate-400 hover:text-white transition-colors mr-1"
+                    className="transition-colors mr-1"
+                    style={{ color: 'var(--text-secondary)' }}
                   >
                     <ChevronLeft size={18} />
                   </button>
                 )}
-                <h3 className="text-white text-sm font-black uppercase tracking-wider">
+                <h3 className="text-sm font-black uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
                   {selectedUserToSwitch ? 'Ingresar PIN' : 'Cambiar de Usuario'}
                 </h3>
               </div>
               <button 
                 onClick={() => setShowSwitchUserModal(false)} 
-                className="text-slate-400 hover:text-white transition-colors"
+                className="transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
               >
                 <X size={18} />
               </button>
@@ -729,7 +759,8 @@ export default function Inicio() {
                     <button
                       key={u.id_usuario}
                       onClick={() => { setSelectedUserToSwitch(u); setPinInput(''); setPinError(''); }}
-                      className="flex flex-col items-center p-4 rounded-2xl bg-white/3 border border-white/5 hover:border-white/10 hover:bg-white/5 active:scale-95 transition-all"
+                      className="flex flex-col items-center p-4 rounded-2xl transition-all active:scale-95"
+                      style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}
                     >
                       <div 
                         className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white shadow-md text-sm mb-2"
@@ -741,10 +772,10 @@ export default function Inicio() {
                       >
                         {initials}
                       </div>
-                      <span className="text-slate-200 text-xs font-bold truncate max-w-full">
+                      <span className="text-xs font-bold truncate max-w-full" style={{ color: 'var(--text-primary)' }}>
                         {u.username}
                       </span>
-                      <span className="text-slate-500 text-[8px] font-black uppercase tracking-widest mt-0.5">
+                      <span className="text-[8px] font-black uppercase tracking-widest mt-0.5" style={{ color: 'var(--text-tertiary)' }}>
                         {u.rol}
                       </span>
                     </button>
@@ -755,7 +786,7 @@ export default function Inicio() {
               /* Paso 2: Teclado Numérico para ingresar PIN */
               <div className="flex flex-col items-center space-y-4 py-2">
                 <div className="text-center">
-                  <p className="text-slate-400 text-xs font-semibold">Introduzca el PIN de acceso para</p>
+                  <p className="text-xs font-semibold" style={{ color: 'var(--text-secondary)' }}>Introduzca el PIN de acceso para</p>
                   <p className="text-indigo-400 text-sm font-black mt-0.5">@{selectedUserToSwitch.username}</p>
                 </div>
 
@@ -767,8 +798,9 @@ export default function Inicio() {
                       className={`w-3.5 h-3.5 rounded-full border transition-all duration-150 ${
                         pinInput.length > idx 
                           ? 'bg-indigo-500 border-indigo-500 scale-110 shadow-lg shadow-indigo-500/50' 
-                          : 'bg-transparent border-white/20'
+                          : 'bg-transparent'
                       }`}
+                      style={pinInput.length <= idx ? { borderColor: 'var(--border-subtle)' } : {}}
                     />
                   ))}
                 </div>
@@ -784,7 +816,8 @@ export default function Inicio() {
                       key={num}
                       type="button"
                       onClick={() => handleKeypadPress(num.toString())}
-                      className="w-14 h-14 rounded-full bg-white/5 border border-white/5 text-white font-mono text-xl font-bold hover:bg-white/10 active:scale-90 transition-all flex items-center justify-center mx-auto"
+                      className="w-14 h-14 rounded-full font-mono text-xl font-bold active:scale-90 transition-all flex items-center justify-center mx-auto"
+                      style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
                     >
                       {num}
                     </button>
@@ -799,14 +832,16 @@ export default function Inicio() {
                   <button
                     type="button"
                     onClick={() => handleKeypadPress('0')}
-                    className="w-14 h-14 rounded-full bg-white/5 border border-white/5 text-white font-mono text-xl font-bold hover:bg-white/10 active:scale-90 transition-all flex items-center justify-center mx-auto"
+                    className="w-14 h-14 rounded-full font-mono text-xl font-bold active:scale-90 transition-all flex items-center justify-center mx-auto"
+                    style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}
                   >
                     0
                   </button>
                   <button
                     type="button"
                     onClick={() => handleKeypadPress('delete')}
-                    className="w-14 h-14 rounded-full bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:bg-white/10 active:scale-90 transition-all flex items-center justify-center mx-auto text-xs"
+                    className="w-14 h-14 rounded-full active:scale-90 transition-all flex items-center justify-center mx-auto text-xs"
+                    style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
                   >
                     ⌫
                   </button>

@@ -100,24 +100,25 @@ export default function Usuarios() {
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col overflow-hidden text-white" style={{ background: '#080E1A', fontFamily: FONT }}>
+    <div className="h-[100dvh] flex flex-col overflow-hidden" style={{ background: 'var(--surface-base)', color: 'var(--text-primary)', fontFamily: FONT }}>
       
       {/* ── HEADER ── */}
-      <div className="flex-shrink-0 px-5 pt-5 pb-4" style={{ background: 'linear-gradient(180deg, rgba(30,41,59,0.9) 0%, rgba(8,14,26,0) 100%)' }}>
+      <div className="flex-shrink-0 px-5 pt-5 pb-4" style={{ background: 'linear-gradient(180deg, var(--gradient-header-start) 0%, var(--gradient-header-end) 100%)' }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <button 
               onClick={() => navigate('/')} 
-              className="w-9 h-9 rounded-full bg-white/8 border border-white/10 flex items-center justify-center hover:bg-white/15 transition active:scale-95"
+              className="w-9 h-9 rounded-full flex items-center justify-center transition active:scale-95"
+              style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)' }}
             >
-              <ChevronLeft size={20} className="text-white" />
+              <ChevronLeft size={20} style={{ color: 'var(--text-primary)' }} />
             </button>
             <div>
-              <h1 className="text-white font-bold text-lg leading-none">Administrar Usuarios</h1>
-              <p className="text-slate-500 text-[11px] mt-0.5">Control de acceso y roles del personal</p>
+              <h1 className="font-bold text-lg leading-none" style={{ color: 'var(--text-primary)' }}>Administrar Usuarios</h1>
+              <p className="text-[11px] mt-0.5" style={{ color: 'var(--text-tertiary)' }}>Control de acceso y roles del personal</p>
             </div>
           </div>
-          <div className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-semibold text-slate-400">
+          <div className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}>
             Simulación Admin
           </div>
         </div>
@@ -127,10 +128,10 @@ export default function Usuarios() {
       <div className="flex-1 overflow-y-auto px-5 pb-8 space-y-6">
         
         {/* SECTION A: FORM CONTAINER */}
-        <div className="bg-[#1A2438] border border-white/5 rounded-3xl p-5 shadow-xl relative overflow-hidden">
+        <div className="rounded-3xl p-5 shadow-xl relative overflow-hidden" style={{ background: 'var(--surface-elevated)', border: '1px solid var(--border-subtle)', boxShadow: '0 20px 25px -5px var(--shadow-card)' }}>
           <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-500/5 rounded-full blur-xl pointer-events-none" />
           
-          <h2 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+          <h2 className="text-sm font-bold uppercase tracking-wider mb-4 flex items-center gap-2" style={{ color: 'var(--text-secondary)' }}>
             <UserCheck size={16} className="text-indigo-400" />
             {editingUser ? 'Modificar Usuario' : 'Crear Usuario'}
           </h2>
@@ -145,27 +146,29 @@ export default function Usuarios() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Username Input */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider pl-1">Nombre de Usuario</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider pl-1" style={{ color: 'var(--text-secondary)' }}>Nombre de Usuario</label>
                 <input
                   type="text"
                   placeholder="Ej. juan.perez"
                   value={username}
                   onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/\s+/g, ''))}
-                  className="w-full bg-white/5 border border-white/10 focus:border-indigo-500/60 text-white placeholder-slate-600 rounded-2xl px-4 py-3 text-sm outline-none transition-colors"
+                  className="w-full border focus:border-indigo-500/60 rounded-2xl px-4 py-3 text-sm outline-none transition-colors"
+                  style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
                   required
                 />
               </div>
 
               {/* PIN Input */}
               <div className="flex flex-col gap-1.5">
-                <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider pl-1">PIN (4 Dígitos)</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider pl-1" style={{ color: 'var(--text-secondary)' }}>PIN (4 Dígitos)</label>
                 <input
                   type="text"
                   inputMode="numeric"
                   placeholder="••••"
                   value={pin}
                   onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  className="w-full bg-white/5 border border-white/10 focus:border-indigo-500/60 text-white placeholder-slate-600 rounded-2xl px-4 py-3 text-sm outline-none transition-colors tracking-widest font-mono"
+                  className="w-full border focus:border-indigo-500/60 rounded-2xl px-4 py-3 text-sm outline-none transition-colors tracking-widest font-mono"
+                  style={{ background: 'var(--input-bg)', borderColor: 'var(--input-border)', color: 'var(--text-primary)' }}
                   required
                 />
               </div>
@@ -173,7 +176,7 @@ export default function Usuarios() {
 
             {/* Rol Dropdown Selector */}
             <div className="flex flex-col gap-1.5">
-              <label className="text-[10px] text-slate-500 font-bold uppercase tracking-wider pl-1">Rol de Acceso</label>
+              <label className="text-[10px] font-bold uppercase tracking-wider pl-1" style={{ color: 'var(--text-secondary)' }}>Rol de Acceso</label>
               <div className="grid grid-cols-2 gap-3">
                 {['Trabajador', 'Administrador'].map((r) => {
                   const isActive = rol === r;
@@ -182,11 +185,11 @@ export default function Usuarios() {
                       key={r}
                       type="button"
                       onClick={() => setRol(r)}
-                      className="py-3 rounded-2xl text-xs font-black tracking-wider transition-all border uppercase"
+                      className="py-3 rounded-2xl text-xs font-black tracking-wider transition-all border uppercase outline-none font-sans"
                       style={{
-                        background: isActive ? 'rgba(99,102,241,0.15)' : 'rgba(255,255,255,0.03)',
-                        borderColor: isActive ? 'rgba(99,102,241,0.5)' : 'rgba(255,255,255,0.05)',
-                        color: isActive ? '#818CF8' : '#64748B',
+                        background: isActive ? 'rgba(99,102,241,0.15)' : 'var(--white-alpha-3)',
+                        borderColor: isActive ? 'rgba(99,102,241,0.5)' : 'var(--border-subtle)',
+                        color: isActive ? '#818CF8' : 'var(--text-secondary)',
                       }}
                     >
                       {r}
@@ -202,7 +205,8 @@ export default function Usuarios() {
                 <button
                   type="button"
                   onClick={handleCancelEdit}
-                  className="flex-1 py-3.5 rounded-2xl text-slate-300 font-black text-sm tracking-wide transition-all active:scale-95 bg-white/5 border border-white/10 hover:bg-white/10"
+                  className="flex-1 py-3.5 rounded-2xl font-black text-sm tracking-wide transition-all active:scale-95"
+                  style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
                 >
                   Cancelar
                 </button>
@@ -224,17 +228,17 @@ export default function Usuarios() {
         {/* SECTION B: REGISTERED USERS LIST */}
         <div className="space-y-3">
           <div className="flex items-center justify-between pl-1">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-500">
+            <h3 className="text-xs font-black uppercase tracking-wider" style={{ color: 'var(--text-secondary)' }}>
               Usuarios Registrados
             </h3>
-            <span className="text-[10px] font-black bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20">
+            <span className="text-[10px] font-black px-2 py-0.5 rounded-full" style={{ background: 'var(--icon-bg-indigo)', border: '1px solid var(--border-subtle)', color: 'var(--text-primary)' }}>
               {usuarios.length} total
             </span>
           </div>
 
           <div className="space-y-2.5">
             {usuarios.length === 0 ? (
-              <div className="text-center py-8 text-slate-600 text-sm border border-dashed border-white/5 rounded-3xl">
+              <div className="text-center py-8 text-sm rounded-3xl" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
                 No hay usuarios registrados.
               </div>
             ) : (
@@ -246,7 +250,8 @@ export default function Usuarios() {
                 return (
                   <div 
                     key={u.id_usuario}
-                    className="flex items-center justify-between p-4 rounded-2xl bg-[#1A2438]/60 border border-white/5 hover:border-white/10 transition-all"
+                    className="flex items-center justify-between p-4 rounded-2xl border transition-all"
+                    style={{ background: 'var(--white-alpha-3)', borderColor: 'var(--border-subtle)' }}
                   >
                     <div className="flex items-center gap-3">
                       <div 
@@ -264,7 +269,7 @@ export default function Usuarios() {
                       </div>
                       <div className="flex flex-col">
                         <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm text-slate-200">
+                          <span className="font-bold text-sm" style={{ color: 'var(--text-primary)' }}>
                             {u.username}
                           </span>
                           {isCurrentSimulatedAdmin && (
@@ -279,14 +284,14 @@ export default function Usuarios() {
                             className={`text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md border ${
                               isAdmin 
                                 ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' 
-                                : 'bg-slate-500/10 text-slate-400 border-slate-500/20'
+                                : 'bg-slate-500/10 text-slate-500 dark:text-slate-400 border-slate-500/20'
                             }`}
                           >
                             {u.rol}
                           </span>
                           
                           {/* Status Indicator */}
-                          <span className="flex items-center text-[10px] text-slate-500">
+                          <span className="flex items-center text-[10px]" style={{ color: 'var(--text-tertiary)' }}>
                             <span className={`w-1.5 h-1.5 rounded-full mr-1 ${isActive ? 'bg-emerald-500' : 'bg-rose-500'}`} />
                             {u.estado}
                           </span>
@@ -298,7 +303,8 @@ export default function Usuarios() {
                       {/* Edit Button */}
                       <button
                         onClick={() => handleStartEdit(u)}
-                        className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 transition"
+                        className="w-8 h-8 rounded-lg flex items-center justify-center transition"
+                        style={{ background: 'var(--white-alpha-5)', border: '1px solid var(--border-subtle)', color: 'var(--text-secondary)' }}
                         title="Editar usuario"
                       >
                         <Edit2 size={13} />
