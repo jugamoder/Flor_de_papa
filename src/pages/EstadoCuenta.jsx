@@ -280,6 +280,158 @@ export default function EstadoCuenta() {
     setShowLiquidarModal(false);
   };
 
+  const generarPdfEstadoCuenta = () => {
+    if (!socio) return;
+    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pageW = doc.internal.pageSize.getWidth();
+
+    // 1. Corporate Header
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Flor de Papa Peru', 14, 15);
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text('Mercado Mayorista de Papas, Lima', 14, 20);
+    doc.text('Contacto: contacto@flordepapaperu.com', 14, 24);
+
+    // Socio Info (Right)
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`Socio: ${socio.nombre}`, pageW - 14, 15, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text('SOCIO COMERCIAL', pageW - 14, 19, { align: 'right' });
+    doc.text(`Emision: ${new Date().toLocaleString('es-PE')}`, pageW - 14, 23, { align: 'right' });
+
+    // Divider line
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.5);
+    doc.line(14, 28, pageW - 14, 28);
+
+    // 2. Table 1: Historial de Operaciones
+    let y = 36;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text('HISTORIAL DE OPERACIONES (TICKETS)', 14, y);
+    y += 4;
+
+    const opRows = operaciones.map(mov => {
+      const totalDinero = mov._totalDinero || 0;
+      const totalPagado = mov._totalPagado || 0;
+      const porcentaje = totalDinero > 0 ? Math.min(100, Math.round((totalPagado / totalDinero) * 100)) : 100;
+      
+      let estadoTxt = `PENDIENTE (0%)`;
+      if (porcentaje >= 100) {
+        estadoTxt = 'CUBIERTOS (100%)';
+      } else if (porcentaje > 0) {
+        estadoTxt = `PARCIAL (${porcentaje}%)`;
+      }
+
+      const fechaOp = mov.fecha
+        ? new Date(mov.fecha + 'T12:00:00-05:00').toLocaleDateString('es-PE')
+        : '—';
+
+      return [
+        fechaOp,
+        `"${mov.tipo}"`,
+        `S/ ${totalDinero.toFixed(2)}`,
+        `S/ ${totalPagado.toFixed(2)}`,
+        estadoTxt
+      ];
+    });
+
+    if (opRows.length === 0) {
+      opRows.push(['No hay datos registrados para este periodo', '', '', '', '']);
+    }
+
+    autoTable(doc, {
+      startY: y,
+      head: [['Fecha', 'Operacion', 'Monto Total', 'Monto Cubierto', 'Estado']],
+      body: opRows,
+      styles: { fontSize: 8.5, cellPadding: 2.5 },
+      headStyles: { fillColor: [30, 41, 59], textColor: 255, fontStyle: 'bold' },
+      margin: { left: 14, right: 14 }
+    });
+
+    let finalY = doc.lastAutoTable.finalY || y + 10;
+
+    // 3. Table 2: Historial de Abonos
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text('HISTORIAL DE ABONOS', 14, finalY + 10);
+
+    const getMetodoLabel = (m) => {
+      if (m === 'yape') return 'Yape';
+      if (m === 'deposito') return 'Deposito';
+      return 'Efectivo';
+    };
+
+    const abonoRows = abonos.map(p => {
+      const fechaAbono = p.fecha
+        ? new Date(p.fecha + 'T12:00:00-05:00').toLocaleDateString('es-PE')
+        : '—';
+      return [
+        fechaAbono,
+        getMetodoLabel(p.metodo),
+        p.nota || '—',
+        `S/ ${(p.monto || 0).toFixed(2)}`
+      ];
+    });
+
+    if (abonoRows.length === 0) {
+      abonoRows.push(['No hay datos registrados para este periodo', '', '', '']);
+    }
+
+    autoTable(doc, {
+      startY: finalY + 15,
+      head: [['Fecha', 'Metodo de Pago', 'Destino / Nota', 'Monto Abonado']],
+      body: abonoRows,
+      styles: { fontSize: 8.5, cellPadding: 2.5 },
+      headStyles: { fillColor: [79, 70, 229], textColor: 255, fontStyle: 'bold' },
+      margin: { left: 14, right: 14 }
+    });
+
+    let finalY2 = doc.lastAutoTable.finalY || finalY + 25;
+
+    // 4. Highlighted Debt Recuadro
+    y = finalY2 + 12;
+    
+    // Draw outer rect border
+    doc.setDrawColor(226, 232, 240);
+    doc.setFillColor(248, 250, 252);
+    doc.rect(14, y, pageW - 28, 22, 'FD');
+
+    // Content text logic
+    const rectTitle = isCompraFlow ? 'DEUDA NUESTRA (POR PAGAR)' : 'TOTAL DEUDA DEL CLIENTE';
+    const rectSub = isCompraFlow
+      ? `Se le debe a ${socio.nombre} a la fecha:`
+      : `${socio.nombre} debe a la fecha:`;
+
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'bold');
+    doc.text(rectTitle, 18, y + 6);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text(rectSub, 18, y + 14);
+
+    // Large bold amount
+    doc.setTextColor(isCompraFlow ? 37 : 225, isCompraFlow ? 99 : 68, isCompraFlow ? 235 : 68); // blue for purchase, red/rose for client
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`S/ ${deudaNeta.toFixed(2)}`, pageW - 20, y + 13, { align: 'right' });
+
+    // 5. Download Trigger
+    const cleanSocioName = socio.nombre.replace(/\s+/g, '_');
+    const cleanDate = new Date().toLocaleDateString('es-PE').replace(/\//g, '-');
+    doc.save(`Estado_Cuenta_${cleanSocioName}_${cleanDate}.pdf`);
+  };
+
   return (
     <div className="flex flex-col h-[100dvh]" style={{ background: '#060B16', fontFamily: FONT }}>
       
@@ -512,7 +664,7 @@ export default function EstadoCuenta() {
             border: '1px solid rgba(255,255,255,0.08)',
             color: '#94a3b8',
           }}
-          onClick={() => {}}
+          onClick={generarPdfEstadoCuenta}
         >
           📄
         </button>

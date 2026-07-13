@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { Home, TrendingUp, Wallet, FileText } from 'lucide-react';
+import { useUser } from '../context/UserContext';
 
 const links = [
   { to: '/',           label: 'Inicio',     icon: Home },
@@ -10,6 +11,14 @@ const links = [
 
 export default function BottomNav() {
   const location = useLocation();
+  const { currentUser } = useUser();
+
+  const filteredLinks = links.filter(link => {
+    if (link.to === '/dashboard' && currentUser?.rol === 'Trabajador') {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <nav
@@ -23,7 +32,7 @@ export default function BottomNav() {
         fontFamily: '"Inter", "SF Pro Display", system-ui, sans-serif',
       }}
     >
-      {links.map((link) => {
+      {filteredLinks.map((link) => {
         const Icon = link.icon;
         const isActive = location.pathname === link.to;
 

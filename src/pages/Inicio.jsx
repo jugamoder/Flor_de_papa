@@ -1,11 +1,9 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Search, PackageMinus, PackagePlus, X, Edit2, Clock, Layers, Users, Leaf, ChevronRight, ArrowLeftRight, Landmark } from 'lucide-react';
+import { User, Search, PackageMinus, PackagePlus, X, Edit2, Clock, Layers, Users, Leaf, ChevronRight, ChevronLeft, ArrowLeftRight, Landmark, UserCheck } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db, genUUID, SENTINEL_ID, getOcasionalCorrelativo } from '../db/database';
-
-
-const FONT = '"Inter","SF Pro Display",system-ui,sans-serif';
+import { useUser } from '../context/UserContext';const FONT = '"Inter","SF Pro Display",system-ui,sans-serif';
 
 /* ─── Contraste dinámico para textos sobre fondo de color ─── */
 function getLuminance(hex) {
@@ -141,6 +139,10 @@ function MovimientoRow({ mov, socios, variedadesMap, sacosGlobal, onEdit }) {
             <span className="text-slate-700 text-[10px] italic">sin sacos</span>
           )}
           {fecha && <span className="text-slate-600 text-[10px] ml-0.5">{fecha}</span>}
+        </div>
+        {/* Fila 3: Operator audit badge */}
+        <div className="text-[10px] text-slate-400 mt-1.5 flex items-center gap-1">
+          <span>👤 Registrado por: {mov.creado_por_username || 'admin'}</span>
         </div>
       </div>
 
@@ -315,11 +317,44 @@ function DatosNegocioModal({ onClose }) {
 /* ─── MAIN PAGE ─── */
 export default function Inicio() {
   const navigate = useNavigate();
+  const { currentUser, setCurrentUser } = useUser();
   const [filter, setFilter] = useState('todos');
   const [search, setSearch] = useState('');
   const [showMenu, setShowMenu] = useState(false);
   const [showNegocioModal, setShowNegocioModal] = useState(false);
   const menuRef = useRef(null);
+
+  // Switch User Modal states
+  const [showSwitchUserModal, setShowSwitchUserModal] = useState(false);
+  const [selectedUserToSwitch, setSelectedUserToSwitch] = useState(null);
+  const [pinInput, setPinInput] = useState('');
+  const [pinError, setPinError] = useState('');
+  const users = useLiveQuery(() => db.usuarios.filter(u => u.estado === 'Activo').toArray()) || [];
+
+  const handleKeypadPress = (val) => {
+    setPinError('');
+    if (val === 'delete') {
+      setPinInput(p => p.slice(0, -1));
+    } else if (val === 'clear') {
+      setPinInput('');
+    } else {
+      if (pinInput.length < 4) {
+        const nextPin = pinInput + val;
+        setPinInput(nextPin);
+        if (nextPin.length === 4) {
+          if (selectedUserToSwitch.pin === nextPin) {
+            setCurrentUser(selectedUserToSwitch);
+            setPinInput('');
+            setSelectedUserToSwitch(null);
+            setShowSwitchUserModal(false);
+          } else {
+            setPinError('PIN incorrecto. Inténtelo de nuevo.');
+            setPinInput('');
+          }
+        }
+      }
+    }
+  };
 
   // Cerrar dropdown al tocar fuera
   useEffect(() => {
@@ -409,6 +444,8 @@ export default function Inicio() {
       flete_precio_kg: 0,
       flete_tipo_signo: 'RESTAR',
       flete_monto_total: 0,
+      creado_por_username: currentUser.username,
+      id_usuario_operador: currentUser.id_usuario
     });
     localStorage.setItem('compra_activa_uuid', uuid);
     navigate('/compra');
@@ -427,6 +464,8 @@ export default function Inicio() {
       fecha_actualizacion: Date.now(),
       id_socio:  SENTINEL_ID,
       socio_nombre_temporal: nombreTemporal,
+      creado_por_username: currentUser.username,
+      id_usuario_operador: currentUser.id_usuario
     });
     localStorage.setItem('venta_activa_uuid', uuid);
     navigate('/venta');
@@ -434,9 +473,12 @@ export default function Inicio() {
 
   /* ─── Editar / Reanudar operación ─── */
   const editarMovimiento = async (mov) => {
-    if (mov.estado === 'finalizado') {
-      await db.movimientos.where('uuid').equals(mov.uuid).modify({ estado: 'activo' });
-    }
+    await db.movimientos.where('uuid').equals(mov.uuid).modify({ 
+      estado: 'activo',
+      creado_por_username: currentUser.username,
+      id_usuario_operador: currentUser.id_usuario,
+      fecha_actualizacion: Date.now()
+    });
     if (mov.tipo === 'compra') {
       localStorage.setItem('compra_activa_uuid', mov.uuid);
       navigate('/compra');
@@ -481,7 +523,14 @@ export default function Inicio() {
                 className="absolute right-0 top-11 z-50 rounded-2xl overflow-hidden"
                 style={{ background: '#1A2438', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 16px 40px rgba(0,0,0,0.5)', minWidth: 200 }}
               >
+                {/* Active user credentials display */}
+                <div className="px-4 py-2.5 border-b border-white/5 bg-white/3">
+                  <p className="text-white text-xs font-bold truncate">👤 {currentUser.username}</p>
+                  <p className="text-indigo-300 text-[8px] font-black uppercase tracking-widest mt-0.5">{currentUser.rol}</p>
+                </div>
+                
                 <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest px-4 pt-3 pb-1">Configuración</p>
+                
                 <button
                   onClick={() => { setShowMenu(false); navigate('/socios'); }}
                   className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-white/5"
@@ -493,6 +542,7 @@ export default function Inicio() {
                   <ChevronRight size={13} className="text-slate-600" />
                 </button>
                 <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 16px' }} />
+                
                 <button
                   onClick={() => { setShowMenu(false); navigate('/variedades'); }}
                   className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-white/5"
@@ -503,17 +553,46 @@ export default function Inicio() {
                   <span className="text-white text-sm font-semibold flex-1 text-left">Variedades</span>
                   <ChevronRight size={13} className="text-slate-600" />
                 </button>
+                
+                {currentUser.rol === 'Administrador' && (
+                  <>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 16px' }} />
+                    <button
+                      onClick={() => { setShowMenu(false); setShowNegocioModal(true); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-white/5"
+                    >
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(234,179,8,0.15)' }}>
+                        <Landmark size={14} className="text-yellow-400" />
+                      </div>
+                      <span className="text-white text-sm font-semibold flex-1 text-left">Datos del Negocio</span>
+                      <ChevronRight size={13} className="text-slate-600" />
+                    </button>
+                    <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 16px' }} />
+                    <button
+                      onClick={() => { setShowMenu(false); navigate('/admin-usuarios'); }}
+                      className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-white/5"
+                    >
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(234,179,8,0.15)' }}>
+                        <UserCheck size={14} className="text-yellow-400" />
+                      </div>
+                      <span className="text-white text-sm font-semibold flex-1 text-left">Administrar Usuarios</span>
+                      <ChevronRight size={13} className="text-slate-600" />
+                    </button>
+                  </>
+                )}
+
                 <div style={{ height: 1, background: 'rgba(255,255,255,0.05)', margin: '0 16px' }} />
                 <button
-                  onClick={() => { setShowMenu(false); setShowNegocioModal(true); }}
+                  onClick={() => { setShowMenu(false); setShowSwitchUserModal(true); setSelectedUserToSwitch(null); setPinInput(''); setPinError(''); }}
                   className="w-full flex items-center gap-3 px-4 py-3 transition-all active:bg-white/5"
                 >
-                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(234,179,8,0.15)' }}>
-                    <Landmark size={14} className="text-yellow-400" />
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(99,102,241,0.15)' }}>
+                    <ArrowLeftRight size={14} className="text-indigo-400" />
                   </div>
-                  <span className="text-white text-sm font-semibold flex-1 text-left">Datos del Negocio</span>
+                  <span className="text-white text-sm font-semibold flex-1 text-left">Cambiar de Usuario</span>
                   <ChevronRight size={13} className="text-slate-600" />
                 </button>
+
                 <div className="pb-2" />
               </div>
             )}
@@ -609,6 +688,133 @@ export default function Inicio() {
       </div>
       {showNegocioModal && (
         <DatosNegocioModal onClose={() => setShowNegocioModal(false)} />
+      )}
+      {showSwitchUserModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={() => setShowSwitchUserModal(false)} />
+          <div className="relative w-full max-w-sm bg-[#111A2E] rounded-3xl p-6 shadow-2xl border border-white/5 flex flex-col space-y-4">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <div className="flex items-center gap-2">
+                {selectedUserToSwitch && (
+                  <button 
+                    onClick={() => { setSelectedUserToSwitch(null); setPinInput(''); setPinError(''); }}
+                    className="text-slate-400 hover:text-white transition-colors mr-1"
+                  >
+                    <ChevronLeft size={18} />
+                  </button>
+                )}
+                <h3 className="text-white text-sm font-black uppercase tracking-wider">
+                  {selectedUserToSwitch ? 'Ingresar PIN' : 'Cambiar de Usuario'}
+                </h3>
+              </div>
+              <button 
+                onClick={() => setShowSwitchUserModal(false)} 
+                className="text-slate-400 hover:text-white transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            {!selectedUserToSwitch ? (
+              /* Paso 1: Grid de Usuarios Activos */
+              <div className="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto py-2">
+                {users.map(u => {
+                  const isAdmin = u.rol === 'Administrador';
+                  const initials = u.username.substring(0, 2).toUpperCase();
+                  
+                  return (
+                    <button
+                      key={u.id_usuario}
+                      onClick={() => { setSelectedUserToSwitch(u); setPinInput(''); setPinError(''); }}
+                      className="flex flex-col items-center p-4 rounded-2xl bg-white/3 border border-white/5 hover:border-white/10 hover:bg-white/5 active:scale-95 transition-all"
+                    >
+                      <div 
+                        className="w-12 h-12 rounded-full flex items-center justify-center font-bold text-white shadow-md text-sm mb-2"
+                        style={{
+                          background: isAdmin 
+                            ? 'linear-gradient(135deg, #3B82F6, #1D4ED8)' 
+                            : 'linear-gradient(135deg, #64748B, #475569)'
+                        }}
+                      >
+                        {initials}
+                      </div>
+                      <span className="text-slate-200 text-xs font-bold truncate max-w-full">
+                        {u.username}
+                      </span>
+                      <span className="text-slate-500 text-[8px] font-black uppercase tracking-widest mt-0.5">
+                        {u.rol}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              /* Paso 2: Teclado Numérico para ingresar PIN */
+              <div className="flex flex-col items-center space-y-4 py-2">
+                <div className="text-center">
+                  <p className="text-slate-400 text-xs font-semibold">Introduzca el PIN de acceso para</p>
+                  <p className="text-indigo-400 text-sm font-black mt-0.5">@{selectedUserToSwitch.username}</p>
+                </div>
+
+                {/* PIN Dots display */}
+                <div className="flex justify-center gap-3 my-2">
+                  {[0, 1, 2, 3].map(idx => (
+                    <div 
+                      key={idx} 
+                      className={`w-3.5 h-3.5 rounded-full border transition-all duration-150 ${
+                        pinInput.length > idx 
+                          ? 'bg-indigo-500 border-indigo-500 scale-110 shadow-lg shadow-indigo-500/50' 
+                          : 'bg-transparent border-white/20'
+                      }`}
+                    />
+                  ))}
+                </div>
+
+                {pinError && (
+                  <p className="text-rose-400 text-[10px] font-bold text-center">{pinError}</p>
+                )}
+
+                {/* Teclado Digital */}
+                <div className="grid grid-cols-3 gap-2 w-full max-w-[240px] pt-2">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => handleKeypadPress(num.toString())}
+                      className="w-14 h-14 rounded-full bg-white/5 border border-white/5 text-white font-mono text-xl font-bold hover:bg-white/10 active:scale-90 transition-all flex items-center justify-center mx-auto"
+                    >
+                      {num}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => handleKeypadPress('clear')}
+                    className="w-14 h-14 rounded-full bg-rose-500/10 border border-rose-500/15 text-rose-400 text-[10px] font-black uppercase hover:bg-rose-500/20 active:scale-90 transition-all flex items-center justify-center mx-auto"
+                  >
+                    X
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleKeypadPress('0')}
+                    className="w-14 h-14 rounded-full bg-white/5 border border-white/5 text-white font-mono text-xl font-bold hover:bg-white/10 active:scale-90 transition-all flex items-center justify-center mx-auto"
+                  >
+                    0
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleKeypadPress('delete')}
+                    className="w-14 h-14 rounded-full bg-white/5 border border-white/5 text-slate-400 hover:text-white hover:bg-white/10 active:scale-90 transition-all flex items-center justify-center mx-auto text-xs"
+                  >
+                    ⌫
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );

@@ -134,6 +134,99 @@ db.version(11).stores({
   caja_manual: '++id, tipo, concepto, monto, metodo, fecha, timestamp',
 });
 
+/* ─── Versión 12: esquema para gestión de usuarios locales ─── */
+db.version(12).stores({
+  usuarios: '++id_usuario, username, pin, rol, estado, creadoEn',
+}).upgrade(tx => {
+  return tx.table('usuarios').toCollection().modify(u => {
+    if (!u.rol) u.rol = 'Administrador';
+    if (!u.estado) u.estado = 'Activo';
+    if (!u.pin) u.pin = '0000';
+    if (!u.creadoEn) u.creadoEn = Date.now();
+  });
+});
+
+db.version(13).stores({
+  empresas: '++id_empresa, nombre_comercial',
+  usuarios: '++id_usuario, username, pin, rol, estado, creadoEn',
+  socios: '++id_socio, nombre, es_proveedor, es_cliente, es_ocasional',
+  variedades: '++id_variedad, nombre, codigo_corto',
+  detalles_grupo: '++id_grupo, id_movimiento, id_variedad',
+  sacos: '++id_saco, uuid_movimiento, id_variedad, timestamp, id_saco_origen',
+  extras: '++id_extra, id_movimiento, descripcion',
+  auditoria: '++id_log, id_usuario, accion, fecha',
+  ajustes_negocio: 'id_ajuste',
+  caja_manual: '++id, tipo, concepto, monto, metodo, fecha, timestamp, id_usuario',
+  transacciones_pago: '++id_pago, id_socio, id_movimiento, fecha, id_usuario',
+  movimientos: '++id_movimiento, uuid, tipo, fecha, estado, id_socio, timestamp, [fecha+tipo], fecha_actualizacion, socio_nombre_temporal, creado_por_username, id_usuario_operador',
+}).upgrade(async tx => {
+  let adminId = 1;
+  const admin = await tx.table('usuarios').where('username').equals('admin').first();
+  if (admin) {
+    adminId = admin.id_usuario;
+  }
+
+  await tx.table('caja_manual').toCollection().modify(item => {
+    if (item.id_usuario === undefined) {
+      item.id_usuario = adminId;
+    }
+  });
+
+  await tx.table('transacciones_pago').toCollection().modify(pago => {
+    if (pago.id_usuario === undefined) {
+      pago.id_usuario = adminId;
+    }
+  });
+
+  await tx.table('movimientos').toCollection().modify(mov => {
+    if (mov.id_usuario_operador === undefined) {
+      mov.id_usuario_operador = adminId;
+    }
+    if (mov.creado_por_username === undefined) {
+      mov.creado_por_username = 'admin';
+    }
+  });
+});
+
+// Dexie hooks para inyectar automáticamente el usuario en sesión activa
+db.caja_manual.hook('creating', function(primKey, obj, transaction) {
+  if (obj.id_usuario === undefined) {
+    obj.id_usuario = typeof window !== 'undefined' ? (window.activeUserId || 1) : 1;
+  }
+});
+
+db.transacciones_pago.hook('creating', function(primKey, obj, transaction) {
+  if (obj.id_usuario === undefined) {
+    obj.id_usuario = typeof window !== 'undefined' ? (window.activeUserId || 1) : 1;
+  }
+});
+
+db.movimientos.hook('creating', function(primKey, obj, transaction) {
+  if (obj.id_usuario_operador === undefined) {
+    obj.id_usuario_operador = typeof window !== 'undefined' ? (window.activeUserId || 1) : 1;
+  }
+  if (obj.creado_por_username === undefined) {
+    obj.creado_por_username = typeof window !== 'undefined' ? (window.activeUsername || 'admin') : 'admin';
+  }
+});
+
+export const seedDefaultUsuarios = async () => {
+  try {
+    const count = await db.usuarios.count();
+    if (count === 0) {
+      await db.usuarios.add({
+        username: 'admin',
+        pin: '1234',
+        rol: 'Administrador',
+        estado: 'Activo',
+        creadoEn: Date.now()
+      });
+    }
+  } catch (err) {
+    console.warn('[Seed] No se pudo inicializar usuarios:', err);
+  }
+};
+
 /* ─── SENTINEL RECORD ────────────────────────────────────────────────────────────
    ID fijo e inmutable para todas las operaciones ocasionales.
    Usar SENTINEL_ID como clave foránea; el nombre se guarda en
@@ -230,8 +323,14 @@ export const genUUID = () =>
  * Toca el campo fecha_actualizacion del movimiento padre.
  * Llamar después de cada add/update de saco o extra.
  */
-export const touchMovimiento = (uuid) =>
-  db.movimientos.where('uuid').equals(uuid).modify({ fecha_actualizacion: Date.now() });
+export const touchMovimiento = (uuid, activeUser = null) => {
+  const modifications = { fecha_actualizacion: Date.now() };
+  if (activeUser) {
+    modifications.creado_por_username = activeUser.username;
+    modifications.id_usuario_operador = activeUser.id_usuario;
+  }
+  return db.movimientos.where('uuid').equals(uuid).modify(modifications);
+};
 
 /**
  * Resuelve el nombre a mostrar para un movimiento.
