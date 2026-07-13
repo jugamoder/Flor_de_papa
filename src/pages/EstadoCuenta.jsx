@@ -28,6 +28,7 @@ export default function EstadoCuenta() {
   const todosLosPagos = useLiveQuery(() => db.transacciones_pago.where('id_socio').equals(parsedIdSocio).toArray(), [parsedIdSocio]) || [];
   const todosLosExtras = useLiveQuery(() => db.extras.toArray()) || [];
   const variedades = useLiveQuery(() => db.variedades.toArray()) || [];
+  const config = useLiveQuery(() => db.ajustes_negocio.get('unico')) || null;
 
   // Enrich partner movements
   const enrichedMovs = useMemo(() => {
@@ -286,15 +287,27 @@ export default function EstadoCuenta() {
     const pageW = doc.internal.pageSize.getWidth();
 
     // 1. Corporate Header
+    if (config?.logo) {
+      let format = 'PNG';
+      if (config.logo.startsWith('data:image/jpeg') || config.logo.startsWith('data:image/jpg')) {
+        format = 'JPEG';
+      } else if (config.logo.startsWith('data:image/webp')) {
+        format = 'WEBP';
+      }
+      doc.addImage(config.logo, format, 14, 8, 30, 15);
+    }
+
+    const startX = config?.logo ? 48 : 14;
+
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('Flor de Papa Peru', 14, 15);
+    doc.text(config?.nombre || 'Flor de Papa Peru', startX, 15);
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 116, 139);
-    doc.text('Mercado Mayorista de Papas, Lima', 14, 20);
-    doc.text('Contacto: contacto@flordepapaperu.com', 14, 24);
+    doc.text(config?.direccion || 'Mercado Mayorista de Papas, Lima', startX, 20);
+    doc.text(config?.telefonos ? `Teléfono(s): ${config.telefonos}` : 'Contacto: contacto@flordepapaperu.com', startX, 24);
 
     // Socio Info (Right)
     doc.setTextColor(30, 41, 59);
