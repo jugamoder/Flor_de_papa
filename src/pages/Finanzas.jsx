@@ -143,8 +143,8 @@ export default function Finanzas() {
   const calculations = useMemo(() => {
     if (!movimientos.length && !sacos.length && !pagos.length && !extras.length) {
       return {
-        sales: { sacos: 0, kilos: 0, dinero: 0 },
-        purchases: { sacos: 0, kilos: 0, dinero: 0 },
+        sales: { sacos: 0, kilos: 0, dinero: 0, pagado: 0, porCobrar: 0 },
+        purchases: { sacos: 0, kilos: 0, dinero: 0, pagado: 0, porPagar: 0 },
         diff: { sacos: 0, kilos: 0, dinero: 0 },
         topVarSales: [],
         topVarPurchases: [],
@@ -263,12 +263,16 @@ export default function Finanzas() {
     const salesSacos = salesMovs.reduce((acc, m) => acc + m._sacos, 0);
     const salesKilos = salesMovs.reduce((acc, m) => acc + m._totalPeso, 0);
     const salesDinero = salesMovs.reduce((acc, m) => acc + m._totalDinero, 0);
+    const salesPagado = salesMovs.reduce((acc, m) => acc + m._totalPagado, 0);
+    const salesPorCobrar = salesMovs.reduce((acc, m) => acc + m._saldo, 0);
 
     // 3. COMPRAS METRICS
     const purchaseMovs = filteredMovs.filter(m => m.tipo === 'compra');
     const purchaseSacos = purchaseMovs.reduce((acc, m) => acc + m._sacos, 0);
     const purchaseKilos = purchaseMovs.reduce((acc, m) => acc + m._totalPeso, 0);
     const purchaseDinero = purchaseMovs.reduce((acc, m) => acc + m._totalDinero, 0);
+    const purchasePagado = purchaseMovs.reduce((acc, m) => acc + m._totalPagado, 0);
+    const purchasePorPagar = purchaseMovs.reduce((acc, m) => acc + m._saldo, 0);
 
     // 4. DIFFERENCE
     const diffSacos = salesSacos - purchaseSacos;
@@ -450,8 +454,8 @@ export default function Finanzas() {
     }
 
     return {
-      sales: { sacos: salesSacos, kilos: salesKilos, dinero: salesDinero },
-      purchases: { sacos: purchaseSacos, kilos: purchaseKilos, dinero: purchaseDinero },
+      sales: { sacos: salesSacos, kilos: salesKilos, dinero: salesDinero, pagado: salesPagado, porCobrar: salesPorCobrar },
+      purchases: { sacos: purchaseSacos, kilos: purchaseKilos, dinero: purchaseDinero, pagado: purchasePagado, porPagar: purchasePorPagar },
       diff: { sacos: diffSacos, kilos: diffKilos, dinero: diffDinero },
       topVarSales,
       topVarPurchases,
@@ -690,6 +694,17 @@ export default function Finanzas() {
                 <span className="text-emerald-400 text-xs font-bold">Total Facturado</span>
                 <span className="font-mono text-xl font-black text-emerald-400">S/ {sales.dinero.toFixed(2)}</span>
               </div>
+              {/* Breakdown details */}
+              <div className="my-1 pt-2 pl-4 space-y-1.5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                <div className="flex justify-between items-baseline text-[11px]">
+                  <span style={{ color: 'var(--text-secondary)' }}>↳ Dinero Recaudado</span>
+                  <span className="font-mono" style={{ color: 'var(--text-primary)' }}>S/ {(sales?.pagado || 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-baseline text-[11px]">
+                  <span style={{ color: 'var(--text-secondary)' }}>↳ Pendiente por Cobrar</span>
+                  <span className="font-mono text-amber-400 font-bold">S/ {(sales?.porCobrar || 0).toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -711,6 +726,17 @@ export default function Finanzas() {
               <div className="flex justify-between items-baseline pt-2" style={{ borderTop: '1px solid var(--border-subtle)' }}>
                 <span className="text-rose-400 text-xs font-bold">Total Invertido</span>
                 <span className="font-mono text-xl font-black text-rose-400">S/ {purchases.dinero.toFixed(2)}</span>
+              </div>
+              {/* Breakdown details */}
+              <div className="my-1 pt-2 pl-4 space-y-1.5" style={{ borderTop: '1px solid var(--border-subtle)' }}>
+                <div className="flex justify-between items-baseline text-[11px]">
+                  <span style={{ color: 'var(--text-secondary)' }}>↳ Dinero Pagado</span>
+                  <span className="font-mono" style={{ color: 'var(--text-primary)' }}>S/ {(purchases?.pagado || 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-baseline text-[11px]">
+                  <span style={{ color: 'var(--text-secondary)' }}>↳ Pasivo (Por Pagar)</span>
+                  <span className="font-mono text-rose-400 font-bold">S/ {(purchases?.porPagar || 0).toFixed(2)}</span>
+                </div>
               </div>
             </div>
           </div>

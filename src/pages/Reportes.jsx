@@ -125,7 +125,7 @@ function PagoModal({ mov, pagos, onClose, onPago, onEditar }) {
                     borderColor: isSelected ? 'rgba(99,102,241,0.4)' : 'var(--border-subtle)',
                     color: isSelected ? '#818cf8' : 'var(--text-secondary)'
                   }}>
-                  {Icon({ size: 13 })} {l}
+                  <Icon size={13} /> {l}
                 </button>
               );
             })}

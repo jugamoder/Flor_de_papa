@@ -603,6 +603,7 @@ function PreLiquidadorModal({
   const [preciosLocales, setPreciosLocales] = useState({ ...preciosIniciales });
   const [pagoMetodo, setPagoMetodo] = useState('efectivo');
   const [pagoMonto, setPagoMonto] = useState('');
+  const [pagosAdicionados, setPagosAdicionados] = useState([]);
 
   const getVarietyNetWeight = (vid) => {
     const sx = sacos.filter(s => s.id_variedad === vid);
@@ -646,12 +647,25 @@ function PreLiquidadorModal({
     return base;
   }, [totalDineroLocal, totalExtras, totalAdicionales, fleteNetoLocal, tipoMov]);
 
+  const totalPagosAdicionados = useMemo(() => {
+    return pagosAdicionados.reduce((acc, p) => acc + parseFloat(p.monto || 0), 0);
+  }, [pagosAdicionados]);
+
+  const pend = useMemo(() => {
+    return Math.max(0, montoFinalLocal - totalPagosAdicionados);
+  }, [montoFinalLocal, totalPagosAdicionados]);
+
   const handleTodo = () => {
-    setPagoMonto(montoFinalLocal.toFixed(2));
+    setPagoMonto(pend.toFixed(2));
   };
 
   const handleFinalizar = () => {
-    onConfirm(preciosLocales, montoFinalLocal, pagoMetodo, pagoMonto);
+    const list = [...pagosAdicionados];
+    const currentMonto = parseFloat(pagoMonto) || 0;
+    if (currentMonto > 0) {
+      list.push({ metodo: pagoMetodo, monto: currentMonto });
+    }
+    onConfirm(preciosLocales, montoFinalLocal, list);
   };
 
   const isCompra = tipoMov === 'compra';
@@ -774,8 +788,35 @@ function PreLiquidadorModal({
           </div>
 
           <div className="border-t pt-4 space-y-3" style={{ borderColor: 'var(--border-subtle)' }}>
-            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>{labelPago}</p>
+            <p className="text-[10px] font-black uppercase tracking-widest" style={{ color: 'var(--text-secondary)' }}>
+              {labelPago} {pagosAdicionados.length > 0 && `(Pendiente: S/ ${pend.toFixed(2)})`}
+            </p>
             
+            {/* List of already added payments */}
+            {pagosAdicionados.length > 0 && (
+              <div className="space-y-1.5 max-h-24 overflow-y-auto mb-2">
+                {pagosAdicionados.map(p => (
+                  <div key={p.id} className="flex justify-between items-center px-3 py-2 rounded-xl text-xs" style={{ background: 'var(--white-alpha-3)', border: '1px solid var(--border-subtle)' }}>
+                    <div className="flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
+                      <span>
+                        {p.metodo === 'efectivo' ? '💵 Efectivo' : p.metodo === 'yape' ? '📱 Yape' : '🏦 Depósito'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>S/ {p.monto.toFixed(2)}</span>
+                      <button
+                        type="button"
+                        onClick={() => setPagosAdicionados(prev => prev.filter(x => x.id !== p.id))}
+                        className="text-red-400 font-bold text-sm bg-transparent border-none cursor-pointer hover:text-red-500"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="grid grid-cols-3 gap-2">
               {[
                 { k: 'efectivo', l: '💵 Efectivo' },
@@ -803,19 +844,44 @@ function PreLiquidadorModal({
                 <span className="font-bold text-xs mr-2" style={{ color: 'var(--text-tertiary)' }}>S/</span>
                 <input
                   type="number"
-                  placeholder={`Max S/ ${montoFinalLocal.toFixed(2)}`}
+                  placeholder={`Max S/ ${pend.toFixed(2)}`}
                   value={pagoMonto}
-                  onChange={(e) => setPagoMonto(e.target.value)}
-                  className="flex-1 bg-transparent border-none py-3 text-sm outline-none font-mono focus:ring-0"
+                  max={pend}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    const parsed = parseFloat(val);
+                    if (!isNaN(parsed) && parsed > pend) {
+                      setPagoMonto(pend.toFixed(2));
+                    } else {
+                      setPagoMonto(val);
+                    }
+                  }}
+                  disabled={pend <= 0}
+                  className="flex-1 bg-transparent border-none py-3 text-sm outline-none font-mono focus:ring-0 disabled:opacity-40"
                   style={{ color: 'var(--text-primary)' }}
                 />
               </div>
               <button
                 type="button"
                 onClick={handleTodo}
-                className="px-4 py-3 rounded-xl bg-blue-650/20 border border-blue-500/30 text-blue-650 dark:text-blue-400 text-xs font-black transition-all active:scale-95 cursor-pointer font-sans"
+                disabled={pend <= 0}
+                className="px-3 py-3 rounded-xl bg-blue-650/20 border border-blue-500/30 text-blue-650 dark:text-blue-400 text-xs font-black transition-all active:scale-95 cursor-pointer font-sans disabled:opacity-40"
               >
                 TODO
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const amt = parseFloat(pagoMonto);
+                  if (!isNaN(amt) && amt > 0) {
+                    setPagosAdicionados(prev => [...prev, { id: Date.now(), metodo: pagoMetodo, monto: amt }]);
+                    setPagoMonto('');
+                  }
+                }}
+                disabled={!pagoMonto || parseFloat(pagoMonto) <= 0 || pend <= 0}
+                className="px-4 py-3 rounded-xl bg-blue-650 text-white text-xs font-black transition-all active:scale-95 cursor-pointer font-sans disabled:opacity-40"
+              >
+                + Agregar
               </button>
             </div>
           </div>
@@ -1711,7 +1777,7 @@ export default function Compra() {
     }
   };
 
-  const finalizarConLiquidacion = async (preciosFinales, montoNetoFinal, pagoMetodo, pagoMonto) => {
+  const finalizarConLiquidacion = async (preciosFinales, montoNetoFinal, pagosAdicionados) => {
     if (uuidActivo) {
       setPrecios(preciosFinales);
 
@@ -1744,17 +1810,21 @@ export default function Compra() {
 
       await db.movimientos.where('uuid').equals(uuidActivo).modify(updateData);
 
-      // Registrar pago en db.transacciones_pago
-      const pMonto = parseFloat(pagoMonto);
-      if (pMonto > 0) {
-        await db.transacciones_pago.add({
-          id_movimiento: uuidActivo,
-          id_socio: existingMov?.id_socio || proveedorId || SENTINEL_ID,
-          monto: pMonto,
-          metodo: pagoMetodo,
-          fecha: finalFecha,
-          timestamp: Date.now()
-        });
+      // Registrar todos los pagos/cobros de la lista
+      if (Array.isArray(pagosAdicionados)) {
+        for (const p of pagosAdicionados) {
+          const pMonto = parseFloat(p.monto);
+          if (pMonto > 0) {
+            await db.transacciones_pago.add({
+              id_movimiento: uuidActivo,
+              id_socio: existingMov?.id_socio || proveedorId || SENTINEL_ID,
+              monto: pMonto,
+              metodo: p.metodo,
+              fecha: finalFecha,
+              timestamp: Date.now()
+            });
+          }
+        }
       }
 
       if (modoTransbordo && uuidVentaTB) {
